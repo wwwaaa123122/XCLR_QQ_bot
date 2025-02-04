@@ -138,13 +138,8 @@ class SetupWizard(SplitFluentWindow):
         # 定义 jianer_setup_about 中所有按钮的点击事件
         self.jianer_setup_about.NormalIconButton.clicked.connect(lambda: webbrowser.open("https://qm.qq.com/q/fsVJtsZcA2"))
         self.jianer_setup_about.NormalIconButton_2.clicked.connect(lambda: webbrowser.open("https://space.bilibili.com/1969160969"))
-<<<<<<< Updated upstream
-        self.jianer_setup_about.NormalIconButton_3.clicked.connect(lambda: webbrowser.open(""))
-        self.jianer_setup_about.NormalIconButton_4.clicked.connect(lambda: webbrowser.open(""))
-=======
         self.jianer_setup_about.NormalIconButton_3.clicked.connect(lambda: webbrowser.open("https://github.com/SRInternet-Studio/Jianer_QQ_bot/"))
         self.jianer_setup_about.NormalIconButton_4.clicked.connect(lambda: webbrowser.open("https://github.com/SRInternet-Studio/Jianer_QQ_bot/issues/new?"))
->>>>>>> Stashed changes
         self.jianer_setup_about.NormalIconButton_5.clicked.connect(lambda: webbrowser.open("https://www.sr-studio.cn/"))
         
         # 定义 jianer_setup_advanced 中的可选代理
@@ -191,8 +186,8 @@ class SetupWizard(SplitFluentWindow):
             self.jianer_setup_basic.LineEdit_2.text(), 
             self.jianer_setup_lgr.LineEdit.text(), 
             self.jianer_setup_lgr.LineEdit_6.text(), 
-            self.jianer_setup_ai.LineEdit.text(), 
             self.jianer_setup_ai.LineEdit_6.text(), 
+            self.jianer_setup_ai.LineEdit.text(), 
             self.jianer_setup_basic.LineEdit.text(), 
             self.jianer_setup_basic.LineEdit_6.text(),   
             self.jianer_setup_basic.LineEdit_2.text(), 
@@ -230,19 +225,11 @@ class SetupWizard(SplitFluentWindow):
                 self.jianer_setup_ai.LineEdit_6.setText(str(others["openai_key"]))
                 self.jianer_setup_basic.LineEdit.setText(str(others["bot_name"]))
                 self.jianer_setup_basic.LineEdit_6.setText(str(others["bot_name_en"]))
-<<<<<<< Updated upstream
-                self.jianer_setup_basic.LineEdit_2.setText("\n".join(others["ROOT_User"]))
-                self.jianer_setup_basic.PlainTextEdit.setPlainText("\n".join(others["Auto_approval"]))
-                self.jianer_setup_basic.LineEdit_5.setText(str(others["reminder"]))
-                self.jianer_setup_lgr.SplitPushButton.setCurrentText(str(data["Log_level"]))
-                self.jianer_setup_lgr.PlainTextEdit.setPlainText("\n".join(data["black_list"]))
-=======
                 self.jianer_setup_basic.LineEdit_2.setText("\n".join(str(item) for item in others["ROOT_User"]))
                 self.jianer_setup_basic.PlainTextEdit.setPlainText("\n".join(str(item) for item in others["Auto_approval"]))
                 self.jianer_setup_basic.LineEdit_5.setText(str(others["reminder"]))
                 self.jianer_setup_lgr.SplitPushButton.setCurrentText(str(data["Log_level"]))
                 self.jianer_setup_lgr.PlainTextEdit.setPlainText("\n".join(str(item) for item in data["black_list"]))
->>>>>>> Stashed changes
                 
         if os.path.isfile(".\\appsettings.json"):
             with open(".\\appsettings.json", "r", encoding="utf-8") as f:
@@ -257,9 +244,6 @@ class SetupWizard(SplitFluentWindow):
                 self.jianer_setup_basic.LineEdit_4.setText(str(Account["Uin"]))
                 self.jianer_setup_lgr.LineEdit.setText(str(Implementations["Host"]))
                 self.jianer_setup_lgr.LineEdit_6.setText(str(Implementations["Port"]))
-<<<<<<< Updated upstream
-                self.jianer_setup_advanced.SplitPushButton.setCurrentText(str(data["SignProxyUrl"]))
-=======
                 
                 print(str(data["SignServerUrl"]))
                 match str(data["SignServerUrl"]):
@@ -271,7 +255,6 @@ class SetupWizard(SplitFluentWindow):
                         self.jianer_setup_advanced.SplitPushButton.setCurrentIndex(2)
                     case _:
                         pass
->>>>>>> Stashed changes
             
     def save_settings(self):
         global config_content, appSettings_content
