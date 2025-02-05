@@ -12,5 +12,5 @@ httpx
 hyper-bot==0.78.2
 flask
 websocket-client
-pyside6
+PySide6==6.4.2
 PySide6-Fluent-Widgets
