@@ -1,0 +1,30 @@
+{
+  "owner": [
+    
+  ],
+  "black_list": [],
+  "silents": [
+    894446744
+  ],
+  "connection": {
+    "mode": "FWS",
+    "ob_auto_startup": false,
+    "ob_exec": ".",
+    "ob_startup_path": "",
+    "host": "127.0.0.1",
+    "port": 5004
+  },
+  "log_level": "INFO",
+  "max_workers": 25,
+  "protocol": "OneBot",
+  "others": {
+    "gemini_key": "",
+    "openai_key": "",
+    "bot_name": "",
+    "bot_name_en": "",
+    "ROOT_User": "",
+    "Auto_approval": "",
+    "reminder": "!-"
+  },
+  "uin": 0
+}
