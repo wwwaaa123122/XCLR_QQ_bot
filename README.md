@@ -17,6 +17,13 @@
 ###### [在 Bilibili 上关注我们，时刻了解最新发明 →](https://space.bilibili.com/1969160969)
 </div>
 
+## 重要（阅前注意）
+![0d628761eb8e7b250cdaf354c067d635](https://github.com/user-attachments/assets/97b94767-dcf2-423f-aa3e-2697c3f753c1)
+
+遇事不决，先看 Wiki
+
+疑难杂症，请发 Issue
+
 ## 特性
 > [!TIP]
 > 
