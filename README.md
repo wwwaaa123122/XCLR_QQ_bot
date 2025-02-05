@@ -54,18 +54,22 @@
 - [x] runcommand 执行系统命令
 
 ## 快速开始：部署和启动
-简儿 有~~十分nb~~的可视化配置界面向导，更加准确不易出错。如果您是第一次使用或想要学习，请务必要先配置。
+简儿 有~~十分nb~~的可视化配置界面向导，更加准确不易出错。如果您是第一次使用或想要学习，**请务必要先配置**。
 
-[点此查看详细配置文档](https://github.com/SRInternet-Studio/Jianer_QQ_bot/wiki/Start-Quickly)
+[**1. 快速开始**](https://github.com/SRInternet-Studio/Jianer_QQ_bot/wiki/Start-Quickly)
+
+[**2. 配置AI功能**](https://github.com/SRInternet-Studio/Jianer_QQ_bot/wiki/Configuring-AI-Functions)
 
 ## 问题反馈
-反馈问题可以到:[我要反馈](https://github.com/SRInternet/Jianer_QQ_bot/issues/new)issuse，你也可以通过我们的邮箱srinternet@qq.com进行反馈
+反馈问题可以到：[我要反馈](https://github.com/SRInternet-Studio/Jianer_QQ_bot/issues/new)
 
-PS:反馈问题时，请带上软件当时的截图，方便我们查看报错信息
+你也可以通过我们的邮箱 ```srinternet@qq.com``` 进行反馈
+
+PS:反馈问题时，**请带上软件当时的截图**，方便我们查看报错信息
 
 ## 支持我们 （纯属自愿）
 1.  [爱发电](https://afdian.com/a/srinternet)
-您的支持能让我们变的更好！！！！！！1
+您的支持能让我们变的更好！！！！！！
 
 ## 声明和鸣谢
 本项目框架 HypeR_Bot 由 [@HarcicYang](https://github.com/HarcicYang) 开发
@@ -77,4 +81,4 @@ HypeR_Bot 官方文档:[@github.io](https://harcicyang.github.io/hyper-bot)
 <div align="center">
 <br>
 <img src='https://github.com/user-attachments/assets/5dfe6517-b6d3-4fc3-ab9f-40132ee8316e' alt='sr-ico' height="200" width="200"></img></a>
-<h2>Made in 思锐工作室<h2/>
+<h2>Made by 思锐工作室<h2/>
