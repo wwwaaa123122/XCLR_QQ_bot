@@ -12,7 +12,7 @@
 ![简儿2发布-封面](https://github.com/user-attachments/assets/547b2594-1348-47d1-9bdc-59bcb860e88c)
 #### 📺[观看介绍视频](https://www.bilibili.com/video/BV1hMPBedEMM/) | [ 加入官方QQ群](https://qm.qq.com/q/f3QGDkdp6M)
 
-#### [🌐 产品中心 ](qpp.sr-studio.cn)｜[💖 支持我们 ](https://afdian.com/a/srinternet)｜[📝 反馈问题](https://github.com/SRInternet-Studio/Jianer_QQ_bot/issues)
+#### [🌐 产品中心 ](https://app.sr-studio.cn)｜[💖 支持我们 ](https://afdian.com/a/srinternet)｜[📝 反馈问题](https://github.com/SRInternet-Studio/Jianer_QQ_bot/issues)
 
 ###### [在 Bilibili 上关注我们，时刻了解最新发明 →](https://space.bilibili.com/1969160969)
 </div>
@@ -22,7 +22,7 @@
 > 
 > 在QQ群中@简儿 可以查看更详细的帮助内容
 > 
-> 建议先观看[视频教程](www.bilibili.com/video/BV1hMPBedEMM/)，了解更加充分
+> 建议先观看[视频教程](https://www.bilibili.com/video/BV1hMPBedEMM/)，了解更加充分
 ### AI
 
 - [x] 原生免费
