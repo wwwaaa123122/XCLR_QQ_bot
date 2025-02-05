@@ -1,78 +1,80 @@
-# Jianer_QQ_bot
+<div align="center">
 
- OneBot v11，群管，AI，娱乐，新一代QQ群机器人。
+# <image src="https://github.com/user-attachments/assets/f63cbae0-7251-496b-b493-6e695ac1b25f" height="45"/>  简儿 Jianer QQ bot
+<img src="https://img.shields.io/badge/OneBot-11-black?logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHAAAABwCAMAAADxPgR5AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAAxQTFRF////29vbr6+vAAAAk1hCcwAAAAR0Uk5T////AEAqqfQAAAKcSURBVHja7NrbctswDATQXfD//zlpO7FlmwAWIOnOtNaTM5JwDMa8E+PNFz7g3waJ24fviyDPgfhz8fHP39cBcBL9KoJbQUxjA2iYqHL3FAnvzhL4GtVNUcoSZe6eSHizBcK5LL7dBr2AUZlev1ARRHCljzRALIEog6H3U6bCIyqIZdAT0eBuJYaGiJaHSjmkYIZd+qSGWAQnIaz2OArVnX6vrItQvbhZJtVGB5qX9wKqCMkb9W7aexfCO/rwQRBzsDIsYx4AOz0nhAtWu7bqkEQBO0Pr+Ftjt5fFCUEbm0Sbgdu8WSgJ5NgH2iu46R/o1UcBXJsFusWF/QUaz3RwJMEgngfaGGdSxJkE/Yg4lOBryBiMwvAhZrVMUUvwqU7F05b5WLaUIN4M4hRocQQRnEedgsn7TZB3UCpRrIJwQfqvGwsg18EnI2uSVNC8t+0QmMXogvbPg/xk+Mnw/6kW/rraUlvqgmFreAA09xW5t0AFlHrQZ3CsgvZm0FbHNKyBmheBKIF2cCA8A600aHPmFtRB1XvMsJAiza7LpPog0UJwccKdzw8rdf8MyN2ePYF896LC5hTzdZqxb6VNXInaupARLDNBWgI8spq4T0Qb5H4vWfPmHo8OyB1ito+AysNNz0oglj1U955sjUN9d41LnrX2D/u7eRwxyOaOpfyevCWbTgDEoilsOnu7zsKhjRCsnD/QzhdkYLBLXjiK4f3UWmcx2M7PO21CKVTH84638NTplt6JIQH0ZwCNuiWAfvuLhdrcOYPVO9eW3A67l7hZtgaY9GZo9AFc6cryjoeFBIWeU+npnk/nLE0OxCHL1eQsc1IciehjpJv5mqCsjeopaH6r15/MrxNnVhu7tmcslay2gO2Z1QfcfX0JMACG41/u0RrI9QAAAABJRU5ErkJggg==" alt="Badge">
+<img src="https://img.shields.io/badge/Language-Python-coral" alt="Language">
+<img src="https://img.shields.io/static/v1?label=LICENSE&message=GPL-3.0&color=lightrey" alt="Badge">
+<img alt="GitLab Stars" src="https://img.shields.io/github/stars/SRInternet-Studio/Jianer_QQ_bot?label=Stars">
 
+简儿 是一款基于 OneBot v11 框架自主开发的新一代QQ机器人，拥有丰富的功能，具有高实用价值和娱乐价值，<br/>
+除了基本的多模型AI对话之外，简儿还支持入群欢迎、图片生成、禁言或踢人等多个娱乐或群管功能。<br/>
 
-## 功能
+![简儿2发布-封面](https://github.com/user-attachments/assets/547b2594-1348-47d1-9bdc-59bcb860e88c)
+#### 📺[观看介绍视频](https://www.bilibili.com/video/BV1hMPBedEMM/) | [ 加入官方QQ群](https://qm.qq.com/q/f3QGDkdp6M)
 
-- 智能AI聊天(Google Gemini2 & ChatGPT 3.5 /4)
-- 群管功能 冷静 撤回 自动审批
-- 名言 将消息载入史册
-- 生图 (ACG & P1x1v)
-- 大头照
-- 便携的交流方式 [见 [Preview](#preview)]
+#### [🌐 产品中心 ](https://app.sr-studio.cn)｜[💖 支持我们 ](https://afdian.com/a/srinternet)｜[📝 反馈问题](https://github.com/SRInternet-Studio/Jianer_QQ_bot/issues)
 
+###### [在 Bilibili 上关注我们，时刻了解最新发明 →](https://space.bilibili.com/1969160969)
+</div>
 
-### Preview
+## 特性
+> [!TIP]
+> 
+> 在QQ群中@简儿 可以查看更详细的帮助内容
+> 
+> 建议先观看[视频教程](https://www.bilibili.com/video/BV1hMPBedEMM/)，了解更加充分
+### AI
 
-QQ群: 983497968
+- [x] 原生免费
+- [x] 原生自带 Google Gemini 2.0 Thinking 推理模型，ChatGPT 4o-mini 和 ChatGPT 3.5-turbo 模型
+- [x] 最高支持自定义三个不同模型
+- [x] 支持自定义三种不同预设提示词
+- [x] 运行时清空上下文
 
-## 部署
+### 娱乐
 
-理论上全平台通用, 安装了 Python >= **3.9** 即可 (建议: **3.10+**)
+- [x] 支持 ACG 生图，生成壁纸和头像统统不在话下
+- [x] 支持 Pixiv 生图，根据群友给定的标签搜寻 Pixiv
+- [x] 名言功能，讲群友说过的话载入史册（文字转图片保存）
+- [x] 大头照功能，将群友的头像发在群里
 
-1. Clone 本仓库 (建议先 Fork / Use this template)
+### 群管
+- [x] 撤回
+- [x] 禁言
+- [x] 移出群聊
+- [x] 查看运行状态
+- [x] 修改定时群发消息
+- [x] 加群自动审批
+- [x] 根据QQ号核验账户信息
+- [x] ......
 
-```shell
-git clone https://github.com/SRInternet-Studio/Jianer_QQ_bot.git
-```
+### 其它特色
 
-2. 安装依赖
+- [x] 入群欢迎
+- [x] runcommand 执行系统命令
 
-```shell
-pip install pyside6
-pip install PySide6-Fluent-Widgets
-pip install -r requirements.txt
-```
-国内服务器可使用清华源或者其他源 在后面加上
-```shell
--i https://pypi.tuna.tsinghua.edu.cn/simple
-```
-3. 配置Bot
-> **Linux(没有桌面)的用户可先在Win上启动配置程序,保存配置后将根目录下的"appsettings.json"和"config.json"复制到服务器即可**
+## 快速开始：部署和启动
+简儿 有~~十分nb~~的可视化配置界面向导，更加准确不易出错。如果您是第一次使用或想要学习，请务必要先配置。
 
-先启动配置程序:
+[点此查看详细配置文档](https://github.com/SRInternet-Studio/Jianer_QQ_bot/wiki/Start-Quickly)
 
-```shell
-python SetupWizard.pyw
-```
+## 问题反馈
+反馈问题可以到:[我要反馈](https://github.com/SRInternet/Jianer_QQ_bot/issues/new)issuse，你也可以通过我们的邮箱srinternet@qq.com进行反馈
 
-如果不出意外，会打开配置页面,将配置项目完成后,点击核对并应用设置,点击应用
+PS:反馈问题时，请带上软件当时的截图，方便我们查看报错信息
 
+## 支持我们 （纯属自愿）
+1.  [爱发电](https://afdian.com/a/srinternet)
+您的支持能让我们变的更好！！！！！！1
 
+## 声明和鸣谢
+本项目框架 HypeR_Bot 由 [@HarcicYang](https://github.com/HarcicYang) 开发
 
-## 使用
-> **一定要先启动协议端(Lagrange),再启动主程序,不然会导致WARN 连接建立失败**
-> **Linux用户可先在Win上启动配置程序,保存配置后将根目录下的"appsettings.json"和"config.json"复制到服务器即可**
-
-启动协议端:
-```shell
-# Win
-双击 Lagrange.OneBot.exe
-# Linux
-#先下载Lagrange Github地址:https://github.com/LagrangeDev/Lagrange.Core/releases/tag/nightly
-#假设下载的文件名为lgr
-chmod +x ./lgr
-./lgr
-#启动后均扫码登录即可
-```
-启动BOT主程序
-```shell
-python main.py
-```
-看到 ℹ️ INFO 成功建立连接 的日志，即表明与 OneBot实现对接成功。enjoy it!
-## 关于
-
-本项目框架 HypeR_Bot 由 HarcicYang [@HarcicYang Github](https://github.com/HarcicYang) 开发
 HypeR_Bot Github地址:[@Github](https://github.com/HarcicYang/HypeR_Bot)
+
 HypeR_Bot 官方文档:[@github.io](https://harcicyang.github.io/hyper-bot)
+
+<div align="center">
+<br>
+<img src='https://github.com/user-attachments/assets/5dfe6517-b6d3-4fc3-ab9f-40132ee8316e' alt='sr-ico' height="200" width="200"></img></a>
+<h2>Made in 思锐工作室<h2/>

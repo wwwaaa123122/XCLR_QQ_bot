@@ -23,7 +23,6 @@ from typing import Set
 from PIL import Image
 import io
 import threading
-import paramiko
 
 # import framework
 Configurator.cm = Configurator.ConfigManager(Configurator.Config(file="config.json").load_from_file())
