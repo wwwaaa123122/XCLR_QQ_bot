@@ -23,6 +23,7 @@ from typing import Set
 from PIL import Image
 import io
 import threading
+import paramiko
 
 # import framework
 Configurator.cm = Configurator.ConfigManager(Configurator.Config(file="config.json").load_from_file())
@@ -49,6 +50,7 @@ second_start = time.time()
 EnableNetwork = "Pixmap"
 user_lists = {}
 in_timing = False
+emoji_send_count: datetime = None
 
 generating = False
 
@@ -319,8 +321,13 @@ Welcome! {bot_name} was restarted successfully. Now you can send {reminder}帮�
         #             pass
         #         break
 
+        global emoji_send_count
         if has_emoji(user_message):
-            await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(user_message)))
+            if emoji_send_count is None or datetime.datetime.now() - emoji_send_count > datetime.timedelta(seconds=15):
+                await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(user_message)))
+                emoji_send_count = datetime.datetime.now()
+            else:
+                print(f"emoji +1 延迟 {abs(datetime.datetime.now() - emoji_send_count)} s")
         
         if user_message.startswith(reminder):
             order_i = user_message.find(reminder)
