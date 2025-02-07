@@ -105,9 +105,7 @@ class ContextManager:
 
 cmc = ContextManager()
              
-def has_emoji(s: str) -> bool:
-    # 判断找到的 emoji 数量是否为 1 并且字符串的长度大于等于 1
-    return emoji.emoji_count(s) == 1 and len(s) == 1
+
 
 def timing_message(actions: Listener.Actions):
 
@@ -319,8 +317,7 @@ Welcome! {bot_name} was restarted successfully. Now you can send {reminder}帮�
         #             pass
         #         break
 
-        if has_emoji(user_message):
-            await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(user_message)))
+
         
         if user_message.startswith(reminder):
             order_i = user_message.find(reminder)
