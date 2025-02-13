@@ -19,7 +19,7 @@
 </div>
 
 ## 重要（阅前注意）
-![0d628761eb8e7b250cdaf354c067d635](https://github.com/user-attachments/assets/97b94767-dcf2-423f-aa3e-2697c3f753c1)
+![image](https://github.com/user-attachments/assets/ddbb5f6f-8ce7-4824-afd1-57badd8e6337)
 
 遇事不决，先看 Wiki
 
