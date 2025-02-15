@@ -202,7 +202,7 @@ cached_content=None)```
 > 日志类型模块，详见[文档](https://harcicyang.github.io/hyper-bot/more/classes.html#logger-py)
 
 5. ```'Manager'```
-> 消息内容模块，如 Manager.Message 标题一条消息，详见[文档](https://harcicyang.github.io/hyper-bot/more/classes.html#manager-%E6%A8%A1%E5%9D%97)
+> 消息内容模块，如 Manager.Message 表示一条消息，详见[文档](https://harcicyang.github.io/hyper-bot/more/classes.html#manager-%E6%A8%A1%E5%9D%97)
 
 6. ```'Segments'```
 > 消息类型模块，如 Segments.At 表示@一个人 的消息内容、 Segments.Text 表示纯文本消息内容、 Segments.Image 表示图片消息内容、 Segments.Video 表示视频消息内容、 Segments.Reply 表示回复一条消息的消息内容，以此类推。详见[文档](https://harcicyang.github.io/hyper-bot/more/classes.html#segments-%E6%A8%A1%E5%9D%97)
