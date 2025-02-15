@@ -217,7 +217,7 @@ cached_content=None)```
 > 已加载的插件模块列表，可以直接调用其中的插件，也就可以实现插件调用其他插件的效果，但请注意传参规范，详见 ```main.py``` 中的 ```execute_plugin``` 方法
 
 2. ```'event'```
-> 当前已被触发的消息事件类型，通过判断其是 ```Events``` 的哪一个子目可以判断当前用户正在执行什么操作可以[在这里](https://github.com/botuniverse/onebot-11/blob/master/event/README.md)找到它的更多有趣用法。
+> 当前已被触发的消息事件类型，通过判断其是 ```Events``` 的哪一个子目可以判断当前用户正在执行什么操作。可以[在这里](https://github.com/botuniverse/onebot-11/blob/master/event/README.md)找到它的更多有趣用法。
 
 3. ```'actions'```
 > 行动，用于操作机器人执行一系列操作，例如 ```actions.send()``` 可以操作QQ机器人向群内发送某些内容。可以[在这里](https://github.com/botuniverse/onebot-11/blob/master/api/public.md)找到它的更多有趣用法。
