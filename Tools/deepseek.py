@@ -1,0 +1,83 @@
+import openai
+import traceback
+
+
+class dsr114():
+    def __init__(self, prompt, message, user_lists, uid, mode, bn, key) -> None:
+        self.prompt = prompt
+        self.message = message
+        self.user_lists = user_lists
+        self.uid = uid
+        self.bn = bn
+        self.mode = mode
+        self.key = key
+
+    def Response(self):
+        try:
+            mode = self.mode #"deepseek-chat" or "deepseek-reasoner"
+            input_data = self.message
+            user_lists = self.user_lists
+            uid = str(self.uid) 
+            system_message = {"role": "system", "content": self.prompt} 
+
+
+            if uid not in user_lists:
+                user_lists[uid] = [system_message]
+            else:
+                user_input: list = user_lists[uid]
+                if len(user_input) > 0 and user_input[0]["role"] != "system":
+                    user_input = [msg for msg in user_input if msg['role'] != 'system']
+                    user_input.insert(0,system_message) # Insert at the beginning
+            user_input: list = user_lists[uid]
+            history_limit = 7 
+            if len(user_input) > history_limit + 1: 
+                num_to_remove = len(user_input) - (history_limit + 1)
+                user_input = [user_input[0]] + user_input[num_to_remove + 1:] 
+
+            user_input.append({"role": "user", "content": input_data})
+
+
+
+            print(str(self.uid) + " 的上下文：" + str(len(user_input)))
+
+
+            openai.api_key = self.key
+
+            openai.base_url = "https://api.deepseek.com/"
+            openai.default_headers = {"x-foo": "true"}
+
+            try:
+                chat_completion = openai.chat.completions.create(
+                    messages=user_input,
+                    model=mode,
+                )
+
+                result = chat_completion.choices[0].message.content
+                user_input.append({"role": "assistant", "content": result})
+                user_lists[uid] = user_input 
+
+            except openai.NotFoundError as e:
+                print(f"OpenAI API Error: {e}")
+                result = f"模型 '{mode}' 无法找到. 请检查模型名称是否正确，以及你的API KEY是否有权限访问该模型。\
+{self.bn}发生错误，不能回复你的消息了，请稍候再试吧 ε(┬┬﹏┬┬)3"
+
+            except openai.PermissionDeniedError as e:
+                error_response = str(e)
+                if 'insufficient_user_quota' in error_response:
+                    result = f"无效的 API KEY 是因为 配额已用尽 。\
+{self.bn}发生错误，不能回复你的消息了，请稍候再试吧 ε(┬┬﹏┬┬)3"
+                else:
+                    raise  
+            except openai.BadRequestError as e:
+                print(f"Deepseek bad request Error: {e}")
+                result = f"与deepseek通信出现问题: {e}。\
+{self.bn}发生错误，不能回复你的消息了，请稍候再试吧 ε(┬┬﹏┬┬)3"
+
+            print("简儿回复：" + result)
+
+            return user_lists, result
+
+        except Exception as e:
+            print(traceback.format_exc())
+            return self.user_lists, f"{type(e)}\
+{self.bn}发生错误，不能回复你的消息了，请稍候再试吧 ε(┬┬﹏┬┬)3"
