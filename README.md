@@ -8,7 +8,7 @@
 <img alt="GitLab Stars" src="https://img.shields.io/github/stars/SRInternet-Studio/Jianer_QQ_bot?label=Stars">
 
 基于 HypeR 和 OneBot v11 框架，自研插件生态的新一代QQ机器人<br/>
-多模型AI对话、插件市场、入群欢迎、图片生成、禁言或踢人等娱乐和群管助手<br/>
+[多模型AI对话](#AI)、[插件市场](https://github.com/IntelliMarkets/Jianer_Plugins_Index)、入群欢迎、图片生成、禁言或踢人等娱乐和群管助手<br/>
 
 #### [加入官方QQ群](https://qm.qq.com/q/f3QGDkdp6M)
 
