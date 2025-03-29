@@ -28,7 +28,7 @@
 - [x] Deepseek
 - [x] Google Gemini
 - [x] ChatGPT
-- [x] EdgeTTS/GPT-Sovits 语音回复
+- [x] EdgeTTS 语音回复
 - [x] 按照单个用户分别存储的预设和上下文管理器
 - [x] 在群聊中设置角色扮演，或清空上下文
 
