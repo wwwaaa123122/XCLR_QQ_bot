@@ -13,5 +13,5 @@ hyper-bot==0.78.2
 flask
 websocket-client
 paramiko>=3.5.1
-PySide6==6.4.2
+PySide6
 PySide6-Fluent-Widgets
