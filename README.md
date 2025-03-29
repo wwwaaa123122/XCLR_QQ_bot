@@ -19,7 +19,7 @@
 </div>
 
 ## 重要（阅前注意）
-![螢幕擷取畫面 2025-02-13 201127](https://github.com/user-attachments/assets/abc2a2a3-aa75-4b92-afad-0da813d9ce56)
+
 
 遇事不决，先看 Wiki
 
