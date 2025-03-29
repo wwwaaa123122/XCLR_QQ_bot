@@ -16,6 +16,8 @@
 
 ###### [在 Bilibili 上关注我们，时刻了解最新发明 →](https://space.bilibili.com/1969160969)
 
+</div>
+
 ## 特性
 > [!TIP]
 > 
@@ -57,6 +59,9 @@
 
 ## 部署，配置
 **在正式开始使用简儿之前，你需要完成相关配置以确保正常启动**。
+> [!Note]
+> 
+> 你无法在此分支中使用设置向导。预览版分支不包含图形化配置。
 
 [**1. 快速开始**](https://github.com/SRInternet-Studio/Jianer_QQ_bot/wiki/Start-Quickly)
 
