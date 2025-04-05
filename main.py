@@ -375,21 +375,6 @@ def Write_Settings(s: list, m: list) -> bool:
 
 @Listener.reg
 @Logic.ErrorHandler().handle_async
-# @Logger.AutoLogAsync.register(Logger.AutoLog.templates().leave, logger)
-# async def set_group_leave(self, group_id: int, is_dismiss: bool) -> None:
-#         Manager.Packet(
-#             "set_group_leave",
-#             group_id=group_id,
-#             is_dismiss=is_dismiss,
-#         ).send_to(self.connection)
-# @Logger.AutoLogAsync.register(Logger.AutoLog.templates().friendadd, logger)
-# async def set_friend_add_request(self, flag: str, approve: bool, remark: str) -> None:
-#         Manager.Packet(
-#             "set_friend_add_request",
-#             flag=flag,
-#             approve=approve,
-#             remark=remark,
-#         ).send_to(self.connection)
 async def handler(event: Events.Event, actions: Listener.Actions) -> None:
     global in_timing, bot_name, bot_name_en, reminder, ONE_SLOGAN
 
@@ -534,7 +519,7 @@ Welcome! {bot_name} was restarted successfully. Now you can send {reminder}帮�
 
         if f"{reminder}重启" == user_message:
             if str(event.user_id) in Super_User or str(event.user_id) in ROOT_User or str(event.user_id) in Manage_User:
-                await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(f"Restarting in progress……")))
+                await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(f"正在重启{bot_name}－O－……")))
 
                 try:
                     with open("restart.temp", "w" ,encoding="utf-7") as f:
@@ -587,7 +572,7 @@ Welcome! {bot_name} was restarted successfully. Now you can send {reminder}帮�
                 if not found_path:
                     await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(f'''{bot_name} {bot_name_en} - {ONE_SLOGAN}
 ————————————————————
-Failed: {plugin_name} could not be found.''')))
+失败: 找不到插件 {plugin_name}。''')))
                     return
 
                 dirname, basename = os.path.split(found_path)
@@ -602,7 +587,7 @@ Failed: {plugin_name} could not be found.''')))
 
                 await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(f'''{bot_name} {bot_name_en} - {ONE_SLOGAN}
 ————————————————————
-{plugin_name} has been disabled successfully.''')))
+插件 {plugin_name} 已经成功启用''')))
             else:
                 await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(f"不能这么做！那是一块丞待开发的禁地，可能很危险，{bot_name}很胆小……꒰>﹏< ꒱")))
 
@@ -635,7 +620,7 @@ Failed: {plugin_name} could not be found.''')))
                 if not found_path:
                     await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(f'''{bot_name} {bot_name_en} - {ONE_SLOGAN}
 ————————————————————
-Failed: {plugin_name} could not be found.''')))
+失败: 找不到插件 {plugin_name}。''')))
                     return
 
                 dirname, basename = os.path.split(found_path)
@@ -649,7 +634,7 @@ Failed: {plugin_name} could not be found.''')))
 
                 await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(f'''{bot_name} {bot_name_en} - {ONE_SLOGAN}
 ————————————————————
-{plugin_name} has been enabled successfully.''')))
+插件 {plugin_name} 已经成功启用''')))
             else:
                 await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(f"不能这么做！那是一块丞待开发的禁地，可能很危险，{bot_name}很胆小……꒰>﹏< ꒱")))
 
@@ -720,12 +705,12 @@ Failed: {plugin_name} could not be found.''')))
                         with open(blacklist_file, "w", encoding="utf-8") as f:
                          for item in blacklist114:
                             f.write(item + "\n")  # 防止之前的丟失555，并添加换行符
-                        await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(f"黑名單添加成功,現列表:{blacklist114}")))
+                        await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(f"黑名单添加成功\n现在的黑名单: {blacklist114}")))
             
                     except Exception as e:
-                       await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(f"黑名單添加失败,原因:{e}")))
+                       await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(f"黑名单添加失败, 是因为\n{e}")))
                 else:
-                    await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(f"黑名單添加失败,原因:群{Toset2}已在黑名單！")))
+                    await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(f"黑名单添加失败,是因为{Toset2}已在黑名单")))
             else:
                 await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(f"不能这么做！那是一块丞待开发的禁地，可能很危险，{bot_name}很胆小……꒰>﹏< ꒱")))
         elif "删除黑名单 " in order:
@@ -739,11 +724,11 @@ Failed: {plugin_name} could not be found.''')))
                         with open(blacklist_file, "w", encoding="utf-8") as f:
                          for item in blacklist117:
                             f.write(item + "\n")  # 防止之前的丟失555，并添加换行符
-                        await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(f"黑名單刪除成功,現列表:{blacklist117}")))
+                        await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(f"黑名单删除成功\n现在黑名单: {blacklist117}")))
                     except Exception as e:
-                       await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(f"黑名單刪除失败,原因:{e}")))
+                       await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(f"黑名单删除失败, 是因为\n{e}")))
                 else:
-                    await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(f"黑名單刪除失败,原因:群{Toset1}不在黑名單！")))
+                    await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(f"黑名单删除失败, 是因为群{Toset1}不在黑名单")))
             else:
                 await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(f"不能这么做！那是一块丞待开发的禁地，可能很危险，{bot_name}很胆小……꒰>﹏< ꒱")))
             
@@ -756,7 +741,7 @@ Failed: {plugin_name} could not be found.''')))
                 if Toset in ROOT_User:
                     r = f'''{bot_name} {bot_name_en} - {ONE_SLOGAN}
 ————————————————————
-Failed: The specified user is a ROOT_User and group ROOT_User is read only.'''
+失败：指定的用户是 ROOT_User 且组 ROOT_User 为只读。'''
                 else:
                     if Toset in s:
                         s.remove(Toset)
@@ -766,12 +751,12 @@ Failed: The specified user is a ROOT_User and group ROOT_User is read only.'''
                     if Write_Settings(s, m):
                         r = f'''{bot_name} {bot_name_en} - {ONE_SLOGAN}
 ————————————————————
-Succeeded: @{Toset} is a Common User now.
-Now use {reminder}帮助 to know what permissions you have now.'''
+成功: @{Toset} 现在是一个普通用户了。
+现在发送 {reminder}帮助 了解你拥有的权限。'''
                     else:
                         r = f'''{bot_name} {bot_name_en} - {ONE_SLOGAN}
 ————————————————————
-Failed: Settings files are not writeable.'''
+失败：设置文件不可写。'''
             else:
                 r  = f"不能这么做！那是一块丞待开发的禁地，可能很危险，{bot_name}很胆小……꒰>﹏< ꒱"
 
@@ -789,7 +774,7 @@ Failed: Settings files are not writeable.'''
                     if len(nikename) == 0:
                         r = f'''{bot_name} {bot_name_en} - {ONE_SLOGAN}
 ————————————————————
-Failed: {Toset} is not a valid user.'''
+失败: {Toset} 不是一个有效的用户。'''
                     else:
                         nikename = nikename['nickname']
                         m = Manage_User
@@ -797,34 +782,34 @@ Failed: {Toset} is not a valid user.'''
                         if Toset in Manage_User:
                             r = f'''{bot_name} {bot_name_en} - {ONE_SLOGAN}
 ————————————————————
-Succeeded: {nikename}(@{Toset}) has become a Manage_User.'''
+成功: {nikename}(@{Toset}) 已加入管理组 Manage_User 。'''
                         elif Toset in Super_User:
                             s.remove(Toset)
                             m.append(Toset)
                             if Write_Settings(s, m):
                                 r = f'''{bot_name} {bot_name_en} - {ONE_SLOGAN}
 ————————————————————
-Succeeded: {nikename}(@{Toset}) has become a Manage_User.
+成功: {nikename}(@{Toset}) 已加入管理组 Manage_User 。
 Now use {reminder}帮助 to know what permissions you have now.'''
                             else:
                                 r = f'''{bot_name} {bot_name_en} - {ONE_SLOGAN}
 ————————————————————
-Failed: Settings files are not writeable.'''
+失败: 设置文件不可写。'''
                         elif Toset in ROOT_User:
                             r = f'''{bot_name} {bot_name_en} - {ONE_SLOGAN}
 ————————————————————
-Failed: The specified user is a ROOT_User and group ROOT_User is read only.'''
+失败：指定的用户是 ROOT_User 且组 ROOT_User 为只读。'''
                         else:
                             m.append(Toset)
-                            if Write_Settings(s, m):
+                            if Write_zSettings(s, m):
                                 r = f'''{bot_name} {bot_name_en} - {ONE_SLOGAN}
 ————————————————————
-Succeeded: {nikename}(@{Toset}) has become a Manage_User.
-Now use {reminder}帮助 to know what permissions you have now.'''
+成功: {nikename}(@{Toset}) 已加入管理组 Manage_User 。
+现在发送 {reminder}帮助 了解你拥有的权限。'''
                             else:
                                 r = f'''{bot_name} {bot_name_en} - {ONE_SLOGAN}
 ————————————————————
-Failed: Settings files are not writeable.'''
+失败: 设置文件不可写'''
           
                        
                 elif "管理 S " in order:
@@ -835,7 +820,7 @@ Failed: Settings files are not writeable.'''
                     if len(nikename) == 0:
                         r = f'''{bot_name} {bot_name_en} - {ONE_SLOGAN}
 ————————————————————
-Failed: {Toset} is not a valid user.'''
+失败: {Toset} 不是一个有效的用户'''
                     else:
                         nikename = nikename['nickname']
                         m = Manage_User
@@ -846,36 +831,36 @@ Failed: {Toset} is not a valid user.'''
                             if Write_Settings(s, m):
                                 r = f'''{bot_name} {bot_name_en} - {ONE_SLOGAN}
 ————————————————————
-Succeeded: {nikename}(@{Toset}) has become a Super_User.
-Now use {reminder}帮助 to know what permissions you have now.'''
+成功: {nikename}(@{Toset}) 已加入管理组 Super_User 。
+现在发送 {reminder}帮助 了解你拥有的权限。'''
                             else:
                                 r = f'''{bot_name} {bot_name_en} - {ONE_SLOGAN}
 ————————————————————
-Failed: Settings files are not writeable.'''
+失败：设置文件不可写。'''
                         elif Toset in Super_User:
                             r = f'''{bot_name} {bot_name_en} - {ONE_SLOGAN}
 ————————————————————
-Succeeded: {nikename}(@{Toset}) has become a Super_User.'''
+成功: {nikename}(@{Toset}) 已加入管理组 Super_User 。'''
                         elif Toset in ROOT_User:
                             r = f'''{bot_name} {bot_name_en} - {ONE_SLOGAN}
 ————————————————————
-Failed: The specified user is a ROOT_User and group ROOT_User is read only.'''
+失败：指定的用户是 ROOT_User 且组 ROOT_User 为只读。'''
                         else:
                             s.append(Toset)
                             if Write_Settings(s, m):
                                 r = f'''{bot_name} {bot_name_en} - {ONE_SLOGAN}
 ————————————————————
-Succeeded: {nikename}(@{Toset}) has become a Super_User.
-Now use {reminder}帮助 to know what permissions you have now.'''
+成功: {nikename}(@{Toset}) 已加入管理组 Super_User 。
+现在发送 {reminder}帮助 了解你拥有的权限。'''
                             else:
                                 r = f'''{bot_name} {bot_name_en} - {ONE_SLOGAN}
 ————————————————————
-Failed: Settings files are not writeable.'''
+失败：设置文件不可写。'''
 
                 else:
                     r = f'''{bot_name} {bot_name_en} - {ONE_SLOGAN}
 ————————————————————
-Failed: Only Manage_User or Super_User could be set.'''
+失败：只能设置 Manage_User 或 Super_User 。'''
             else:
                 r  = f"不能这么做！那是一块丞待开发的禁地，可能很危险，{bot_name}很胆小……꒰>﹏< ꒱"
 
@@ -970,7 +955,8 @@ If you are a Super_User or ROOT_User, you can manage these users. Use {reminder}
                 content = help_message()
             else:
                 content = '''你要询问什么呢？嘻嘻(●'◡'●)
-和我聊天不需要@我哟(＾Ｕ＾)ノ~'''
+和我聊天不需要@我哟(＾Ｕ＾)ノ~
+直接在你想对{bot.name}想说的话前面加上 {reminder} 就行啦'''
 
             await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(content)))
 
@@ -978,12 +964,12 @@ If you are a Super_User or ROOT_User, you can manage these users. Use {reminder}
             global version_name
             about = f'''{bot_name} {bot_name_en} - {ONE_SLOGAN}
 ————————————————————
-Build Information
-Version：{version_name}
-Powered by Lagrange.OneBot
-Made with HypeR_bot Framework
+构建信息：
+版本：{version_name}
+由 Lagrange.OneBot 驱动
+基于 HypeR_bot 框架制作
 ————————————————————
-Third-party API
+第三方API
 1. Mirokoi API
 2. Lolicon API
 2. LoliAPI API
@@ -993,9 +979,7 @@ Third-party API
 7. GPT-SoVITS
 8. EdgeTTS
 ————————————————————
-Copyright
-Made by SR Studio
-2019~2025 All rights reserved'''
+© 2019~2025 思锐工作室 保留所有权利'''
             await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(about)))
             
         elif f"{reminder}角色扮演" == user_message:
@@ -1129,11 +1113,11 @@ Made by SR Studio
                 uid = order[order.find("核验 ") + len("核验 "):].strip()
                 print(f"try to get_user {uid}")
                 nikename = (await actions.get_stranger_info(uid)).data.raw
-                print(f"get {nikename} successfully")
+                print(f"获取 {nikename} 成功")
                 if len(nikename) == 0:
                     r = f'''{bot_name} {bot_name_en} - {ONE_SLOGAN}
 ————————————————————
-Failed: {uid} is not a valid user.'''
+失败: {uid} 不是一个有效的用户'''
                 else:
                     items = [f"{key}: {value}" for key, value in nikename.items()]
                     result = "\n".join(items)
@@ -1149,12 +1133,12 @@ Failed: {uid} is not a valid user.'''
                 system_info = get_system_info()
                 feel = f'''{bot_name} {bot_name_en} - {ONE_SLOGAN}
 ————————————————————
-System Now
-Running {seconds_to_hms(round(time.time() - second_start, 2))}
-Syetem Version：{system_info["version_info"]}
-Architecture：{system_info["architecture"]}
-CPU Usage：{str(system_info["cpu_usage"]) + "%"}
-Memory Usage：{str(system_info["memory_usage_percentage"]) + "%"}'''
+系统当前运行状况
+运行时间：{seconds_to_hms(round(time.time() - second_start, 2))}
+系统版本：{system_info["version_info"]}
+体系结构：{system_info["architecture"]}
+CPU占用：{str(system_info["cpu_usage"]) + "%"}
+内存占用：{str(system_info["memory_usage_percentage"]) + "%"}'''
                 for i, usage in enumerate(system_info["gpu_usage"]):
                     feel = feel + f"\nGPU {i} Usage：{usage * 100:.2f}%"
                 await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(feel)))
@@ -1342,7 +1326,7 @@ Memory Usage：{str(system_info["memory_usage_percentage"]) + "%"}'''
                         await actions.set_group_special_title(group_id=event.group_id,user_id=event.user_id,special_title=titletext,duration=-1)
                         await actions.send(group_id=event.group_id,message=Manager.Message(Segments.Text("已设置！")))
                     else:
-                        await actions.send(group_id=event.group_id,message=Manager.Message(Segments.Text("当前功能未开放,请联系管理员(Super User or ROOT_User)开放权限！")))
+                        await actions.send(group_id=event.group_id,message=Manager.Message(Segments.Text("当前功能未开放,请联系管理员(高级用户 或者 根用户)开放权限！")))
         else:
             # 没有匹配到用户发送的任何关键字，进入二级响应
             # 1. 检查用户是否是想要切换预设
