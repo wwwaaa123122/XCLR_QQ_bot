@@ -148,22 +148,22 @@ def load_plugins():
 
                             print(f"已加载插件: {unique_module_name} (关键词: {module.TRIGGHT_KEYWORD})")
                         else:
-                            failed_plugins.append(f"{unique_module_name} (TRIGGHT_KEYWORD 必须是字符串)")
+                            failed_plugins.append(f"{module_name} (TRIGGHT_KEYWORD 必须是字符串)")
                     else:
-                        failed_plugins.append(f"{unique_module_name} (缺少 TRIGGHT_KEYWORD：触发标识符 或 on_message：触发函数后端)")
+                        failed_plugins.append(f"{module_name} (缺少 TRIGGHT_KEYWORD：触发标识符 或 on_message：触发函数后端)")
 
                 except FileNotFoundError as e:
-                    failed_plugins.append(f"{unique_module_name} (文件未找到: {e})")
+                    failed_plugins.append(f"{module_name} (文件未找到: {e})")
                     print(f"加载插件 {unique_module_name} 失败，是因为: {e}")
                     if unique_module_name in sys.modules:
                         del sys.modules[unique_module_name]
                 except ImportError as e:
-                    failed_plugins.append(f"{unique_module_name} (导入错误: {e})")
+                    failed_plugins.append(f"{module_name} (导入错误: {e})")
                     print(f"加载插件 {unique_module_name} 失败，是因为: {e}")
                     if unique_module_name in sys.modules:
                         del sys.modules[unique_module_name]
                 except Exception as e:
-                    failed_plugins.append(f"{unique_module_name} (其他错误: {str(e)})")
+                    failed_plugins.append(f"{module_name} (其他错误: {str(e)})")
                     print(f"加载插件 {unique_module_name} 失败，是因为: {e}")
                     if unique_module_name in sys.modules:
                         del sys.modules[unique_module_name]  # Cleanup
@@ -207,22 +207,22 @@ def load_plugins():
 
                         print(f"已加载插件: {unique_module_name} (关键词: {module.TRIGGHT_KEYWORD})")
                     else:
-                        failed_plugins.append(f"{unique_module_name} (TRIGGHT_KEYWORD 必须是字符串)")
+                        failed_plugins.append(f"{module_name} (TRIGGHT_KEYWORD 必须是字符串)")
                 else:
-                    failed_plugins.append(f"{unique_module_name} (缺少 TRIGGHT_KEYWORD：触发标识符 或 on_message：触发函数后端)")
+                    failed_plugins.append(f"{module_name} (缺少 TRIGGHT_KEYWORD：触发标识符 或 on_message：触发函数后端)")
 
             except FileNotFoundError as e:
-                failed_plugins.append(f"{unique_module_name} (文件未找到: {e})")
+                failed_plugins.append(f"{module_name} (文件未找到: {e})")
                 print(f"加载插件 {unique_module_name} 失败，原因是: {e}")
                 if unique_module_name in sys.modules:
                     del sys.modules[unique_module_name]
             except ImportError as e:
-                failed_plugins.append(f"{unique_module_name} (导入错误: {e})")
+                failed_plugins.append(f"{module_name} (导入错误: {e})")
                 print(f"加载插件 {unique_module_name} 失败，原因是: {e}")
                 if unique_module_name in sys.modules:
                     del sys.modules[unique_module_name]
             except Exception as e:
-                failed_plugins.append(f"{unique_module_name} (其他错误: {str(e)})")
+                failed_plugins.append(f"{module_name} (其他错误: {str(e)})")
                 print(f"加载插件 {unique_module_name} 失败，是因为: {e}")
                 if unique_module_name in sys.modules:
                     del sys.modules[unique_module_name]  # Cleanup
@@ -439,33 +439,6 @@ Welcome! {bot_name} was restarted successfully. Now you can send {reminder}帮�
     if isinstance(event, Events.FriendAddEvent):
         print("同意好友")
         await actions.set_friend_add_request(flag=event.flag,approve=True,remark="")
-        
-    def execute_command(command):
-        try:
-            result = subprocess.run(command, capture_output=True, text=True, check=True, shell=True)
-            # capture_output=True 捕获输出(stdout/stderr)
-            # text=True  解码为文本字符串,可以返回text
-            # check=True  当返回非零退出码时引发 CalledProcessError 异常，开不开差不多（）
-            # shell=True  允许使用 shell 的特性，不建议开
-
-            return {
-                "stdout": result.stdout,
-                "stderr": result.stderr,
-                "returncode": result.returncode,
-            }
-
-        except subprocess.CalledProcessError as e:
-            return {
-                "stdout": e.stdout,
-                "stderr": e.stderr,
-                "returncode": e.returncode
-            }
-        except Exception as e:
-            return {
-                "stdout": None,
-                "stderr": str(e),
-                "returncode": -1
-            }      
             
     if isinstance(event, Events.GroupMessageEvent):
         user_message = str(event.message)
@@ -638,37 +611,6 @@ Welcome! {bot_name} was restarted successfully. Now you can send {reminder}帮�
             else:
                 await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(f"不能这么做！那是一块丞待开发的禁地，可能很危险，{bot_name}很胆小……꒰>﹏< ꒱")))
 
-        elif "runcommand " in order:
-            blacklist_file = "blacklist.sr"
-            if str(event.user_id) in Manage_User or str(event.user_id) in Super_User or str(event.user_id) in ROOT_User:
-                order = order.removeprefix("runcommand").strip()
-                order_lower = order.lower()
-                print(f"检查并执行：{order_lower}")
-
-                if re.search(r"rm", order) or re.search(r"vi", order) or re.search(r"vim", order) or re.search(r"tsab", order):
-                    print("命令中包含危险字符")
-                    await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(f"""命令执行结果:
-    ❌ ERROR 危险命令，已屏蔽。\nℹ️ INFO None.""")))      
-                                 
-                else:
-                    command114514 = execute_command(order)
-                    if command114514["returncode"] == 0:
-                        await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(f"""命令执行结果:
-    ℹ️ INFO 执行成功
-    ℹ️ INFO {command114514["stdout"]}.""")))
-                    elif command114514["stderr"]:
-                                await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(f"""命令执行结果:
-    ❌ ERROR 执行失败,代码命令可能有误
-    ℹ️ INFO {command114514["stderr"]}.""")))
-                    else:
-                        await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(f"""命令执行结果:
-    ❌ ERROR 执行失败,代码命令可能有误
-    ℹ️ INFO {command114514["stderr"]}.
-    ❌ERROR 返回码:{command114514['returncode']}.""")))
-                        
-            else:
-                await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(f"不能这么做！那是一块丞待开发的禁地，可能很危险，{bot_name}很胆小……꒰>﹏< ꒱")))
-
         elif "默认4" == order:
             EnableNetwork = "Net"
             await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text("嗯……我好像升级了！o((>ω< ))o")))
@@ -801,7 +743,7 @@ Now use {reminder}帮助 to know what permissions you have now.'''
 失败：指定的用户是 ROOT_User 且组 ROOT_User 为只读。'''
                         else:
                             m.append(Toset)
-                            if Write_zSettings(s, m):
+                            if Write_Settings(s, m):
                                 r = f'''{bot_name} {bot_name_en} - {ONE_SLOGAN}
 ————————————————————
 成功: {nikename}(@{Toset}) 已加入管理组 Manage_User 。
@@ -884,10 +826,16 @@ If you are a Super_User or ROOT_User, you can manage these users. Use {reminder}
 {chr(10).join(f"{i+1}. {str(plugin).rsplit('_', 1)[0]}" for i, plugin in enumerate(loaded_plugins)) if loaded_plugins else "无"}
 
 ❌ 已禁用插件 ({len(disabled_plugins)}):
-{chr(10).join(f"{i+1}. {re.search(r"_(.*)\.", str(plugin)).group(1)}" for i, plugin in enumerate(disabled_plugins) if re.search(r"_(.*)\.", str(plugin)).group(1)) if disabled_plugins else "无"}
+{chr(10).join(f"{i+1}. {re.search(r"_(.*)\.", str(plugin)).group(1)}" 
+    for i, plugin in enumerate(disabled_plugins) 
+    if re.search(r"_(.*)\.", str(plugin)) and re.search(r"_(.*)\.", str(plugin)).group(1)) 
+if disabled_plugins else "无"}
 
 ⚠️ 加载失败 ({len(failed_plugins)}):
-{chr(10).join(f"{i+1}. {re.search(r"_(.*)\.", str(plugin)).group(1)}" for i, plugin in enumerate(failed_plugins) if re.search(r"_(.*)\.", str(plugin)).group(1)) if failed_plugins else "无"}'''
+{chr(10).join(f"{i+1}. {str(plugin)}" 
+    for i, plugin in enumerate(failed_plugins)) 
+if failed_plugins else "无"}'''
+
             await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(status)))
 
         elif "帮助" == order:
