@@ -50,9 +50,18 @@ class dsr114():
                 chat_completion = openai.chat.completions.create(
                     messages=user_input,
                     model=mode,
+                    stream=False,
+                    extra_body={ 
+                        "return_reasoning": True  
+                    }
                 )
 
                 result = chat_completion.choices[0].message.content
+                try:
+                    reasoning = chat_completion.choices[0].message.model_extra['reasoning_content']
+                except Exception:
+                    print("无法使用思考")
+                    reasoning = ""
                 user_input.append({"role": "assistant", "content": result})
                 user_lists[uid] = user_input 
 
