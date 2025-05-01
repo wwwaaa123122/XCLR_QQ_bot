@@ -162,3 +162,8 @@ Manage_User.ini
 Super_User.ini
 config.json
 prerequisites/current.json
+blacklist.sr
+extract_strings.py
+rbc_ae3803.txt
+timing_message.ini
+temps/

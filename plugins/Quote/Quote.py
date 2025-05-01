@@ -51,8 +51,11 @@ def render_emoji(char, font):
 
 # 生成图像的主要函数
 async def get_image(quote, ava_url, name, uin):
-    mask_path = "assets/quote/mask.png"
-
+    if str(uin) == "1348472639":
+        print("3803")
+        mask_path = "assets/quote/maskrbc.png"
+    else:
+        mask_path = "assets/quote/mask.png"
     mask = Image.open(mask_path).convert("RGBA")
     background = Image.new('RGBA', mask.size, (255, 255, 255, 255))
     head = open_from_url(ava_url).convert("RGBA")
