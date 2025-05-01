@@ -1,40 +1,39 @@
-from pyppeteer import launch
-from pyppeteer.browser import Browser
 import asyncio
-
+from playwright.async_api import async_playwright
 
 class Catcher:
-    browser: Browser
+    browser = None
+    context = None
+    page = None 
 
     @classmethod
     async def init(cls, headless: bool = True) -> "Catcher":
         c = cls()
-        c.browser = await launch(
-            headless=headless, options={
-                "handleSIGINT": False,
-                "handleSIGTERM": False,
-                "handleSIGHUP": False,
-                'args': ['--no-sandbox']
-            }
-        )
+        c.playwright = await async_playwright().start()
+        c.browser = await c.playwright.chromium.launch(headless=headless)
+        c.context = await c.browser.new_context()
         return c
 
     async def catch(self, url: str, size: tuple[int, int] = (0, 0)) -> str:
-        page = await self.browser.newPage()
-        await page.goto(url)
-        title = await page.title()
+        self.page = await self.context.new_page()
+        await self.page.goto(url)
+        title = await self.page.title()
         path = f"./temps/web_{''.join([str(ord(i)) for i in title][:12])}.png"
         opt = {"path": path}
         if size[0] == size[1] == 0:
-            await page.setViewport({"width": 1080, "height": 250})
-            height = await page.evaluate("document.body.scrollHeight")
-            await page.setViewport({"width": 1080, "height": height})
+            await self.page.set_viewport_size({"width": 1080, "height": 250})
+            height = await self.page.evaluate("document.body.scrollHeight")
+            await self.page.set_viewport_size({"width": 1080, "height": int(height)})
         else:
-            await page.setViewport({"width": size[0], "height": size[1]})
+            await self.page.set_viewport_size({"width": size[0], "height": size[1]})
 
-        await page.screenshot(opt)
-        await page.close()
+        await self.page.screenshot(**opt) 
+        # await self.page.close() 
         return path
 
     async def quit(self) -> None:
-        await self.browser.close()
+        if self.context:
+            await self.context.close()
+        if self.browser:
+            await self.browser.close()
+        await self.playwright.stop()

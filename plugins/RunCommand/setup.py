@@ -38,7 +38,7 @@ async def on_message(event, actions, Manager, Segments, subprocess, re, order, S
         command114514 = execute_command(command, subprocess)
         if command114514["returncode"] == 0:
             if str(command_lower.split(" ")[0]) == "echo":
-                await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(f"""{command114514["stdout"]}""")))
+                await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(f"""{str(command114514["stdout"]).strip('\n')}""")))
             else:
                 await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(f"""命令执行结果:
 ℹ️ INFO 执行成功
