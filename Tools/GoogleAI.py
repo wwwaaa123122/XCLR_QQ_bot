@@ -2,6 +2,10 @@ from typing import Union
 import google.generativeai as genai
 from google.generativeai.types import HarmCategory, HarmBlockThreshold, FunctionDeclaration
 import httpx, traceback
+from pydantic import BaseModel
+
+class Schema(BaseModel):
+  messages: list[str]
 
 class Parts:
     @staticmethod
@@ -108,7 +112,9 @@ class Context:
         try:
             new = self.__gen_content(content)
             g_c = self.model.start_chat(history=new, enable_automatic_function_calling=True)
+            
             # res = self.model.generate_content(contents=new, safety_settings=self.safety)
+            #  config={'response_mime_type': 'application/json', 'response_schema': list[Schema],}
             print(content.res())
             res = g_c.send_message(content.res(), safety_settings=self.safety)
             self.history.append(Roles.Model(Parts.Text(str(res.text))))
