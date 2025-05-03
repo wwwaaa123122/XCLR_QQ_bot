@@ -29,7 +29,7 @@ from Hyper.Utils import Logic
 from Hyper.Events import *
 
 #import Tools functions
-from Tools.GoogleAI import genai, Context, Parts, Roles
+from Tools.GoogleAI import genai, Context, Parts, Roles, Schema
 from Tools.SearchOnline import network_gpt as SearchOnline
 from Tools.deepseek import dsr114 as deepseek
 from Tools.tools import *
@@ -54,6 +54,7 @@ in_timing = False
 generating = False
 emoji_send_count: datetime = None
 gptsovitsoff = False
+emoji_plus_one_off = False
 self_service_titles = False
 ONE_SLOGAN = Configurator.cm.get_cfg().others["slogan"]
 
@@ -466,7 +467,7 @@ Welcome! {bot_name} was restarted successfully. Now you can send {reminder}帮�
         global EnableNetwork
         global generating
         global CONFIG_FILE, PRESET_DIR, NORMAL_PRESET
-        global model, cmc
+        global model, cmc, emoji_plus_one_off
 
         event_user = (await actions.get_stranger_info(event.user_id)).data.raw
         event_user = event_user['nickname']
@@ -488,7 +489,7 @@ Welcome! {bot_name} was restarted successfully. Now you can send {reminder}帮�
                 print("不接受夸赞")        
 
         global emoji_send_count
-        if has_emoji(user_message):
+        if has_emoji(user_message) and not emoji_plus_one_off:
             if emoji_send_count is None or datetime.datetime.now() - emoji_send_count > datetime.timedelta(seconds=15):
                 await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(user_message)))
                 emoji_send_count = datetime.datetime.now()
@@ -866,56 +867,48 @@ if failed_plugins else "无"}'''
             await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(status)))
 
         elif "帮助" == order:
-            if str(event.user_id) in ROOT_User or str(event.user_id) in Super_User:
-                content = f'''管理我们的{bot_name}
-————————————————————
-你拥有管理{bot_name}的权限。若要查看普通帮助，请@{bot_name}
-    1. {reminder}让我访问 —> 检索用有权限的用户
-    2. {reminder}管理 M (QQ号，必填) —> 为用户添加 Manage_User 权限
-    3. {reminder}管理 S (QQ号，必填) —> 为用户添加 Super_User 权限
-    4. {reminder}删除管理 (QQ号，必填) —> 删除这个用户的全部权限
-    5. {reminder}冷静 (@QQ+空格+时间(以秒为单位)，必填) —> 冷静用户一段时间
-    6. {reminder}取消冷静 (@QQ，必填) —> 解除该用户冷静
-    7. {reminder}送飞机票 (@QQ，必填) —> 将该用户送出聊群
-    8. 撤回 (引用一条消息) —> 撤回该消息
-    9. {reminder}注销 —> 删除所有用户的上下文
-    10. {reminder}修改 (hh:mm) (内容，必填) —> 改变定时消息时间与内容
-    11. {reminder}感知 —> 查看运行状态
-    12. {reminder}休眠 —> 奖励{bot_name}精致睡眠 💤
-    13. {reminder}重启 —> 关闭所有线程和进程，关闭{bot_name}。然后重新启动{bot_name}。
-    14. {reminder}启用插件（插件名称，必填） —> 启用加载特定插件
-    15. {reminder}禁用插件（插件名称，必填） —> 忽略加载特定插件
-    16. {reminder}重载插件 —> 退出所有插件，重新从本地拉取、效验和加载
-    17. {reminder}添加黑名单 +空格 +群号 —> 将该群加入群发黑名单
-    18. {reminder}删除黑名单 +空格 +群号 —> 将该群移除群发黑名单
-    19. {reminder}列出黑名单 —> 列出黑名单中的所有群
-    20. {reminder}角色扮演 —> 管理现有预设，或添加新的角色预设
-    21. {reminder}更改TTS状态 —> 设置是否启用语音回复（默认启用）
-    22. {reminder}退出本群 —> 退出本群
-你的每一步操作，与用户息息相关。'''
-            elif str(event.user_id) in Manage_User:
-                content = f'''管理我们的{bot_name}
-————————————————————
-你拥有管理{bot_name}的权限。若要查看普通帮助，请@{bot_name}
-    1. {reminder}让我访问 —> 检索用有权限的用户
-    2. {reminder}注销 —> 删除所有用户的上下文
-    3. {reminder}修改 (hh:mm) (内容，必填) —> 改变定时消息时间与内容
-    4. {reminder}感知 —> 查看运行状态
-    5. {reminder}休眠 —> 奖励{bot_name}精致睡眠 💤
-    6. {reminder}重启 —> 关闭所有线程和进程，关闭{bot_name}。然后重新启动{bot_name}
-    7. {reminder}启用插件（插件名称，必填） —> 启用加载特定插件
-    8. {reminder}禁用插件（插件名称，必填） —> 忽略加载特定插件
-    9. {reminder}重载插件 —> 退出所有插件，重新从本地拉取、效验和加载
-    10. {reminder}冷静 (@QQ+空格+时间(以秒为单位)，必填) —> 冷静用户一段时间
-    11. {reminder}取消冷静 (@QQ，必填) —> 解除该用户冷静
-    12. {reminder}送飞机票 (@QQ，必填) —> 将该用户送出聊群
-    13. 撤回 (引用一条消息) —> 撤回该消息
-    14. {reminder}添加黑名单 +空格 +群号 —> 将该群加入群发黑名单
-    15. {reminder}删除黑名单 +空格 +群号 —> 将该群移除群发黑名单
-    16. {reminder}列出黑名单 —> 列出黑名单中的所有群
-    17. {reminder}角色扮演 —> 管理现有预设，或添加新的角色预设
-    18. {reminder}更改TTS状态 —> 设置是否启用语音回复（默认启用）
-    你的每一步操作，与用户息息相关。'''
+            if str(event.user_id) in ADMINS:
+                content = [
+                    (f"{reminder}让我访问", "检索有权限的用户"),
+                    (f"{reminder}注销", "删除所有用户的上下文"),
+                    (f"{reminder}修改 (hh:mm) (内容)", "改变定时消息时间与内容"),
+                    (f"{reminder}感知", "查看运行状态"),
+                    (f"{reminder}休眠", f"奖励{bot_name}精致睡眠 💤"),
+                    (f"{reminder}重启", f"关闭所有线程和进程，关闭{bot_name}。然后重新启动{bot_name}。"),
+                    (f"{reminder}启用插件（插件名称）", "启用特定插件"),
+                    (f"{reminder}禁用插件（插件名称）", "忽略特定插件"),
+                    (f"{reminder}重载插件", "重新加载所有插件"),
+                    (f"{reminder}冷静 (@QQ+时间)", "冷静用户一段时间"),
+                    (f"{reminder}取消冷静 (@QQ)", "解除用户冷静"),
+                    (f"{reminder}送飞机票 (@QQ)", "将用户移出群聊"),
+                    ("撤回【引用消息】", "撤回指定消息"),
+                    (f"{reminder}添加黑名单 +群号", "禁止群发消息到该群"),
+                    (f"{reminder}删除黑名单 +群号", "允许群发消息到该群"),
+                    (f"{reminder}列出黑名单", "显示所有黑名单群组"),
+                    (f"{reminder}角色扮演", "管理角色预设"),
+                    (f"{reminder}更改TTS状态", "切换语音回复功能（默认启用）"),
+                    (f"{reminder}表情复述", "切换是否开启表情复述功能（默认启用）")
+                ]
+                
+                if str(event.user_id) in SUPERS:
+                    content += [
+                        (f"{reminder}管理 M (QQ号)", "为用户添加 Manage_User 权限"),
+                        (f"{reminder}管理 S (QQ号)", "为用户添加 Super_User 权限"),
+                        (f"{reminder}删除管理 (QQ号)", "删除指定用户所有权限"),
+                        (f"{reminder}退出本群", "退出当前群聊")
+                    ]
+                    
+                command_lines = [
+                    f"{idx+1}. {cmd} —> {desc}"
+                    for idx, (cmd, desc) in enumerate(content)
+                ]
+                
+                content = "\n".join([
+                    f"管理我们的{bot_name}\n————————————————————",
+                    *command_lines,
+                    "你的每一步操作，与用户息息相关。"
+                ])
+                
             else:
                 content = help_message()
                 
@@ -929,9 +922,9 @@ if failed_plugins else "无"}'''
 
                 content = help_message()
             else:
-                content = '''你要询问什么呢？嘻嘻(●'◡'●)
+                content = f'''你要询问什么呢？嘻嘻(●'◡'●)
 和我聊天不需要@我哟(＾Ｕ＾)ノ~
-直接在你想对{bot.name}想说的话前面加上 {reminder} 就行啦'''
+直接在你想对{bot_name}想说的话前面加上 {reminder} 就行啦'''
 
             await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(content)))
 
@@ -955,6 +948,7 @@ if failed_plugins else "无"}'''
 8. EdgeTTS
 ————————————————————
 © 2019~2025 思锐工作室 保留所有权利'''
+
             await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(about)))
             
         elif f"{reminder}角色扮演" == user_message:
@@ -1235,6 +1229,15 @@ CPU占用：{str(system_info["cpu_usage"]) + "%"}
             else:
                 gptsovitsoff = True
                 await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(f"关闭TTS成功！")))
+                
+        elif f"{reminder}表情复述" == user_message:
+            if emoji_plus_one_off: 
+                emoji_plus_one_off = False
+                await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(f"开启表情复述成功！")))
+            else:
+                emoji_plus_one_off = True
+                await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(f"关闭表情复述成功！")))
+                
         elif f"{reminder}更改分配头衔开放状态" == user_message:
             global self_service_titles
             if str(event.user_id) in SUPERS:
@@ -1246,6 +1249,7 @@ CPU占用：{str(system_info["cpu_usage"]) + "%"}
                     await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(f"分配头衔功能已开放！")))
             else:
                 await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(f"不能这么做！那是一块丞待开发的禁地，可能很危险，{bot_name}很胆小……꒰>﹏< ꒱")))
+                
         elif "给他人分配头衔" in order:
             if str(event.user_id) in SUPERS:
                 try:
@@ -1275,6 +1279,7 @@ CPU占用：{str(system_info["cpu_usage"]) + "%"}
                     await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text("格式有误或发生未知错误！")))
             else:
                 await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(f"不能这么做！那是一块丞待开发的禁地，可能很危险，{bot_name}很胆小……꒰>﹏< ꒱")))
+                
         elif f"分配头衔 " in order:
             titletext = order[order.find("分配头衔 ") + len("分配头衔 "):].strip()
             if len(titletext) > 6:
@@ -1313,6 +1318,10 @@ CPU占用：{str(system_info["cpu_usage"]) + "%"}
 
                 # 保存更新后的预设
                 presets_tool.write_presets(presets)
+                del cmc # 注销
+                cmc = ContextManager()
+                user_lists.clear()
+                
                 await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(presets[selected_preset_id]["info"])))
                 return 
 
