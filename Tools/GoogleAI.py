@@ -3,6 +3,8 @@ import google.generativeai as genai
 from google.generativeai.types import HarmCategory, HarmBlockThreshold, FunctionDeclaration
 import httpx, traceback
 from pydantic import BaseModel
+from Tools.AI_tools import *
+import time, datetime
 
 class Schema(BaseModel):
   messages: list[str]
@@ -81,6 +83,7 @@ class Context:
     def __init__(self, api_key: str, model: genai.GenerativeModel, tools: list = None):
         genai.configure(api_key=api_key)
         self.model = model
+        
         self.safety = {
             HarmCategory.HARM_CATEGORY_HATE_SPEECH: HarmBlockThreshold.BLOCK_ONLY_HIGH,
             HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_ONLY_HIGH,
@@ -108,22 +111,32 @@ class Context:
         self.history = content
         return [i.res() for i in content]
 
-    def gen_content(self, content: Roles.User) -> str:
+    def gen_content(self, content: Roles.User):
         try:
             new = self.__gen_content(content)
-            g_c = self.model.start_chat(history=new, enable_automatic_function_calling=True)
+            # g_c = self.model.start_chat(history=new, enable_automatic_function_calling=True)
             
-            # res = self.model.generate_content(contents=new, safety_settings=self.safety)
+            
             #  config={'response_mime_type': 'application/json', 'response_schema': list[Schema],}
-            print(content.res())
-            res = g_c.send_message(content.res(), safety_settings=self.safety)
-            self.history.append(Roles.Model(Parts.Text(str(res.text))))
-            del g_c
-            return res.text
+            # print(content.res())
+            # res = g_c.send_message(content.res(), safety_settings=self.safety)
+            # del g_c
+            
+            res = self.model.generate_content(contents=new, safety_settings=self.safety, stream=True)
+            splitter = StreamSplitter()
+            
+            for message, enable_forward_msg_num in splitter.split_stream(res):
+                print(f"[{datetime.datetime.now()}] RESPONSE: {repr(message)}")
+                yield message, enable_forward_msg_num 
+            
+            # 添加到历史记录
+            self.history.append(Roles.Model(Parts.Text(splitter.full_content)))
+            # print(splitter.full_content)
+            
         except Exception as e:
             self.history = self.history[:len(self.history) - 1]
-            del g_c
-            if "finish_reason: SAFETY" in str(traceback.format_exc()):
-                return "你发送的消息违规啦！快住嘴 (⓿_⓿)"
+            print(f"GoogleAI error: {e}")
+            if any(keyword in str(traceback.format_exc()) for keyword in ["finish_reason: SAFETY", "safety_ratings"]):
+                yield "你发送的消息违规啦！快住嘴 (⓿_⓿)", 0
             else:
-                raise e
+                yield e, 0

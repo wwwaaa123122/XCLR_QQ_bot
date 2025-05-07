@@ -1,4 +1,4 @@
-import os, json
+import os, json, datetime
 # 初始化预设常量 
 
 # 配置文件名
@@ -58,7 +58,8 @@ def gen_presets(uid, bot_name, event_user):
             with open(preset_path, "r", encoding="utf-8") as f:
                 sys_prompt = f.read()
                 current_preset = preset_data["name"]
-                print(f"用户指定预设 {current_preset}")
+                
+                print(f"[{datetime.datetime.now()}] '{current_preset}' 已载入系统预设")
     
     if sys_prompt == None:
         preset_path = os.path.join(PRESET_DIR, presets[NORMAL_PRESET]["path"])

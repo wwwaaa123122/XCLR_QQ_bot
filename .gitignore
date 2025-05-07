@@ -167,3 +167,5 @@ extract_strings.py
 rbc_ae3803.txt
 timing_message.ini
 temps/
+lgr/appsettings.json
+lgr/keystore.json
