@@ -1,5 +1,6 @@
-import openai
+import openai, time
 import traceback
+from Tools.AI_tools import *
 
 class network_gpt():
     def __init__(self, prompt, message, user_lists, uid, mode, bn, key) -> None:
@@ -53,24 +54,28 @@ class network_gpt():
                 chat_completion = openai.chat.completions.create(
                     messages=user_input,
                     model=mode,
+                    stream=True,
                 )
 
-                result = chat_completion.choices[0].message.content
-                user_input.append({"role": "assistant", "content": result})
+                splitter = StreamSplitter()
+                for message, _ in splitter.split_stream(chat_completion, 'openai'):
+                    print(f"[{time.time()}] YIELD: {repr(message)}")
+                    yield message, 'message'
+                    
+                user_input.append({"role": "assistant", "content": splitter.full_content})
                 user_lists[str(self.uid)] = user_input
+                yield user_lists, 'user_lists'
 
             except openai.PermissionDeniedError as e:
                 error_response = str(e)
                 if 'insufficient_user_quota' in error_response:
-                    result = f"无效的 API KEY 是因为 配额已用尽 。\n{self.bn}发生错误，不能回复你的消息了，请稍候再试吧 ε(┬┬﹏┬┬)3"
+                    yield f'''无效的 API KEY 是因为 配额已用尽 。
+{self.bn}发生错误，不能回复你的消息了，请稍候再试吧 ε(┬┬﹏┬┬)3''', 'message'
                 else:
                     raise 
-            
-            print("简儿回复：" + result)
-
-            return user_lists, result
+                
         except Exception as e:
             print(traceback.format_exc())
-            return self.user_lists, f"{type(e)}\n{self.bn}发生错误，不能回复你的消息了，请稍候再试吧 ε(┬┬﹏┬┬)3"
+            yield self.user_lists, f"{type(e)}\n{self.bn}发生错误，不能回复你的消息了，请稍候再试吧 ε(┬┬﹏┬┬)3", 'message'
 
         

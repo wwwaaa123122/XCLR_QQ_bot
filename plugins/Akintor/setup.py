@@ -63,11 +63,11 @@ async def on_message(event, Events, actions, Manager, Segments, reminder):
                 game_data = aki.start_game()
                 q = game_data  
                 turn_on(gid, uid, aki)
-                await actions.send(group_id=gid,message=Manager.Message(Segments.Text(f"{q}\n是(y)\n不是(n)\n我不知道(idk)\n或许是(p)\n或许不是(pn)\n上一题(b)\n退出(exit)")))
+                await actions.send(group_id=gid,message=Manager.Message(Segments.At(event.user_id), Segments.Text(f" 欢迎 ☆*: .｡. o(≧▽≦)o .｡.:*☆\n初始条件设置：{q}\n是(y)\n不是(n)\n我不知道(idk)\n或许是(p)\n或许不是(pn)\n上一题(b)\n退出(exit)")))
                 await handle_timeout(event, actions, Manager, Segments)  
             except Exception as e:
                 await actions.send(group_id=gid,message=Manager.Message(Segments.Text(f'服务器出问题了，一会再来玩吧\n{e}')))
-                print(traceback.format_exc())
+                print(f"Akintor error:\n{traceback.format_exc()}")
         return True
     
     else:
@@ -81,21 +81,21 @@ async def on_message(event, Events, actions, Manager, Segments, reminder):
         
         reply = str(event.message)
         if reply in yes:
-                r = aki.post_answer('y')
+            aki.post_answer('y')
         elif reply in no:
-                r = aki.post_answer('n')
+            aki.post_answer('n')
         elif reply in idk:
-                r = aki.post_answer('idk')
+            aki.post_answer('idk')
         elif reply in probably:
-                r = aki.post_answer('p')
+            aki.post_answer('p')
         elif reply in probablyn:
-                r = aki.post_answer('pn')
+            aki.post_answer('pn')
         elif reply in back:
-                r = aki.go_back()
+            aki.go_back()
         elif reply in exit114:
-                await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text('游戏已成功结束 ~~~ヾ(＾∇＾) \n(若仍有问题，无需理会)')))
-                turn_off(event.group_id)
-                return True
+            await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text('游戏已成功结束 ~~~ヾ(＾∇＾) \n(若仍有问题，无需理会)')))
+            turn_off(event.group_id)
+            return True
         else:
             return False
 
@@ -112,6 +112,6 @@ async def on_message(event, Events, actions, Manager, Segments, reminder):
             turn_off(event.group_id)
             return True
         else:
-            await actions.send(group_id=event.group_id, message=Manager.Message(Segments.At(event.user_id),Segments.Text(f"{aki.question}\n是(y)\n不是(n)\n我不知道(idk)\n或许是(p)\n或许不是(pn)\n上一题(b)\n退出(exit)")))
-            game_session.timeout = datetime.datetime.now() + timedelta(seconds=60)  # 重置超时时间
+            await actions.send(group_id=event.group_id, message=Manager.Message(Segments.At(event.user_id), Segments.Text(f"\n{aki.question}\n是(y)\n不是(n)\n我不知道(idk)\n或许是(p)\n或许不是(pn)\n上一题(b)\n退出(exit)")))
+            game_session.timeout = datetime.now() + timedelta(seconds=60)  # 重置超时时间
             return True
