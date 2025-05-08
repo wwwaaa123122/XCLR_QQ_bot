@@ -53,7 +53,7 @@ class dsr114():
 
                 splitter = StreamSplitter()
                 for message, _ in splitter.split_stream(chat_completion, 'openai'):
-                    print(f"[{time.time()}] YIELD: {repr(message)}")
+                    # print(f"[{time.time()}] RESPONSE: {repr(message)}")
                     yield message, 'message'
 
                 try: # 仅在使用 reasoner 模型时需要

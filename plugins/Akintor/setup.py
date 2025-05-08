@@ -38,6 +38,7 @@ async def handle_timeout(event, actions, Manager, Segments):
             break
 
 async def on_message(event, Events, actions, Manager, Segments, reminder):
+    global aki
     if not isinstance(event, Events.GroupMessageEvent):
         return False
     
@@ -60,6 +61,7 @@ async def on_message(event, Events, actions, Manager, Segments, reminder):
                 )
         else:
             try:
+                aki = Akinator(lang="cn")
                 game_data = aki.start_game()
                 q = game_data  
                 turn_on(gid, uid, aki)
@@ -81,17 +83,17 @@ async def on_message(event, Events, actions, Manager, Segments, reminder):
         
         reply = str(event.message)
         if reply in yes:
-            aki.post_answer('y')
+            r = aki.post_answer('y')
         elif reply in no:
-            aki.post_answer('n')
+            r = aki.post_answer('n')
         elif reply in idk:
-            aki.post_answer('idk')
+            r = aki.post_answer('idk')
         elif reply in probably:
-            aki.post_answer('p')
+            r = aki.post_answer('p')
         elif reply in probablyn:
-            aki.post_answer('pn')
+            r = aki.post_answer('pn')
         elif reply in back:
-            aki.go_back()
+            r = aki.go_back()
         elif reply in exit114:
             await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text('游戏已成功结束 ~~~ヾ(＾∇＾) \n(若仍有问题，无需理会)')))
             turn_off(event.group_id)
