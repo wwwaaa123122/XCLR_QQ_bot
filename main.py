@@ -307,11 +307,7 @@ def has_emoji(s: str) -> bool: # emoji +1 功能
     return emoji.emoji_count(s) == 1 and len(s) == 1
 
 def timing_message(actions: Listener.Actions):
-
     while True:
-        echo = asyncio.run(actions.custom.get_group_list())
-        result = Manager.Ret.fetch(echo)
-
         if not os.path.isfile("timing_message.ini"):
             continue
         
@@ -325,16 +321,22 @@ def timing_message(actions: Listener.Actions):
         print(f"Current: {now.hour:02}:{now.minute:02}, target: {send_time}")
         if f"{now.hour:02}:{now.minute:02}" == send_time[0]:
             print("send timing messages")
-            blacklist = load_blacklist()  # 必须在发送消息前加载黑名单
-            for group in result.data.raw:
-                group_id = str(group['group_id'])  # 将group_id转为字符串类型,不然来个error会溶血
-                if group_id not in blacklist:  # 检查群组 ID 是否在黑名单中,在就别给lz发
-                    asyncio.run(actions.send(group_id=group['group_id'], message=Manager.Message(Segments.Text(send_time[1]))))
-                    time.sleep(random.random()*3)
-                else:
-                   print(f"群聊{group_id}在黑名单内，取消发送")
+            send_msg_all_groups(send_time[1], actions)
 
         time.sleep(60 - now.second)
+        
+def send_msg_all_groups(text, actions: Listener.Actions):
+    echo = asyncio.run(actions.custom.get_group_list())
+    result = Manager.Ret.fetch(echo)
+    blacklist = load_blacklist()  # 必须在发送消息前加载黑名单
+    for group in result.data.raw:
+        group_id = str(group['group_id'])  # 将group_id转为字符串类型,不然来个error会溶血
+        if group_id not in blacklist:  # 检查群组 ID 是否在黑名单中,在就别给lz发
+            asyncio.run(actions.send(group_id=group['group_id'], message=Manager.Message(Segments.Text(text))))
+            time.sleep(random.random()*3)
+        else:
+            print(f"群聊{group_id}在黑名单内，取消发送")
+
 
 def Read_Settings():
     global Super_User, Manage_User
@@ -886,7 +888,7 @@ if failed_plugins else "无"}'''
         elif "帮助" == order:
             if str(event.user_id) in ADMINS:
                 content = [
-                    (f"{reminder}让我访问", "检索有权限的用户"),
+                    (f"{reminder}让我访问", "检索有权限的用户"), # Managers' help content 管理员帮助
                     (f"{reminder}注销", "删除所有用户的上下文"),
                     (f"{reminder}修改 (hh:mm) (内容)", "改变定时消息时间与内容"),
                     (f"{reminder}感知", "查看运行状态"),
@@ -895,6 +897,7 @@ if failed_plugins else "无"}'''
                     (f"{reminder}启用插件（插件名称）", "启用特定插件"),
                     (f"{reminder}禁用插件（插件名称）", "忽略特定插件"),
                     (f"{reminder}重载插件", "重新加载所有插件"),
+                    (f"{reminder}群发 (内容)", "在所有群聊中（黑名单群聊除外）发送一条消息"),
                     (f"{reminder}冷静 (@QQ+时间)", "冷静用户一段时间"),
                     (f"{reminder}取消冷静 (@QQ)", "解除用户冷静"),
                     (f"{reminder}送飞机票 (@QQ)", "将用户移出群聊"),
@@ -1088,7 +1091,7 @@ if failed_plugins else "无"}'''
                 presets_tool.write_presets(presets)
                 prerequisites_info = f"""{bot_name} {bot_name_en} - 角色扮演后台
 ————————————————————
-"已删除预设: {name}"""
+已删除预设: {name}"""
                 await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(prerequisites_info)))
 
             else:
@@ -1135,7 +1138,7 @@ CPU占用：{str(system_info["cpu_usage"]) + "%"}
                     tm = order[order.find("修改 ") + len("修改 "):].strip()
                     if not bool(re.match(r'^([01][0-9]|2[0-3]):([0-5][0-9])$', tm[:5])):
                         r = f'''{bot_name}不能识别给定的时间是什么 Σ( ° △ °|||)︴
-        举个🌰子：{reminder}修改 00:00 早安 —> 即可让{bot_name}在0点0分准时问候早安噢⌯oᴗo⌯'''
+举个🌰子：{reminder}修改 00:00 早安 —> 即可让{bot_name}在0点0分准时问候早安噢⌯oᴗo⌯'''
                     else:
                         timing_settings = f"{tm[:5]}⊕{tm[6::]}"
                         with open("timing_message.ini", "w", encoding="utf-8") as f:
@@ -1149,6 +1152,22 @@ CPU占用：{str(system_info["cpu_usage"]) + "%"}
             else:
                 await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(f"不能这么做！那是一块丞待开发的禁地，可能很危险，{bot_name}很胆小……꒰>﹏< ꒱")))
             
+        elif "群发" in order:
+            if str(event.user_id) in ADMINS:
+                words = order.split(" ")
+                if len(words) < 2:
+                    r = f'''群发格式错误 Σ( ° △ °|||)︴
+举个🌰子：{reminder}群发 {bot_name}有更新新功能啦！ —> 在所有群聊中发送消息 “{bot_name}有更新新功能啦！”'''
+                else:
+                    words.pop(0)
+                    word = " ".join(words)
+                    send_msg_all_groups(word, actions)
+                    r = f'''已启动群发消息 “{word}”'''
+                    
+                await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Reply(event.message_id), Segments.Text(r)))
+            else:
+                await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(f"不能这么做！那是一块丞待开发的禁地，可能很危险，{bot_name}很胆小……꒰>﹏< ꒱")))
+                
         elif f"{reminder}生草" == user_message:
             await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text("🌿")))
 
@@ -1410,19 +1429,23 @@ CPU占用：{str(system_info["cpu_usage"]) + "%"}
                         messages_for_node.append(message)
                     else:
                         if not sended:
-                            sendedID.append(await actions.send(
+                            await actions.send(
                                 group_id=event.group_id,
                                 message=Manager.Message(Segments.Reply(event.message_id), message)
-                            ))
+                            )
                         else:
-                            sendedID.append(await actions.send(
+                            await actions.send(
                                 group_id=event.group_id,
                                 message=Manager.Message(message)
-                            ))
+                            )
                         messages_for_node.append(message)
                     
-                    if len(messages_for_node) >= 4:
+                    if len(messages_for_node) >= 3 and not enable_forward_msg_num:
                         enable_forward_msg_num = True
+                        sendedID.append(await actions.send(
+                            group_id=event.group_id,
+                            message=Manager.Message(Segments.Text(r"**[thinking]**"))
+                        ))
 
                     sended = True
                     result += str(partial) + '\n'
@@ -1431,7 +1454,7 @@ CPU占用：{str(system_info["cpu_usage"]) + "%"}
                 if enable_forward_msg_num:
                     # 删除临时消息
                     for msg_id in sendedID:
-                        await actions.del_message(msg_id.data.message_id)
+                        await actions.del_message(msg_id.data.message_id) # 禁用消息连续撤回以防止QQ检测
                     
                     # 转换消息节点格式
                     for m in range(len(messages_for_node)):

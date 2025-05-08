@@ -5,7 +5,7 @@ import httpx
 from random import randint
 import dataclasses
 import json
-from Hyper import Configurator
+from Hyper import Configurator, Events
 Configurator.cm = Configurator.ConfigManager(Configurator.Config(file="config.json").load_from_file())
 
 TRIGGHT_KEYWORD = "Any"
@@ -39,7 +39,7 @@ with open("./assets/quick.json", "r", encoding="utf-8") as f:
     words = json.load(f)["ele"]
 
 
-async def on_message(event, actions, Manager, Events, Segments, reminder):
+async def on_message(event, actions, Manager, Events: Events, Segments, reminder):
         if not isinstance(event, Events.GroupMessageEvent):
             return None
         

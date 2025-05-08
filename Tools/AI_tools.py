@@ -28,6 +28,8 @@ class StreamSplitter:
         
     def split_stream(self, response_stream, type='gemini'):
         try:
+            buffer_threshold = 200 if type == 'openai' else 50
+            
             for chunk in response_stream:
                 match type:
                     case 'gemini':
@@ -38,6 +40,10 @@ class StreamSplitter:
                 self.full_content += chunk_text
                 self.buffer += chunk_text
                 self.chunks += 1
+                if type == 'openai':
+                    if len(self.buffer) < buffer_threshold:
+                        continue
+                
                 if time.time() - self.last_split_time >= 1.5:
                     self.last_split_time = time.time()
                     for r in self.check_and_split():
@@ -79,12 +85,36 @@ class StreamSplitter:
                     time.sleep(random.uniform(0.5, 2.0))
                 return
             
-            self.buffer = ""
-            
             if len(messages) == 1:
-                self.buffer = messages[0]
+                self.buffer = messages[0].replace(self.buffer, "")     
             else:
-                for i in range(len(messages)-1):
-                    self.buffer = self.buffer + messages[i+1] + "\n"
+                self.buffer = "\n".join(
+                    msg + "\n" if self._needs_trailing_newline(msg) else msg 
+                    for msg in messages[1:-1] 
+                ) + messages[-1] 
+                    
+        print(f"[{time.time()}] BUFFER: {repr(self.buffer)}， SPLIT_STR {repr("string.none" if self.split_str == "" else self.split_str)}")
+        
+        if not self.is_balanced(message):
+            self.buffer = message + self.buffer
+            return
 
-        yield message
+        if last_response or self.split_str != "\n\n\n\n":
+            yield message
+            
+    def is_balanced(self, text):
+        brackets = {"(": ")", "[": "]", "{": "}", "「": "」"}
+        stack = []
+        for char in text:
+            if char in brackets:
+                stack.append(brackets[char])
+            elif stack and char == stack[-1]:
+                stack.pop()
+        return len(stack) == 0 and not (text.endswith(("\n   -", "（", ":", "：")) or text.startswith((":", "：")))
+    
+    def _needs_trailing_newline(self, text: str) -> bool:
+        return any([
+            text.startswith((' - ', '• ', '* ')),  
+            text.endswith(('：', ":")),   
+            re.search(r'\n\s*[-\*•]', text)  
+        ])

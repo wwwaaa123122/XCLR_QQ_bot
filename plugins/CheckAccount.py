@@ -2,13 +2,13 @@ import re
 import json
 from datetime import datetime
 
-from Hyper import Configurator
+from Hyper import Configurator, Listener
 Configurator.cm = Configurator.ConfigManager(Configurator.Config(file="config.json").load_from_file())
 
 TRIGGHT_KEYWORD = "开"
 HELP_MESSAGE = f"{Configurator.cm.get_cfg().others["reminder"]}开 【@一个用户/QQ号】 —> 打开该用户的账户 👁"
 
-async def on_message(event, actions, Manager, Segments, order, bot_name, bot_name_en, ONE_SLOGAN):
+async def on_message(event, actions: Listener.Actions, Manager, Segments, order, bot_name, bot_name_en, ONE_SLOGAN):
     uid = 0
     for i in event.message:
         if isinstance(i, Segments.At):
@@ -19,7 +19,7 @@ async def on_message(event, actions, Manager, Segments, order, bot_name, bot_nam
         uid = order[order.find(f"{TRIGGHT_KEYWORD} ") + len(f"{TRIGGHT_KEYWORD} "):].strip()
         
     print(f"try to get_user {uid}")
-    nikename = (await actions.get_stranger_info(uid)).data.raw
+    nikename = Manager.Ret.fetch(await actions.custom.get_stranger_info(user_id=uid, no_cache=True)).data.raw
     print(f"获取 {nikename} 成功")
     if len(nikename) == 0:
         r = f'''{bot_name} {bot_name_en} - {ONE_SLOGAN}
