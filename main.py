@@ -321,18 +321,19 @@ def timing_message(actions: Listener.Actions):
         print(f"Current: {now.hour:02}:{now.minute:02}, target: {send_time}")
         if f"{now.hour:02}:{now.minute:02}" == send_time[0]:
             print("send timing messages")
-            send_msg_all_groups(send_time[1], actions)
+            asyncio.run(send_msg_all_groups(send_time[1], actions))
 
         time.sleep(60 - now.second)
         
-def send_msg_all_groups(text, actions: Listener.Actions):
-    echo = asyncio.run(actions.custom.get_group_list())
+async def send_msg_all_groups(text, actions: Listener.Actions):
+    echo = await actions.custom.get_group_list()
     result = Manager.Ret.fetch(echo)
     blacklist = load_blacklist()  # 必须在发送消息前加载黑名单
+    print(f"sys: 群发 {result.data.raw}")
     for group in result.data.raw:
         group_id = str(group['group_id'])  # 将group_id转为字符串类型,不然来个error会溶血
         if group_id not in blacklist:  # 检查群组 ID 是否在黑名单中,在就别给lz发
-            asyncio.run(actions.send(group_id=group['group_id'], message=Manager.Message(Segments.Text(text))))
+            await actions.send(group_id=group['group_id'], message=Manager.Message(Segments.Text(text)))
             time.sleep(random.random()*3)
         else:
             print(f"群聊{group_id}在黑名单内，取消发送")
@@ -441,10 +442,9 @@ Welcome! {bot_name} was restarted successfully. Now you can send {reminder}帮�
         await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Image(f"http://q2.qlogo.cn/headimg_dl?dst_uin={user}&spec=640"), Segments.Text("欢迎"), Segments.At(user), Segments.Text(welcome)))
         
     if isinstance(event, Events.GroupMemberDecreaseEvent):
-        #print((await actions.get_stranger_info(event.user_id)).data.raw)
         user_nick = ""
         try:
-            user_nick = f"@{(await actions.get_stranger_info(event.user_id)).data.raw["nickname"]} "
+            user_nick = f"@{Manager.Ret.fetch(await actions.custom.get_stranger_info(user_id=event.user_id, no_cache=True)).data.raw["nickname"]} "
         except:
             user_nick = "有人又"
 
@@ -479,7 +479,7 @@ Welcome! {bot_name} was restarted successfully. Now you can send {reminder}帮�
         global CONFIG_FILE, PRESET_DIR, NORMAL_PRESET
         global model, cmc, emoji_plus_one_off
 
-        event_user = (await actions.get_stranger_info(event.user_id)).data.raw
+        event_user = Manager.Ret.fetch(await actions.custom.get_stranger_info(user_id=event.user_id, no_cache=True)).data.raw
         event_user = event_user['nickname']
                     
         # 初始化预设
@@ -495,6 +495,7 @@ Welcome! {bot_name} was restarted successfully. Now you can send {reminder}帮�
         if "ping" == user_message:
             print(str(event.user_id))
             await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text("pong! 爆炸！v(◦'ωˉ◦)~♡ ")))
+            
         elif f"{bot_name}真棒" in user_message and str(reminder) not in user_message:
             try:
                 compliments: list = Configurator.cm.get_cfg().others["compliment"]
@@ -742,7 +743,7 @@ Welcome! {bot_name} was restarted successfully. Now you can send {reminder}帮�
                     
                     Toset = order[order.find("管理 M ") + len("管理 M "):].strip()
                     print(f"try to get_user {Toset}")
-                    nikename = (await actions.get_stranger_info(Toset, no_cache=True)).data.raw
+                    nikename = Manager.Ret.fetch(await actions.custom.get_stranger_info(user_id=Toset, no_cache=True)).data.raw
                     print(str(nikename))
                     if len(nikename) == 0:
                         r = f'''{bot_name} {bot_name_en} - {ONE_SLOGAN}
@@ -788,7 +789,7 @@ Now use {reminder}帮助 to know what permissions you have now.'''
                 elif "管理 S " in order:
                     Toset = order[order.find("管理 S ") + len("管理 S "):].strip()
                     print(f"try to get_user {Toset}")
-                    nikename = (await actions.get_stranger_info(Toset, no_cache=True)).data.raw
+                    nikename = Manager.Ret.fetch(await actions.custom.get_stranger_info(user_id=Toset, no_cache=True)).data.raw
                     print(str(nikename))
                     if len(nikename) == 0:
                         r = f'''{bot_name} {bot_name_en} - {ONE_SLOGAN}
@@ -843,7 +844,7 @@ Now use {reminder}帮助 to know what permissions you have now.'''
                 
                 async def get_display(uid):
                     try:
-                        info = await actions.get_stranger_info(uid)
+                        info = Manager.Ret.fetch(await actions.custom.get_stranger_info(user_id=uid, no_cache=True))
                         return f"@{info.data.raw['nickname']}({uid})"
                     except Exception as e:
                         print(f"获取用户{uid}信息失败: {e}")
@@ -1161,7 +1162,7 @@ CPU占用：{str(system_info["cpu_usage"]) + "%"}
                 else:
                     words.pop(0)
                     word = " ".join(words)
-                    send_msg_all_groups(word, actions)
+                    await send_msg_all_groups(word, actions)
                     r = f'''已启动群发消息 “{word}”'''
                     
                 await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Reply(event.message_id), Segments.Text(r)))
