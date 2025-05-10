@@ -169,3 +169,4 @@ timing_message.ini
 temps/
 lgr/appsettings.json
 lgr/keystore.json
+config.json.save
