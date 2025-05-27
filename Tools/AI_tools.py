@@ -37,6 +37,9 @@ class StreamSplitter:
                     case 'openai':
                         chunk_text = chunk.choices[0].delta.content
                         
+                if chunk_text is None:
+                    continue
+                        
                 self.full_content += chunk_text
                 self.buffer += chunk_text
                 self.chunks += 1

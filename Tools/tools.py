@@ -1,4 +1,5 @@
 from PIL import Image
+from typing import Tuple, Optional, Any
 import platform
 import psutil
 import GPUtil
@@ -93,3 +94,11 @@ def deal_image(i):
         
     # 最终的压缩图像存储在buffer中
     return buffer.getvalue()
+
+async def get_user_info(uid, Manager, actions) -> Tuple[bool, Optional[dict]]:
+    try:
+        info = Manager.Ret.fetch(await actions.custom.get_stranger_info(user_id=uid, no_cache=True))
+        return True, info.data.raw
+    except Exception as e:
+        print(f"tools: 获取用户 {uid} 信息失败: {e}")
+        return False, str(uid)

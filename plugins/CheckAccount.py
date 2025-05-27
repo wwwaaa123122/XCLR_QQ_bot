@@ -1,5 +1,5 @@
 import re
-import json
+import json, time, gc
 from datetime import datetime
 
 from Hyper import Configurator, Listener
@@ -7,6 +7,8 @@ Configurator.cm = Configurator.ConfigManager(Configurator.Config(file="config.js
 
 TRIGGHT_KEYWORD = "开"
 HELP_MESSAGE = f"{Configurator.cm.get_cfg().others["reminder"]}开 【@一个用户/QQ号】 —> 打开该用户的账户 👁"
+MAX_retry = 5
+retry_sleep = 1
 
 async def on_message(event, actions: Listener.Actions, Manager, Segments, order, bot_name, bot_name_en, ONE_SLOGAN):
     uid = 0
@@ -18,19 +20,37 @@ async def on_message(event, actions: Listener.Actions, Manager, Segments, order,
     if uid == 0:
         uid = order[order.find(f"{TRIGGHT_KEYWORD} ") + len(f"{TRIGGHT_KEYWORD} "):].strip()
         
-    print(f"try to get_user {uid}")
-    nikename = Manager.Ret.fetch(await actions.custom.get_stranger_info(user_id=uid, no_cache=True)).data.raw
-    print(f"获取 {nikename} 成功")
-    if len(nikename) == 0:
-        r = f'''{bot_name} {bot_name_en} - {ONE_SLOGAN}
+    retry_time = 0
+    while True:
+        retry_time += 1
+        print(f"try to get_user {uid} time: {retry_time}")
+
+        gc.collect()
+        nikename = Manager.Ret.fetch(await actions.custom.get_stranger_info(user_id=uid, no_cache=True)).data.raw
+        if len(nikename) == 0:
+            r = f'''{bot_name} {bot_name_en} - {ONE_SLOGAN}
 ————————————————————
 失败: {uid} 不是一个有效的用户'''
+            print(f"get_user {uid} failed: didn't found user")
+            await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(r)))
+            break
 
-        await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(r)))
-        
-    else:
-        avatar, r = parse_user_info(nikename)
-        await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Image(avatar), Segments.Text(r)))
+        else:
+            if str(nikename.get('user_id', '未知')) == str(uid):
+                avatar, r = parse_user_info(nikename)
+                print(f"get_user {uid} successfully")
+                await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Image(avatar), Segments.Text(r)))
+                break
+            else:
+                if retry_time > MAX_retry:
+                    print(f"get_user {uid} failed: max retry")
+                    r = f'''{bot_name} {bot_name_en} - {ONE_SLOGAN}
+————————————————————
+失败: 在 {MAX_retry} 次尝试连接服务器后，未能找到 {uid} 的信息'''
+                    await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(r)))
+                    break
+                else:
+                    time.sleep(retry_sleep)
         
     return True
 

@@ -15,3 +15,5 @@ websocket-client
 paramiko>=3.5.1
 PySide6
 PySide6-Fluent-Widgets
+edge_tts
+pyGithub
