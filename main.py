@@ -52,6 +52,7 @@ logger.set_level(config.log_level)
 version_name = "3.0 - Next Preview Ultra"
 
 stop_working = False
+Wait_for_add_in = False
 
 cooldowns = {}
 cooldowns1 = {}
@@ -63,7 +64,7 @@ emoji_plus_one_off = False
 self_service_titles = False
 
 # AI Settings
-EnableNetwork = "Ds"
+EnableNetwork = config.others["default_mode"]
 user_lists = {}
 class Tools:
     pass
@@ -394,11 +395,11 @@ def Write_Settings(s: list, m: list) -> bool:
 @Listener.reg
 @Logic.ErrorHandler().handle_async
 async def handler(event: Events.Event, actions: Listener.Actions) -> None:
-    global in_timing, bot_name, bot_name_en, reminder, config, ONE_SLOGAN, CONFUSED_WORD, stop_working
+    global in_timing, bot_name, bot_name_en, reminder, config, ONE_SLOGAN, CONFUSED_WORD, stop_working, Wait_for_add_in
     global Super_User, Manage_User, ROOT_User
     ADMINS = Super_User + ROOT_User + Manage_User
     SUPERS = Super_User + ROOT_User
-    Wait_for_add_in = False
+    event.time_str = f"{datetime.datetime.now().hour:02}:{datetime.datetime.now().minute:02}:{datetime.datetime.now().second:02}"
     
     if stop_working:
         if ((user_id := getattr(event, "user_id", None)) and (message := getattr(event, "message", None)) 
@@ -439,6 +440,8 @@ async def handler(event: Events.Event, actions: Listener.Actions) -> None:
                 group_id = f.read()
                 f.close()
             os.remove("restart.temp")
+            r_admin = f'''在 {event.time_str} QQ机器人已手动重启成功'''
+            await actions.send(user_id=ROOT_User[0], message=Manager.Message(Segments.Text(r_admin))) #管理员操作通知ROOT用户
             await actions.send(group_id=group_id, message=Manager.Message(Segments.Text(f'''{bot_name} {bot_name_en} - {ONE_SLOGAN}
 ————————————————————
 Welcome! {bot_name} was restarted successfully. Now you can send {reminder}帮助 to know more.''')))
@@ -474,18 +477,19 @@ Welcome! {bot_name} was restarted successfully. Now you can send {reminder}帮�
       for keyword in keywords:
         processed_keyword = keyword.strip().lower()
         if processed_keyword in cleaned_text: 
-            await actions.set_group_add_request(flag=event.flag, sub_type=event.sub_type, approve=True, reason="")
-            
-            user = event.user_id
-            welcome = f''' 的答案正确，欢迎加入{bot_name}的大家庭！o(*≧▽≦)ツ
+            try:
+                user = event.user_id
+                print(f"group: {await get_user_nickname(user, Manager, actions)} 的入群回答 {processed_keyword} 符合正确答案，已准许入群 {event.group_id}")
+                await actions.set_group_add_request(flag=event.flag, sub_type=event.sub_type, approve=True, reason="")
+                Wait_for_add_in = True
+                welcome = f'''{await get_user_nickname(user, Manager, actions)} 的答案正确，欢迎加入{bot_name}的大家庭！o(*≧▽≦)ツ
 随时和{bot_name}交流，只需在问题的前面加上 {reminder} 就可以啦！( •̀ ω •́ )✧
 @{bot_name} 可以看看{bot_name}会做什么有趣的事情哦~o((>ω< ))o
 祝你在{bot_name}的大家庭里生活愉快！♪(≧∀≦)ゞ☆'''  
-            await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Image(f"http://q2.qlogo.cn/headimg_dl?dst_uin={user}&spec=640"), Segments.At(user), Segments.Text(welcome)))
-            Wait_for_add_in = True
-            
-            print(f"group: {user} 的入群回答 {processed_keyword} 符合正确答案，已准许入群 {event.group_id}")
-            break
+                await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Image(f"http://q2.qlogo.cn/headimg_dl?dst_uin={user}&spec=640"), Segments.Text(welcome)))
+                break
+            except:
+                traceback.print_exc()
           
     elif isinstance(event, Events.FriendAddEvent):
         print("sys: 同意好友")
@@ -544,6 +548,8 @@ Welcome! {bot_name} was restarted successfully. Now you can send {reminder}帮�
 
         if f"{reminder}重启" == user_message:
             if str(event.user_id) in ADMINS:
+                r_admin = f'''用户 {await get_user_nickname(event.user_id, Manager, actions)} 在 {event.time_str} 重启QQ机器人'''
+                await actions.send(user_id=ROOT_User[0], message=Manager.Message(Segments.Text(r_admin))) #管理员操作通知ROOT用户
                 await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(f"正在重启{bot_name}－O－……")))
 
                 try:
@@ -703,8 +709,9 @@ Welcome! {bot_name} was restarted successfully. Now you can send {reminder}帮�
                         with open(blacklist_file, "w", encoding="utf-8") as f:
                          for item in blacklist114:
                             f.write(item + "\n")  # 防止之前的丟失555，并添加换行符
-                        await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(f"黑名单添加成功\n现在的黑名单: {blacklist114}")))
-            
+                        r_admin = f'''用户 {await get_user_nickname(event.user_id, Manager, actions)} 在 {event.time_str} 将群 {Toset2} 添加到禁止群发黑名单'''
+                        await actions.send(user_id=ROOT_User[0], message=Manager.Message(Segments.Text(r_admin))) #管理员操作通知ROOT用户
+                        await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(f"黑名单添加成功\n现在的群发黑名单: {blacklist114}")))
                     except Exception as e:
                        await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(f"黑名单添加失败, 是因为\n{e}")))
                 else:
@@ -722,6 +729,8 @@ Welcome! {bot_name} was restarted successfully. Now you can send {reminder}帮�
                         with open(blacklist_file, "w", encoding="utf-8") as f:
                          for item in blacklist117:
                             f.write(item + "\n")  # 防止之前的丟失555，并添加换行符
+                        r_admin = f'''用户 {await get_user_nickname(event.user_id, Manager, actions)} 在 {event.time_str} 将群 {Toset1} 从禁止群发黑名单中删除'''
+                        await actions.send(user_id=ROOT_User[0], message=Manager.Message(Segments.Text(r_admin))) #管理员操作通知ROOT用户
                         await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(f"黑名单删除成功\n现在黑名单: {blacklist117}")))
                     except Exception as e:
                        await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(f"黑名单删除失败, 是因为\n{e}")))
@@ -732,6 +741,7 @@ Welcome! {bot_name} was restarted successfully. Now you can send {reminder}帮�
             
         elif "删除管理 " in order:
             r = ""
+            r_admin = ""
             Toset = ""
             for i in event.message:
                 if isinstance(i, Segments.At):
@@ -745,28 +755,35 @@ Welcome! {bot_name} was restarted successfully. Now you can send {reminder}帮�
                     r = f'''{bot_name} {bot_name_en} - {ONE_SLOGAN}
 ————————————————————
 失败：指定的用户是 ROOT_User 且组 ROOT_User 为只读。'''
+                    r_admin = f'''用户 {await get_user_nickname(event.user_id, Manager, actions)} 在 {event.time_str} 尝试夺取您的 ROOT_User 权限，已被阻止'''
                 else:
                     if Toset in s:
                         s.remove(Toset)
                     if Toset in m:
                         m.remove(Toset)
-
+                        
+                    nick = await get_user_nickname(Toset, Manager, actions)
                     if Write_Settings(s, m):
                         r = f'''{bot_name} {bot_name_en} - {ONE_SLOGAN}
 ————————————————————
-成功: @{Toset} 现在是一个普通用户了。
+成功: {nick} 现在是一个普通用户了。
 现在发送 {reminder}帮助 了解你拥有的权限。'''
+                        r_admin = f'''用户 {await get_user_nickname(event.user_id, Manager, actions)} 在 {event.time_str} 删除了用户 {nick} 的管理员权限'''
                     else:
                         r = f'''{bot_name} {bot_name_en} - {ONE_SLOGAN}
 ————————————————————
 失败：设置文件不可写。'''
+                        r_admin = f'''用户 {await get_user_nickname(event.user_id, Manager, actions)} 在 {event.time_str} 尝试删除用户 {nick} 的管理员权限，但因为无法读写配置文件导致修改失败'''
             else:
                 r  = CONFUSED_WORD.format(bot_name=bot_name)
 
             await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(r)))
+            if r_admin:
+                await actions.send(user_id=ROOT_User[0], message=Manager.Message(Segments.Text(r_admin))) #管理员操作通知ROOT用户
             
         elif "管理 " in order:
             r = ""
+            r_admin = ""
             Toset = ""
             for i in event.message:
                 if isinstance(i, Segments.At):
@@ -797,15 +814,18 @@ Welcome! {bot_name} was restarted successfully. Now you can send {reminder}帮�
                                 r = f'''{bot_name} {bot_name_en} - {ONE_SLOGAN}
 ————————————————————
 成功: {nikename}(@{Toset}) 已加入管理组 Manage_User 。
-Now use {reminder}帮助 to know what permissions you have now.'''
+现在发送 {reminder}帮助 了解你拥有的权限。'''
+                                r_admin = f'''用户 {await get_user_nickname(event.user_id, Manager, actions)} 在 {event.time_str} 将用户 {nikename}(@{Toset}) 从 Super_User 设置为了 Manage_User '''
                             else:
                                 r = f'''{bot_name} {bot_name_en} - {ONE_SLOGAN}
 ————————————————————
 失败: 设置文件不可写。'''
+                                r_admin = f'''用户 {await get_user_nickname(event.user_id, Manager, actions)} 在 {event.time_str} 尝试将用户 {nikename}(@{Toset}) 设置为 Manage_User 但因为无法读写配置文件导致修改失败'''
                         elif Toset in ROOT_User:
                             r = f'''{bot_name} {bot_name_en} - {ONE_SLOGAN}
 ————————————————————
 失败：指定的用户是 ROOT_User 且组 ROOT_User 为只读。'''
+                            r_admin = f'''用户 {await get_user_nickname(event.user_id, Manager, actions)} 在 {event.time_str} 尝试改变您的 ROOT_User 权限，已被阻止'''
                         else:
                             m.append(Toset)
                             if Write_Settings(s, m):
@@ -813,11 +833,12 @@ Now use {reminder}帮助 to know what permissions you have now.'''
 ————————————————————
 成功: {nikename}(@{Toset}) 已加入管理组 Manage_User 。
 现在发送 {reminder}帮助 了解你拥有的权限。'''
+                                r_admin = f'''用户 {await get_user_nickname(event.user_id, Manager, actions)} 在 {event.time_str} 将用户 {nikename}(@{Toset}) 设置为了 Manage_User '''
                             else:
                                 r = f'''{bot_name} {bot_name_en} - {ONE_SLOGAN}
 ————————————————————
 失败: 设置文件不可写'''
-          
+                                r_admin = f'''用户 {await get_user_nickname(event.user_id, Manager, actions)} 在 {event.time_str} 尝试将用户 {nikename}(@{Toset}) 设置为 Manage_User 但因为无法读写配置文件导致修改失败'''
                        
                 elif "管理 S " in order:
                     Toset = order[order.find("管理 S ") + len("管理 S "):].strip() if Toset == "" else Toset
@@ -840,10 +861,12 @@ Now use {reminder}帮助 to know what permissions you have now.'''
 ————————————————————
 成功: {nikename}(@{Toset}) 已加入管理组 Super_User 。
 现在发送 {reminder}帮助 了解你拥有的权限。'''
+                                r_admin = f'''用户 {await get_user_nickname(event.user_id, Manager, actions)} 在 {event.time_str} 将用户 {nikename}(@{Toset}) 从 Manage_User 设置为了 Super_User '''
                             else:
                                 r = f'''{bot_name} {bot_name_en} - {ONE_SLOGAN}
 ————————————————————
 失败：设置文件不可写。'''
+                                r_admin = f'''用户 {await get_user_nickname(event.user_id, Manager, actions)} 在 {event.time_str} 尝试将用户 {nikename}(@{Toset}) 设置为 Super_User 但因为无法读写配置文件导致修改失败'''
                         elif Toset in Super_User:
                             r = f'''{bot_name} {bot_name_en} - {ONE_SLOGAN}
 ————————————————————
@@ -852,6 +875,7 @@ Now use {reminder}帮助 to know what permissions you have now.'''
                             r = f'''{bot_name} {bot_name_en} - {ONE_SLOGAN}
 ————————————————————
 失败：指定的用户是 ROOT_User 且组 ROOT_User 为只读。'''
+                            r_admin = f'''用户 {await get_user_nickname(event.user_id, Manager, actions)} 在 {event.time_str} 尝试改变您的 ROOT_User 权限，已被阻止'''
                         else:
                             s.append(Toset)
                             if Write_Settings(s, m):
@@ -859,11 +883,12 @@ Now use {reminder}帮助 to know what permissions you have now.'''
 ————————————————————
 成功: {nikename}(@{Toset}) 已加入管理组 Super_User 。
 现在发送 {reminder}帮助 了解你拥有的权限。'''
+                                r_admin = f'''用户 {await get_user_nickname(event.user_id, Manager, actions)} 在 {event.time_str} 将用户 {nikename}(@{Toset}) 设置为了 Super_User '''
                             else:
                                 r = f'''{bot_name} {bot_name_en} - {ONE_SLOGAN}
 ————————————————————
 失败：设置文件不可写。'''
-
+                                r_admin = f'''用户 {await get_user_nickname(event.user_id, Manager, actions)} 在 {event.time_str} 尝试将用户 {nikename}(@{Toset}) 设置为 Super_User 但因为无法读写配置文件导致修改失败'''
                 else:
                     r = f'''{bot_name} {bot_name_en} - {ONE_SLOGAN}
 ————————————————————
@@ -872,19 +897,14 @@ Now use {reminder}帮助 to know what permissions you have now.'''
                 r  = CONFUSED_WORD.format(bot_name=bot_name)
 
             await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(r)))
+            if r_admin:
+                await actions.send(user_id=ROOT_User[0], message=Manager.Message(Segments.Text(r_admin))) #管理员操作通知ROOT用户
+            
         elif "让我访问" in order:
             if str(event.user_id) in ADMINS:
-                
-                async def get_display(uid):
-                    s, user_info = await get_user_info(uid, Manager, actions)
-                    if s:
-                        return f"@{user_info['nickname']}({uid})"
-                    else:
-                        return str(uid)
-
-                manage_users = await asyncio.gather(*[get_display(uid) for uid in Manage_User])
-                super_users = await asyncio.gather(*[get_display(uid) for uid in Super_User])
-                root_users = await asyncio.gather(*[get_display(uid) for uid in ROOT_User])
+                manage_users = await asyncio.gather(*[get_user_nickname(uid, Manager, actions) for uid in Manage_User])
+                super_users = await asyncio.gather(*[get_user_nickname(uid, Manager, actions) for uid in Super_User])
+                root_users = await asyncio.gather(*[get_user_nickname(uid, Manager, actions) for uid in ROOT_User])
                 r = f"""{bot_name} {bot_name_en} - {ONE_SLOGAN}
 ————————————————————
 Manage_User: {", ".join(manage_users)}
@@ -898,7 +918,7 @@ If you are a Super_User or ROOT_User, you can manage these users. Use {reminder}
             
             else:
                 r  = CONFUSED_WORD.format(bot_name=bot_name)
-            await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(r)))
+            await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Reply(event.message_id), Segments.Text(r)))
 
         elif "插件视角" in order:
             status = f'''{bot_name} {bot_name_en} - 插件视角
@@ -977,7 +997,7 @@ if failed_plugins else "无"}'''
 和我聊天不需要@我哟(＾Ｕ＾)ノ~
 直接在你想对{bot_name}想说的话前面加上 {reminder} 就行啦'''
 
-            await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(content)))
+            await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Reply(event.message_id), Segments.Text(content)))
 
         elif "关于" == order:
             global version_name
@@ -1003,7 +1023,7 @@ if failed_plugins else "无"}'''
             await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(about)))
 
         elif "群发黑名单" == order:
-            await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(f'''{bot_name} {bot_name_en} - 群发黑名单管理控制面板
+            await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Reply(event.message_id), Segments.Text(f'''{bot_name} {bot_name_en} - 群发黑名单管理控制面板
 ————————————————————
 {reminder}列出黑名单 —> 显示所有黑名单群组
 {reminder}删除黑名单 +群号 —> 允许群发消息到该群
@@ -1032,7 +1052,7 @@ if failed_plugins else "无"}'''
     {reminder}删除预设 [name]
 其中，name 为角色名称， info 为预设简介， content 为预设内容。"""
 
-            await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(prerequisites_info)))
+            await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Reply(event.message_id), Segments.Text(prerequisites_info)))
 
         elif f"添加预设 " in order:
             if str(event.user_id) in ADMINS:
@@ -1140,6 +1160,8 @@ if failed_plugins else "无"}'''
         elif "休眠" == order:
             if str(event.user_id) in ADMINS:
                 stop_working = True
+                r_admin = f'''用户 {await get_user_nickname(event.user_id, Manager, actions)} 在 {event.time_str} 休眠QQ机器人'''
+                await actions.send(user_id=ROOT_User[0], message=Manager.Message(Segments.Text(r_admin))) #管理员操作通知ROOT用户
                 await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(f"谢谢喵，{bot_name}睡觉去了 ヾ(＠ ˘ω˘ ＠)ノ💤")))
             else:
                 await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(CONFUSED_WORD.format(bot_name=bot_name))))
@@ -1167,11 +1189,14 @@ CPU占用：{str(system_info["cpu_usage"]) + "%"}
                 cmc = ContextManager()
                 user_lists.clear()
                 await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(f"卸下包袱，{bot_name}更轻松了~ (/≧▽≦)/")))
+                r_admin = f'''用户 {await get_user_nickname(event.user_id, Manager, actions)} 在 {event.time_str} 手动清空了所有用户的 AI 对话上下文'''
+                await actions.send(user_id=ROOT_User[0], message=Manager.Message(Segments.Text(r_admin))) #管理员操作通知ROOT用户
             else:
                 await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(CONFUSED_WORD.format(bot_name=bot_name))))
       
         elif f"{reminder}生成" == user_message:
-            await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Image(os.path.abspath("./sc114.png"))))
+            await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Image(os.path.abspath("./assets/sc114.png"))))
+            
         elif "修改 " in order:
             if str(event.user_id) in ADMINS:
                 try:
@@ -1185,6 +1210,9 @@ CPU占用：{str(system_info["cpu_usage"]) + "%"}
                             f.write(timing_settings)
                             f.close()
                         r = f"{bot_name}设置成功！(*≧▽≦) "
+                        r_admin = f'''用户 {await get_user_nickname(event.user_id, Manager, actions)} 在 {event.time_str} 将机器人的定时群发消息修改为时间：{tm[:5]} 
+内容：{tm[6::]}'''
+                        await actions.send(user_id=ROOT_User[0], message=Manager.Message(Segments.Text(r_admin))) #管理员操作通知ROOT用户
                 except Exception as e:
                     r = f'''{str(type(e))}
 {bot_name}设置失败了…… (╥﹏╥)'''
@@ -1198,13 +1226,15 @@ CPU占用：{str(system_info["cpu_usage"]) + "%"}
                 if len(words) < 2:
                     r = f'''群发格式错误 Σ( ° △ °|||)︴
 举个🌰子：{reminder}群发 {bot_name}有更新新功能啦！ —> 在所有群聊中发送消息 “{bot_name}有更新新功能啦！”'''
+                    await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Reply(event.message_id), Segments.Text(r)))
                 else:
                     words.pop(0)
                     word = " ".join(words)
+                    r_admin = f'''用户 {await get_user_nickname(event.user_id, Manager, actions)} 在 {event.time_str} 启动群发消息:
+“{word}”'''
+                    await actions.send(user_id=ROOT_User[0], message=Manager.Message(Segments.Text(r_admin))) #管理员操作通知ROOT用户
+                    await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Reply(event.message_id), Segments.Text(f'''已启动群发消息 “{word}”''')))
                     await send_msg_all_groups(word, actions)
-                    r = f'''已启动群发消息 “{word}”'''
-                    
-                await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Reply(event.message_id), Segments.Text(r)))
             else:
                 await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(CONFUSED_WORD.format(bot_name=bot_name))))
                 
@@ -1273,19 +1303,20 @@ CPU占用：{str(system_info["cpu_usage"]) + "%"}
         elif "送飞机票" in order:
           if str(event.user_id) in ADMINS:
                 for i in event.message:
-                    print(type(i))
-                    print(str(i))
                     if isinstance(i, Segments.At):
-                        print("At in loading...")
                         await actions.set_group_kick(group_id=event.group_id,user_id=i.qq)
+                        r_admin = f'''用户 {await get_user_nickname(event.user_id, Manager, actions)} 在 {event.time_str} 使 {await get_user_nickname(i.qq, Manager, actions)} 退出了群聊：{event.group_id}'''
+                        await actions.send(user_id=ROOT_User[0], message=Manager.Message(Segments.Text(r_admin))) #管理员操作通知ROOT用户
           else:
                 await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(CONFUSED_WORD.format(bot_name=bot_name))))  
         
         elif f"{reminder}退出本群" == user_message:
             if str(event.user_id) in SUPERS:
+                r_admin = f'''用户 {await get_user_nickname(event.user_id, Manager, actions)} 在 {event.time_str} 使机器人退出了群聊：{event.group_id}'''
+                await actions.send(user_id=ROOT_User[0], message=Manager.Message(Segments.Text(r_admin))) #管理员操作通知ROOT用户
                 await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(f"呜呜呜，各位再见了……")))
                 await asyncio.sleep(3)
-                await actions.custom.set_group_leave(group_id=event.group_id,is_dismiss=True)
+                await actions.custom.set_group_leave(group_id=event.group_id, is_dismiss=True)
             else:
                 await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(CONFUSED_WORD.format(bot_name=bot_name))))
         elif "撤回" == user_message:
@@ -1576,9 +1607,9 @@ CPU占用：{str(system_info["cpu_usage"]) + "%"}
                         print("EdgeTTS 配置文件不完整，或未配置，使用默认音色。")
                         communicate_completed = await amain(result, "zh-CN-XiaoyiNeural", "+0%", "+0%", "+0Hz")
 
-                    if communicate_completed and os.path.isfile(r"./responseVoice.wav"):
-                        await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Record(os.path.abspath(r"./responseVoice.wav"))))
-                        os.remove(r"./responseVoice.wav")
+                    if communicate_completed and os.path.isfile(communicate_completed):
+                        await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Record(os.path.abspath(communicate_completed))))
+                        os.remove(communicate_completed)
 
             except UnboundLocalError:
                 raise
