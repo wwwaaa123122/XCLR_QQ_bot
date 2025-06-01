@@ -10,7 +10,8 @@ HELP_MESSAGE = f"{Configurator.cm.get_cfg().others["reminder"]}开 【@一个用
 MAX_retry = 5
 retry_sleep = 1
 
-async def on_message(event, actions: Listener.Actions, Manager, Segments, order, bot_name, bot_name_en, ONE_SLOGAN):
+async def on_message(event, actions: Listener.Actions, Manager, Segments, 
+                     order, bot_name, bot_name_en, ONE_SLOGAN, ADMINS, SUPERS, ROOT_User):
     uid = 0
     for i in event.message:
         if isinstance(i, Segments.At):
@@ -37,7 +38,7 @@ async def on_message(event, actions: Listener.Actions, Manager, Segments, order,
 
         else:
             if str(nikename.get('user_id', '未知')) == str(uid):
-                avatar, r = parse_user_info(nikename)
+                avatar, r = parse_user_info(nikename, ADMINS, SUPERS, ROOT_User)
                 print(f"get_user {uid} successfully")
                 await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Image(avatar), Segments.Text(r)))
                 break
@@ -54,7 +55,7 @@ async def on_message(event, actions: Listener.Actions, Manager, Segments, order,
         
     return True
 
-def parse_user_info(user_dict):
+def parse_user_info(user_dict, ADMINS, SUPERS, ROOT_User):
     try:
         avatar = user_dict.get('avatar', '')
         register_time = user_dict.get('RegisterTime', '')
@@ -70,13 +71,22 @@ def parse_user_info(user_dict):
         is_year_vip = any(item.get('isyear') == 1 for item in business if item.get('type') == 1)
 
         status_msg = user_dict.get('status', {}).get('message', '暂无状态')
-
+        if str(user_dict.get('user_id', '未知')) in ROOT_User:
+            status_user = "ROOT_User"
+        elif str(user_dict.get('user_id', '未知')) in SUPERS:
+            status_user = "Super_User"
+        elif str(user_dict.get('user_id', '未知')) in ADMINS:
+            status_user = "Manage_User"
+        else:
+            status_user = "普通用户"
+            
         result = f"""昵称: {user_dict.get('nickname', '未知')}
 状态: {status_msg}
 QQ号: {user_dict.get('user_id', '未知')}
 QID: {user_dict.get('q_id', '未知')}
 性别: {'男' if user_dict.get('sex') == 'male' else '女'}
 年龄: {user_dict.get('age', '未知')}
+权限: {status_user}
 QQ等级: {user_dict.get('level', '未知')}
 个性签名: {user_dict.get('sign', '暂无签名')}
 注册时间: {register_time}

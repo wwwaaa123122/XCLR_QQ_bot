@@ -3,7 +3,7 @@ from typing import Tuple, Optional, Any
 import platform
 import psutil
 import GPUtil
-import io
+import io, gc, os
 import edge_tts
 
 def title() -> str:
@@ -15,11 +15,19 @@ def title() -> str:
 # ~  \___/|_|\__,_|_| |_|\___|_|    |_| \_|_____/_/\_\ |_|   |____/  ~
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'''
 
-async def amain(TEXT, voiceColor, rate, volume, pitch) -> bool:
+async def amain(TEXT, voiceColor, rate, volume, pitch):
     try:
         communicate = edge_tts.Communicate(TEXT, voiceColor, rate = rate, volume=volume, pitch=pitch)
-        await communicate.save(r"./responseVoice.wav")
-        return True
+        
+        tts_num = 0
+        output_path_base = r"./responseVoice"
+        output_path = f"{os.path.abspath(output_path_base)}_{tts_num}.wav"
+        while os.path.exists(output_path):
+            tts_num += 1
+            output_path = f"{os.path.abspath(output_path_base)}_{tts_num}.wav"
+            
+        await communicate.save(output_path)
+        return output_path
     except Exception as e:
         print(e)
         return False
@@ -97,8 +105,18 @@ def deal_image(i):
 
 async def get_user_info(uid, Manager, actions) -> Tuple[bool, Optional[dict]]:
     try:
+        gc.collect()
         info = Manager.Ret.fetch(await actions.custom.get_stranger_info(user_id=uid, no_cache=True))
+        if 'nickname' not in info.data.raw:
+            raise ValueError(f"{uid} is not a valid user ID.")
         return True, info.data.raw
     except Exception as e:
         print(f"tools: 获取用户 {uid} 信息失败: {e}")
         return False, str(uid)
+    
+async def get_user_nickname(uid, Manager, actions) -> str:
+    s, user_info = await get_user_info(uid, Manager, actions)
+    if s:
+        return f"@{user_info['nickname']}({uid})"
+    else:
+        return str(uid)

@@ -21,7 +21,7 @@ async def on_message(event, actions, Manager, Segments, Events, reminder, ADMINS
         if str(event.group_id) in blacklist and str(event.group_id) != "":
             if str(event.user_id) in blacklist[str(event.group_id)]:
                 await actions.set_group_add_request(flag=event.flag, sub_type=event.sub_type, approve=False, reason="你已被本群拉黑，请联系群主以解决此问题。")
-        return True
+                return True
 
     elif isinstance(event, Events.GroupMessageEvent) or isinstance(event, Events.PrivateMessageEvent):
         msg = ""

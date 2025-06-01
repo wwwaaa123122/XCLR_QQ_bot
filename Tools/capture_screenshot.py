@@ -1,14 +1,14 @@
 from playwright.async_api import async_playwright
 import os
 
-async def capture_screenshot(url, output_path, extension):
+async def capture_screenshot(url, output_path_base, extension):
     async with async_playwright() as p:
         print(f"capturing {url}")
         images_num = 0
-        output_path = f"{os.path.abspath(output_path)}_{images_num}.{extension}"
+        output_path = f"{os.path.abspath(output_path_base)}_{images_num}.{extension}"
         while os.path.exists(output_path):
             images_num += 1
-            output_path = f"{os.path.abspath(output_path)}_{images_num}.{extension}"
+            output_path = f"{os.path.abspath(output_path_base)}_{images_num}.{extension}"
 
         browser = await p.chromium.launch(headless=True)
         page = await browser.new_page()
