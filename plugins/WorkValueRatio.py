@@ -2,7 +2,7 @@ from Hyper import Configurator
 Configurator.cm = Configurator.ConfigManager(Configurator.Config(file="config.json").load_from_file())
 
 TRIGGHT_KEYWORD = "工作性价比计算"
-HELP_MESSAGE = f"{Configurator.cm.get_cfg().others["reminder"]}工作性价比计算 —> 计算你的工作性价比💫"
+HELP_MESSAGE = f"{Configurator.cm.get_cfg().others['reminder']}工作性价比计算 —> 计算你的工作性价比💫"
 
 async def on_message(event, actions, Manager, Segments, order):
     help_msg = f"""计算你的工作性价比💫
