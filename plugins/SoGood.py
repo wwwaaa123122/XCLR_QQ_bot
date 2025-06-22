@@ -9,8 +9,8 @@ from Hyper import Configurator, Events
 Configurator.cm = Configurator.ConfigManager(Configurator.Config(file="config.json").load_from_file())
 
 TRIGGHT_KEYWORD = "Any"
-HELP_MESSAGE = f'''{Configurator.cm.get_cfg().others["reminder"]}发电 (名字) —> 对某个人表达内心深处的诉求
-       我今天棒不棒 —> 让{Configurator.cm.get_cfg().others["bot_name"]}来评评你今天表现怎么样'''
+HELP_MESSAGE = f'''{Configurator.cm.get_cfg().others['reminder']}发电 (名字) —> 对某个人表达内心深处的诉求
+       我今天棒不棒 —> 让{Configurator.cm.get_cfg().others['bot_name']}来评评你今天表现怎么样'''
 
 @dataclasses.dataclass
 class UserInfo:
