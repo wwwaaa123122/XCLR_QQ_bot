@@ -2,7 +2,7 @@ from Hyper import Configurator
 Configurator.cm = Configurator.ConfigManager(Configurator.Config(file="config.json").load_from_file())
 
 TRIGGHT_KEYWORD = "大头照"
-HELP_MESSAGE = f"{Configurator.cm.get_cfg().others["reminder"]}大头照 【@一个用户】—> {Configurator.cm.get_cfg().others["bot_name"]}给他拍张大头照"
+HELP_MESSAGE = f"{Configurator.cm.get_cfg().others['reminder']}大头照 【@一个用户】—> {Configurator.cm.get_cfg().others["bot_name"]}给他拍张大头照"
 
 async def on_message(event, actions, Manager, Segments):
     if str(event.user_id):
