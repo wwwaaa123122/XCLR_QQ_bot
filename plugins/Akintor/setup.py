@@ -9,7 +9,7 @@ from Hyper import Configurator
 Configurator.cm = Configurator.ConfigManager(Configurator.Config(file="config.json").load_from_file())
 
 TRIGGHT_KEYWORD = "Any"
-HELP_MESSAGE = f"{Configurator.cm.get_cfg().others["reminder"]}猜人 —> 启动 Akintor 游戏"
+HELP_MESSAGE = f"{Configurator.cm.get_cfg().others['reminder']}猜人 —> 启动 Akintor 游戏"
 
 active_games = {}
 
