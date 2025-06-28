@@ -5,7 +5,7 @@ from Hyper import Configurator
 Configurator.cm = Configurator.ConfigManager(Configurator.Config(file="config.json").load_from_file())
 
 TRIGGHT_KEYWORD = "runcommand"
-HELP_MESSAGE = f"{Configurator.cm.get_cfg().others["reminder"]}runcommand (命令，必填) —> 通过命令实现更多功能（需要SU）"
+HELP_MESSAGE = f"{Configurator.cm.get_cfg().others['reminder']}runcommand (命令，必填) —> 通过命令实现更多功能（需要SU）"
 
 async def on_message(event, actions, Manager, Segments, re, order, Super_User, ROOT_User, bot_name, CONFUSED_WORD):
     if str(event.user_id) in Super_User or str(event.user_id) in ROOT_User:
