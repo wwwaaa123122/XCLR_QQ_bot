@@ -6,7 +6,7 @@ from Hyper import Configurator, Listener
 Configurator.cm = Configurator.ConfigManager(Configurator.Config(file="config.json").load_from_file())
 
 TRIGGHT_KEYWORD = "开"
-HELP_MESSAGE = f"{Configurator.cm.get_cfg().others["reminder"]}开 【@一个用户/QQ号】 —> 打开该用户的账户 👁"
+HELP_MESSAGE = f"{Configurator.cm.get_cfg().others['reminder']}开 【@一个用户/QQ号】 —> 打开该用户的账户 👁"
 MAX_retry = 5
 retry_sleep = 1
 
