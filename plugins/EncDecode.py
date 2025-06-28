@@ -2,7 +2,7 @@ from Hyper import Configurator
 Configurator.cm = Configurator.ConfigManager(Configurator.Config(file="config.json").load_from_file())
 
 TRIGGHT_KEYWORD = "enc解密"
-HELP_MESSAGE = f"{Configurator.cm.get_cfg().others["reminder"]}enc解密 (解密内容) —> 尝试解密被enc加密的内容✅"
+HELP_MESSAGE = f"{Configurator.cm.get_cfg().others['reminder']}enc解密 (解密内容) —> 尝试解密被enc加密的内容✅"
 
 async def on_message(event, actions, Manager, Segments, order, bot_name, base64, urllib):
 
