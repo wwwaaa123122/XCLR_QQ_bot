@@ -444,7 +444,7 @@ async def handler(event: Events.Event, actions: Listener.Actions) -> None:
             await actions.send(user_id=ROOT_User[0], message=Manager.Message(Segments.Text(r_admin))) #管理员操作通知ROOT用户
             await actions.send(group_id=group_id, message=Manager.Message(Segments.Text(f'''{bot_name} {bot_name_en} - {ONE_SLOGAN}
 ————————————————————
-Welcome! {bot_name} was restarted successfully. Now you can send {reminder}帮助 to know more.''')))
+欢迎! {bot_name} 已经重启成功！ 现在你可以发送 {reminder}帮助 来知道更多。''')))
 
     elif isinstance(event, Events.GroupMemberIncreaseEvent):
         if Wait_for_add_in:
