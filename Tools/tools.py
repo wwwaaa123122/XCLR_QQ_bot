@@ -106,9 +106,13 @@ def deal_image(i):
 async def get_user_info(uid, Manager, actions) -> Tuple[bool, Optional[dict]]:
     try:
         gc.collect()
-        info = Manager.Ret.fetch(await actions.custom.get_stranger_info(user_id=uid, no_cache=True))
-        if 'nickname' not in info.data.raw:
-            raise ValueError(f"{uid} is not a valid user ID.")
+        for _ in range(6):
+            info = Manager.Ret.fetch(await actions.custom.get_stranger_info(user_id=uid, no_cache=True))
+            if 'nickname' not in info.data.raw:
+                raise ValueError(f"{uid} is not a valid user ID.")
+            if str(info.data.raw.get('user_id', '未知')) == str(uid):
+                break
+            
         return True, info.data.raw
     except Exception as e:
         print(f"tools: 获取用户 {uid} 信息失败: {e}")

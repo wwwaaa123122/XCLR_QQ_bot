@@ -171,3 +171,5 @@ lgr/appsettings.json
 lgr/keystore.json
 config.json.save
 plugins/CloudBlacklistConsole/blacklist_personal.json
+data/
+lgr/qr-2399451783.png

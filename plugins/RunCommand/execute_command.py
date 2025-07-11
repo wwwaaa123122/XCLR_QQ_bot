@@ -38,16 +38,40 @@ def execute_command(command, subprocess, timeout=30, encoding='utf-8', errors='i
             "returncode": -2
         }
     
-    # 准备命令（如果是字符串且不使用shell，则需要拆分）
-    use_shell = shell
-    if isinstance(command, str) and not shell:
-        try:
-            # 尝试智能分割命令字符串（避免复杂的shell语法）
-            import shlex
-            command = shlex.split(command)
-        except Exception:
-            # 如果无法分割，强制使用shell
-            use_shell = True
+    import platform
+    is_windows = platform.system() == 'Windows'
+    is_server = is_windows and 'Server' in platform.release()
+    
+    # 准备命令
+    use_shell = shell or is_windows  # Windows下默认使用shell
+    
+    if isinstance(command, str):
+        if not use_shell:
+            try:
+                # Linux下尝试分割命令字符串
+                import shlex
+                command = shlex.split(command)
+            except Exception:
+                use_shell = True
+        elif is_windows:
+            # Windows内置命令列表
+            windows_builtins = {
+                'echo', 'dir', 'copy', 'del', 'erase', 'ren', 'rename',
+                'type', 'cd', 'md', 'mkdir', 'rd', 'rmdir', 'cls', 'date',
+                'time', 'ver', 'vol', 'set', 'start', 'pause', 'exit'
+            }
+            
+            first_word = command.strip().split()[0].lower()
+            if first_word in windows_builtins: # 内置加cmd /c前缀
+                command = f'cmd /c {command}'
+            
+            # Windows Server
+            if is_server:
+                import os
+                system_root = os.environ.get('SystemRoot', r'C:\Windows')
+                system32 = os.path.join(system_root, 'System32')
+                if system32 not in os.environ['PATH']:
+                    os.environ['PATH'] = f"{system32};{os.environ['PATH']}"
     
     try:
         # 构建执行参数

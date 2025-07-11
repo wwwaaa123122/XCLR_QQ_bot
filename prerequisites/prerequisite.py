@@ -70,5 +70,6 @@ def gen_presets(uid, bot_name, event_user):
     # 替换实时变量
     sys_prompt = sys_prompt.replace("{self.bot_name}",bot_name)
     sys_prompt = sys_prompt.replace("{self.event_user}",event_user)
+    sys_prompt = sys_prompt.replace("{self.event_user_id}",str(uid))
 
     return sys_prompt
