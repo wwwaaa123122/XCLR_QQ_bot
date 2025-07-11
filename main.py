@@ -1108,7 +1108,7 @@ if failed_plugins else "无"}'''
                     
                 presets_tool.write_presets(presets)
                 rootmsg = f"{'更新现有' if existing_preset_id else '添加'}预设: {name}"
-                await actions.send(user_id=ROOT_User[0], message=Manager.Message(Segments.Text(f"用户 {event.user_id} 在群 {event.group_id} 中 {rootmsg} "))) #管理员操作通知ROOT用户
+                await actions.send(user_id=ROOT_User[0], message=Manager.Message(Segments.Text(f"用户 {event.user_id} 在群 {event.group_id} 中{rootmsg} "))) #管理员操作通知ROOT用户
                 prerequisites_info = f"""{bot_name} {bot_name_en} - 角色扮演后台
 ————————————————————
 已{'更新现有' if existing_preset_id else '添加'}预设: {name}"""

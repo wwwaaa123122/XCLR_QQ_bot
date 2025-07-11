@@ -10,7 +10,7 @@ HELP_MESSAGE = f'''{Configurator.cm.get_cfg().others["reminder"]}issue (编号)/
        
 OWNER: str = "SRInternet-Studio"
 REPO: str = "Jianer_QQ_bot"
-TOKEN: str = ""
+TOKEN: str = os.environ.get('GITHUB_TOKEN')
        
 async def on_message(event, actions, Manager, Segments, Events, reminder):
     global OWNER, REPO
