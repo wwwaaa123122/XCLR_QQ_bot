@@ -161,7 +161,6 @@ cython_debug/
 Manage_User.ini
 Super_User.ini
 config.json
-prerequisites/current.json
 blacklist.sr
 extract_strings.py
 rbc_ae3803.txt
@@ -172,4 +171,4 @@ lgr/keystore.json
 config.json.save
 plugins/CloudBlacklistConsole/blacklist_personal.json
 data/
-lgr/qr-2399451783.png
+lgr/
