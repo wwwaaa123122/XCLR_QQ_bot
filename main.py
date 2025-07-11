@@ -180,7 +180,7 @@ def load_plugins():
                         del sys.modules[unique_module_name]
                 except ImportError as e:
                     failed_plugins.append(f"{module_name} (导入错误: {e})")
-                    print(f"加载插件 {unique_module_name} 失败，是因为: {e}")
+                    print(f"加载插件 {unique_module_name} 失败，是因为: \n{traceback.format_exc()}\n")
                     if unique_module_name in sys.modules:
                         del sys.modules[unique_module_name]
                 except Exception as e:
@@ -239,7 +239,7 @@ def load_plugins():
                     del sys.modules[unique_module_name]
             except ImportError as e:
                 failed_plugins.append(f"{module_name} (导入错误: {e})")
-                print(f"加载插件 {unique_module_name} 失败，原因是: {e}")
+                print(f"加载插件 {unique_module_name} 失败，原因是: \n{traceback.format_exc()}\n")
                 if unique_module_name in sys.modules:
                     del sys.modules[unique_module_name]
             except Exception as e:
@@ -1107,7 +1107,8 @@ if failed_plugins else "无"}'''
                     }
                     
                 presets_tool.write_presets(presets)
-                
+                rootmsg = f"{'更新现有' if existing_preset_id else '添加'}预设: {name}"
+                await actions.send(user_id=ROOT_User[0], message=Manager.Message(Segments.Text(f"用户 {event.user_id} 在群 {event.group_id} 中 {rootmsg} "))) #管理员操作通知ROOT用户
                 prerequisites_info = f"""{bot_name} {bot_name_en} - 角色扮演后台
 ————————————————————
 已{'更新现有' if existing_preset_id else '添加'}预设: {name}"""
@@ -1149,6 +1150,7 @@ if failed_plugins else "无"}'''
                 del presets[preset_id_to_delete]
                 
                 presets_tool.write_presets(presets)
+                await actions.send(user_id=ROOT_User[0], message=Manager.Message(Segments.Text(f"用户 {event.user_id} 在群 {event.group_id} 中删除 {name} 预设"))) #管理员操作通知ROOT用户
                 prerequisites_info = f"""{bot_name} {bot_name_en} - 角色扮演后台
 ————————————————————
 已删除预设: {name}"""
@@ -1277,7 +1279,6 @@ CPU占用：{str(system_info["cpu_usage"]) + "%"}
                         complete = False
                         for i in event.message:
                             if isinstance(i, Segments.At):
-                                print("At in loading...")
                                 userid114 = numbers[0]  
                                 time114 = numbers[1]
                                 
@@ -1372,7 +1373,7 @@ CPU占用：{str(system_info["cpu_usage"]) + "%"}
                             await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text("头衔不能超过6个字！")))
                         else:
                             try:  
-                                await actions.set_group_special_title(group_id=event.group_id, user_id=userid114, title=title114)
+                                await actions.custom.set_group_special_title(group_id=event.group_id, user_id=userid114, title=title114)
                                 await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text("已设置！")))
                             except Exception as set_title_error:
                                 print(f"设置头衔失败: {set_title_error}")
@@ -1393,17 +1394,14 @@ CPU占用：{str(system_info["cpu_usage"]) + "%"}
                 await actions.send(group_id=event.group_id,message=Manager.Message(Segments.Text("头衔不能超过6个字！")))
             else:
                 if str(event.user_id) in SUPERS:
-                    await actions.set_group_special_title(group_id=event.group_id,user_id=event.user_id,title=titletext)
+                    await actions.custom.set_group_special_title(group_id=event.group_id,user_id=event.user_id,title=titletext)
                     await actions.send(group_id=event.group_id,message=Manager.Message(Segments.Text("已设置！")))
                 else:
                     if self_service_titles:
-                        await actions.set_group_special_title(group_id=event.group_id,user_id=event.user_id,special_title=titletext,duration=-1)
+                        await actions.custom.set_group_special_title(group_id=event.group_id,user_id=event.user_id,special_title=titletext,duration=-1)
                         await actions.send(group_id=event.group_id,message=Manager.Message(Segments.Text("已设置！")))
                     else:
                         await actions.send(group_id=event.group_id,message=Manager.Message(Segments.Text("当前功能未开放,请联系管理员(高级用户 或者 根用户)开放权限！")))
-        # elif "6" == user_message:
-        #         await actions.send(group_id=event.group_id,message=Manager.Message(Segments.Image(os.path.abspath("./stcn6.png"))))
-        #         await actions.set_group_ban(group_id=event.group_id,user_id=event.user_id,duration=600)
         else:
             # 没有匹配到用户发送的任何关键字，进入二级响应
             # 1. 检查用户是否是想要切换预设
