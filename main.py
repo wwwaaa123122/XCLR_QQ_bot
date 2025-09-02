@@ -462,6 +462,7 @@ Welcome! {bot_name} was restarted successfully. Now you can send {reminder}帮�
         await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Image(f"http://q2.qlogo.cn/headimg_dl?dst_uin={user}&spec=640"), Segments.Text("欢迎"), Segments.At(user), Segments.Text(welcome)))
         if event.group_id == 310444809:
             await actions.send(group_id=event.group_id,message=Manager.Message(Segments.Text("6块")))
+            await actions.send(group_id=event.group_id,message=Manager.Message(Segments.Video("https://www.mcxclr.top/f/rboCo/Welcome.mp4")))
         
     elif isinstance(event, Events.GroupMemberDecreaseEvent):
         s, user_nick = await get_user_info(event.user_id, Manager, actions)
@@ -496,6 +497,7 @@ Welcome! {bot_name} was restarted successfully. Now you can send {reminder}帮�
                 await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Image(f"http://q2.qlogo.cn/headimg_dl?dst_uin={user}&spec=640"), Segments.Text(welcome)))
                 if event.group_id == 310444809:
                     await actions.send(group_id=event.group_id,message=Manager.Message(Segments.Text("6块")))
+                    await actions.send(group_id=event.group_id,message=Manager.Message(Segments.Video(f"https://www.mcxclr.top/f/rboCo/Welcome.mp4")))
                     await actions.coke(group_id=event.group_id,message=Manager.Message,user_id=2137213449)
                 break
             except:
@@ -1667,7 +1669,6 @@ def help_message() -> str:
     return f'''如何与{bot_name}交流( •̀ ω •́ )✧
     注：对话前必须加上 {reminder} 噢！~
        {reminder}(任意问题，必填) —> {bot_name}回复
-       狐狸图 --->{bot_name}随机回复一张狐狸图
        {reminder}读图{"（当前）" if EnableNetwork == "Pixmap" else ""} —> {bot_name}可以回复您发送的图片✅
        {reminder}默认4{"（当前）" if EnableNetwork == "Net" else ""} —> {bot_name}更富有创造力的回复通道 🌟
        {reminder}默认3.5{"（当前）" if EnableNetwork == "Normal" else ""} —> {bot_name}的快速回复通道🎈

@@ -1,7 +1,9 @@
 {
     "Normal": {
         "name": "\u6742\u9c7c\u9171",
-        "uid": [],
+        "uid": [
+            3385016019
+        ],
         "info": "\u6742\u9c7c\u2764\ufe0f~\u6742\u9c7c\u2764\ufe0f~",
         "path": "Normal.txt"
     },
@@ -9,9 +11,23 @@
         "name": "\u67da\u67da",
         "uid": [
             2812785657,
-            3385016019
+            2786798901,
+            823628112,
+            573034240
         ],
         "info": "Ciallo\u223c(\u2220\u30fb\u03c9[ )\u2312\u2606\u8bf7\u95ee\u54e5\u54e5\u6709\u4ec0\u4e48\u4e8b\u5417\uff1f",
         "path": "p4082236.txt"
+    },
+    "p7875907": {
+        "name": "bot",
+        "uid": [],
+        "info": "\u8111\u5b50\u4ec0\u4e48\u7684\u6700\u597d\u5403\u4e86\ud83d\ude0b",
+        "path": "p7875907.txt"
+    },
+    "p1735860": {
+        "name": "\u63d0\u95ee",
+        "uid": [],
+        "info": "\u5192\u6ce1\ud83e\udee7",
+        "path": "p1735860.txt"
     }
 }
