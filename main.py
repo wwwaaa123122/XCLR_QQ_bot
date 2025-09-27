@@ -1230,7 +1230,7 @@ CPU占用：{str(system_info["cpu_usage"]) + "%"}
         elif f"{reminder}随机图" == user_message:
             erciyuanapi = ["https://api.lxtu.cn/api.php?category=mn","https://api.lxtu.cn/api.php?category=clysj","https://api.lxtu.cn/api.php?category=ecy"]
             random_ecy = random.choice(erciyuanapi)
-            await actions.send(group_id=event.group_id,message=Manager.Message(Segments.Image(random_ecy)))
+            await actions.send(group_id=event.group_id,message=Manager.Message(Segments.Image("https://pic.mcxclr.top")))
 
         elif f"ba" in user_message:
             await actions.send(group_id=event.group_id,message=Manager.Message(Segments.Image(f"https://xxclr.ccccocccc.cc/index.php")))
