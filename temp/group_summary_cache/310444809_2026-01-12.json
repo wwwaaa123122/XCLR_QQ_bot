@@ -1,0 +1,835 @@
+[
+  {
+    "sender_id": "728996579",
+    "sender_name": "西瓜投手🍉",
+    "content": "明天试试",
+    "timestamp": "2026-01-12T23:02:54.819176",
+    "message_id": "1061965471"
+  },
+  {
+    "sender_id": "1458349958",
+    "sender_name": "脏脏包🍞",
+    "content": "[图片]",
+    "timestamp": "2026-01-12T23:09:08.859328",
+    "message_id": "950449464"
+  },
+  {
+    "sender_id": "3509876063",
+    "sender_name": "人",
+    "content": "@2534359860 你删掉了一个不兼容的mod，能正常开应该能说明这个mod不是其他mod的前置，也就是整合包少了点内容，别的影响不大吧",
+    "timestamp": "2026-01-12T23:11:35.948196",
+    "message_id": "1956968213"
+  },
+  {
+    "sender_id": "3509876063",
+    "sender_name": "人",
+    "content": "@3655437054 这个是啥",
+    "timestamp": "2026-01-12T23:12:02.025015",
+    "message_id": "1709326032"
+  },
+  {
+    "sender_id": "3250093856",
+    "sender_name": "林深时雾起",
+    "content": "服务器的mod怎么查询可不可用啊",
+    "timestamp": "2026-01-12T23:14:40.060239",
+    "message_id": "1007487936"
+  },
+  {
+    "sender_id": "3250093856",
+    "sender_name": "林深时雾起",
+    "content": "@1906319767 ",
+    "timestamp": "2026-01-12T23:14:43.345283",
+    "message_id": "1367785166"
+  },
+  {
+    "sender_id": "1458349958",
+    "sender_name": "脏脏包🍞",
+    "content": "加入一下不就知道了",
+    "timestamp": "2026-01-12T23:14:52.199832",
+    "message_id": "1601346648"
+  },
+  {
+    "sender_id": "1458349958",
+    "sender_name": "脏脏包🍞",
+    "content": "进服有提示",
+    "timestamp": "2026-01-12T23:15:00.070590",
+    "message_id": "2012330433"
+  },
+  {
+    "sender_id": "1139471273",
+    "sender_name": "Q群管家",
+    "content": "[图片]",
+    "timestamp": "2026-01-12T23:15:03.069127",
+    "message_id": "1583213989"
+  },
+  {
+    "sender_id": "3250093856",
+    "sender_name": "林深时雾起",
+    "content": "就是我客户端的mod开服查询",
+    "timestamp": "2026-01-12T23:15:17.279780",
+    "message_id": "1630268814"
+  },
+  {
+    "sender_id": "2892813998",
+    "sender_name": "欣雨bot",
+    "content": "客户端的mod查不了，得进服才看得清",
+    "timestamp": "2026-01-12T23:15:26.555876",
+    "message_id": "439677871"
+  },
+  {
+    "sender_id": "2892813998",
+    "sender_name": "欣雨bot",
+    "content": "[图片]",
+    "timestamp": "2026-01-12T23:15:31.825808",
+    "message_id": "1717304223"
+  },
+  {
+    "sender_id": "3250093856",
+    "sender_name": "林深时雾起",
+    "content": "有50多个未识别的",
+    "timestamp": "2026-01-12T23:15:34.149895",
+    "message_id": "1915171130"
+  },
+  {
+    "sender_id": "3250093856",
+    "sender_name": "林深时雾起",
+    "content": "我怎么弄",
+    "timestamp": "2026-01-12T23:15:47.629046",
+    "message_id": "1827176001"
+  },
+  {
+    "sender_id": "3250093856",
+    "sender_name": "林深时雾起",
+    "content": "[表情: 338]",
+    "timestamp": "2026-01-12T23:15:51.724287",
+    "message_id": "86136894"
+  },
+  {
+    "sender_id": "3509876063",
+    "sender_name": "人",
+    "content": "mc百科里基本都有",
+    "timestamp": "2026-01-12T23:16:13.085907",
+    "message_id": "1028973572"
+  },
+  {
+    "sender_id": "3250093856",
+    "sender_name": "林深时雾起",
+    "content": "[图片]",
+    "timestamp": "2026-01-12T23:16:41.763030",
+    "message_id": "1346565923"
+  },
+  {
+    "sender_id": "3250093856",
+    "sender_name": "林深时雾起",
+    "content": "百科也查不到",
+    "timestamp": "2026-01-12T23:16:47.525495",
+    "message_id": "2100990253"
+  },
+  {
+    "sender_id": "1458349958",
+    "sender_name": "脏脏包🍞",
+    "content": "@3250093856 因为你这个mod的文件名",
+    "timestamp": "2026-01-12T23:17:10.903249",
+    "message_id": "501852501"
+  },
+  {
+    "sender_id": "3250093856",
+    "sender_name": "林深时雾起",
+    "content": "那咋查",
+    "timestamp": "2026-01-12T23:17:29.933682",
+    "message_id": "840304982"
+  },
+  {
+    "sender_id": "1458349958",
+    "sender_name": "脏脏包🍞",
+    "content": "搜的到才怪了哈哈",
+    "timestamp": "2026-01-12T23:17:33.683198",
+    "message_id": "82363125"
+  },
+  {
+    "sender_id": "1458349958",
+    "sender_name": "脏脏包🍞",
+    "content": "是你自己的服务器吗？",
+    "timestamp": "2026-01-12T23:17:41.007091",
+    "message_id": "1851895893"
+  },
+  {
+    "sender_id": "3250093856",
+    "sender_name": "林深时雾起",
+    "content": "[表情: 338]",
+    "timestamp": "2026-01-12T23:17:43.657158",
+    "message_id": "1693390319"
+  },
+  {
+    "sender_id": "1458349958",
+    "sender_name": "脏脏包🍞",
+    "content": "还是别人的",
+    "timestamp": "2026-01-12T23:17:44.106898",
+    "message_id": "2086223399"
+  },
+  {
+    "sender_id": "3250093856",
+    "sender_name": "林深时雾起",
+    "content": "我自己搭服务器",
+    "timestamp": "2026-01-12T23:17:50.872139",
+    "message_id": "240527198"
+  },
+  {
+    "sender_id": "3250093856",
+    "sender_name": "林深时雾起",
+    "content": "和小伙伴玩呢",
+    "timestamp": "2026-01-12T23:17:58.016746",
+    "message_id": "23724943"
+  },
+  {
+    "sender_id": "1458349958",
+    "sender_name": "脏脏包🍞",
+    "content": "把服务端的mod拷贝到电脑上",
+    "timestamp": "2026-01-12T23:18:04.721012",
+    "message_id": "351488147"
+  },
+  {
+    "sender_id": "3250093856",
+    "sender_name": "林深时雾起",
+    "content": "[图片]",
+    "timestamp": "2026-01-12T23:18:43.140610",
+    "message_id": "963004923"
+  },
+  {
+    "sender_id": "3250093856",
+    "sender_name": "林深时雾起",
+    "content": "未识别的有50多个",
+    "timestamp": "2026-01-12T23:18:51.833884",
+    "message_id": "243155498"
+  },
+  {
+    "sender_id": "3250093856",
+    "sender_name": "林深时雾起",
+    "content": "我把可选和需要的复制进去了",
+    "timestamp": "2026-01-12T23:19:14.388158",
+    "message_id": "1158746532"
+  },
+  {
+    "sender_id": "3250093856",
+    "sender_name": "林深时雾起",
+    "content": "就是这个未识别的我该怎么弄",
+    "timestamp": "2026-01-12T23:19:34.619305",
+    "message_id": "1484529710"
+  },
+  {
+    "sender_id": "3250093856",
+    "sender_name": "林深时雾起",
+    "content": "就是现在还在搭建服务器，我要加入整合包的mod",
+    "timestamp": "2026-01-12T23:20:32.562860",
+    "message_id": "1213187178"
+  },
+  {
+    "sender_id": "3250093856",
+    "sender_name": "林深时雾起",
+    "content": "到这一步难住了",
+    "timestamp": "2026-01-12T23:20:42.579532",
+    "message_id": "849201127"
+  },
+  {
+    "sender_id": "2534359860",
+    "sender_name": "dghduxjehdbd",
+    "content": "PCL可能能认出来吧",
+    "timestamp": "2026-01-12T23:21:53.573743",
+    "message_id": "1702118522"
+  },
+  {
+    "sender_id": "3250093856",
+    "sender_name": "林深时雾起",
+    "content": "给我难住了这可",
+    "timestamp": "2026-01-12T23:24:18.207464",
+    "message_id": "1051887799"
+  },
+  {
+    "sender_id": "3385016019",
+    "sender_name": "AAA 星辰旅人",
+    "content": "6",
+    "timestamp": "2026-01-12T23:34:04.863873",
+    "message_id": "199692827"
+  },
+  {
+    "sender_id": "1458349958",
+    "sender_name": "脏脏包🍞",
+    "content": "[图片]",
+    "timestamp": "2026-01-12T23:34:14.919658",
+    "message_id": "224161936"
+  },
+  {
+    "sender_id": "1458349958",
+    "sender_name": "脏脏包🍞",
+    "content": "知识付费怎么了？",
+    "timestamp": "2026-01-12T23:34:23.924689",
+    "message_id": "217182711"
+  },
+  {
+    "sender_id": "3385016019",
+    "sender_name": "AAA 星辰旅人",
+    "content": "彳亍",
+    "timestamp": "2026-01-12T23:34:38.129566",
+    "message_id": "691837845"
+  },
+  {
+    "sender_id": "3509876063",
+    "sender_name": "人",
+    "content": "@3250093856 这五十个都查不到吗，我记得可以放服务器的mod文件夹，启动，在报错里会标出无效的mod",
+    "timestamp": "2026-01-12T23:35:14.837867",
+    "message_id": "1848766325"
+  },
+  {
+    "sender_id": "3250093856",
+    "sender_name": "林深时雾起",
+    "content": "@3509876063 我服务器都启动不了我也不知道为啥",
+    "timestamp": "2026-01-12T23:35:56.045213",
+    "message_id": "626004671"
+  },
+  {
+    "sender_id": "1458349958",
+    "sender_name": "脏脏包🍞",
+    "content": "我这还有一张专门收费表呢",
+    "timestamp": "2026-01-12T23:36:03.775055",
+    "message_id": "6216326"
+  },
+  {
+    "sender_id": "3250093856",
+    "sender_name": "林深时雾起",
+    "content": "没添加mod的时候可以",
+    "timestamp": "2026-01-12T23:36:09.042132",
+    "message_id": "185584714"
+  },
+  {
+    "sender_id": "1458349958",
+    "sender_name": "脏脏包🍞",
+    "content": "[图片]",
+    "timestamp": "2026-01-12T23:36:14.000661",
+    "message_id": "2025248796"
+  },
+  {
+    "sender_id": "1458349958",
+    "sender_name": "脏脏包🍞",
+    "content": "[图片]",
+    "timestamp": "2026-01-12T23:36:15.563712",
+    "message_id": "1373090424"
+  },
+  {
+    "sender_id": "3385016019",
+    "sender_name": "AAA 星辰旅人",
+    "content": "[图片]",
+    "timestamp": "2026-01-12T23:36:33.566306",
+    "message_id": "994686256"
+  },
+  {
+    "sender_id": "3250093856",
+    "sender_name": "林深时雾起",
+    "content": "服务器没添加模组的时候正常启动，添加了模组之后启动一半就停止启动了",
+    "timestamp": "2026-01-12T23:37:14.972504",
+    "message_id": "913774512"
+  },
+  {
+    "sender_id": "3509876063",
+    "sender_name": "人",
+    "content": "有无报错",
+    "timestamp": "2026-01-12T23:37:28.298908",
+    "message_id": "2033473266"
+  },
+  {
+    "sender_id": "3509876063",
+    "sender_name": "人",
+    "content": "还是直接闪退",
+    "timestamp": "2026-01-12T23:37:37.140554",
+    "message_id": "1885907684"
+  },
+  {
+    "sender_id": "3509876063",
+    "sender_name": "人",
+    "content": "有报错可以直接微信截屏，翻译，看哪里有问题",
+    "timestamp": "2026-01-12T23:38:18.859112",
+    "message_id": "1370742315"
+  },
+  {
+    "sender_id": "3250093856",
+    "sender_name": "林深时雾起",
+    "content": "[图片]",
+    "timestamp": "2026-01-12T23:38:20.495873",
+    "message_id": "1659532318"
+  },
+  {
+    "sender_id": "3054282733",
+    "sender_name": "帕",
+    "content": "我去不早说",
+    "timestamp": "2026-01-12T23:38:31.382398",
+    "message_id": "126056521"
+  },
+  {
+    "sender_id": "3054282733",
+    "sender_name": "帕",
+    "content": "[图片]",
+    "timestamp": "2026-01-12T23:38:36.294739",
+    "message_id": "1846824557"
+  },
+  {
+    "sender_id": "1458349958",
+    "sender_name": "脏脏包🍞",
+    "content": "[图片]",
+    "timestamp": "2026-01-12T23:38:42.578043",
+    "message_id": "2082611443"
+  },
+  {
+    "sender_id": "3250093856",
+    "sender_name": "林深时雾起",
+    "content": "就到这里然后就停止运行了",
+    "timestamp": "2026-01-12T23:38:46.219468",
+    "message_id": "301933538"
+  },
+  {
+    "sender_id": "1458349958",
+    "sender_name": "脏脏包🍞",
+    "content": "哎呀我小本生意管理员就不要和我争了",
+    "timestamp": "2026-01-12T23:39:04.228232",
+    "message_id": "1030074076"
+  },
+  {
+    "sender_id": "1458349958",
+    "sender_name": "脏脏包🍞",
+    "content": "我就赚个吃饭前",
+    "timestamp": "2026-01-12T23:39:10.975967",
+    "message_id": "1239382279"
+  },
+  {
+    "sender_id": "1458349958",
+    "sender_name": "脏脏包🍞",
+    "content": "钱",
+    "timestamp": "2026-01-12T23:39:12.540236",
+    "message_id": "891410754"
+  },
+  {
+    "sender_id": "2107914779",
+    "sender_name": "⁧~喵⁧‭小吴",
+    "content": "？",
+    "timestamp": "2026-01-12T23:39:27.354120",
+    "message_id": "968890853"
+  },
+  {
+    "sender_id": "2107914779",
+    "sender_name": "⁧~喵⁧‭小吴",
+    "content": "他是群主小号",
+    "timestamp": "2026-01-12T23:39:40.142352",
+    "message_id": "670003610"
+  },
+  {
+    "sender_id": "2981550852",
+    "sender_name": "三鑫",
+    "content": "[图片]",
+    "timestamp": "2026-01-12T23:40:04.231170",
+    "message_id": "892375769"
+  },
+  {
+    "sender_id": "2107914779",
+    "sender_name": "⁧~喵⁧‭小吴",
+    "content": "[图片]",
+    "timestamp": "2026-01-12T23:40:07.578236",
+    "message_id": "1015009403"
+  },
+  {
+    "sender_id": "2107914779",
+    "sender_name": "⁧~喵⁧‭小吴",
+    "content": "要收钱也是我来",
+    "timestamp": "2026-01-12T23:40:14.580377",
+    "message_id": "787422585"
+  },
+  {
+    "sender_id": "2107914779",
+    "sender_name": "⁧~喵⁧‭小吴",
+    "content": "我这里经济实惠",
+    "timestamp": "2026-01-12T23:40:18.849785",
+    "message_id": "442139644"
+  },
+  {
+    "sender_id": "2107914779",
+    "sender_name": "⁧~喵⁧‭小吴",
+    "content": "就2元以上",
+    "timestamp": "2026-01-12T23:40:25.562634",
+    "message_id": "1710901187"
+  },
+  {
+    "sender_id": "2981550852",
+    "sender_name": "三鑫",
+    "content": "有大佬知道怎么调开启作弊吗",
+    "timestamp": "2026-01-12T23:40:26.685943",
+    "message_id": "1105356775"
+  },
+  {
+    "sender_id": "2107914779",
+    "sender_name": "⁧~喵⁧‭小吴",
+    "content": "创造世界时才能开",
+    "timestamp": "2026-01-12T23:40:59.526600",
+    "message_id": "970318307"
+  },
+  {
+    "sender_id": "2107914779",
+    "sender_name": "⁧~喵⁧‭小吴",
+    "content": "如果你创造时没开就开不了了",
+    "timestamp": "2026-01-12T23:41:10.779682",
+    "message_id": "1795948055"
+  },
+  {
+    "sender_id": "3192488097",
+    "sender_name": "欣悦",
+    "content": "[图片]",
+    "timestamp": "2026-01-12T23:41:18.537238",
+    "message_id": "1472251445"
+  },
+  {
+    "sender_id": "1458349958",
+    "sender_name": "脏脏包🍞",
+    "content": "@2107914779 我小本生意群主不要和我抢了",
+    "timestamp": "2026-01-12T23:41:26.540858",
+    "message_id": "1472710643"
+  },
+  {
+    "sender_id": "1458349958",
+    "sender_name": "脏脏包🍞",
+    "content": "技术支持没有这么廉价",
+    "timestamp": "2026-01-12T23:41:38.450793",
+    "message_id": "432335880"
+  },
+  {
+    "sender_id": "2107914779",
+    "sender_name": "⁧~喵⁧‭小吴",
+    "content": "你可以去这个",
+    "timestamp": "2026-01-12T23:41:40.059080",
+    "message_id": "1659091571"
+  },
+  {
+    "sender_id": "2107914779",
+    "sender_name": "⁧~喵⁧‭小吴",
+    "content": "[Json]",
+    "timestamp": "2026-01-12T23:41:46.160199",
+    "message_id": "116223978"
+  },
+  {
+    "sender_id": "1458349958",
+    "sender_name": "脏脏包🍞",
+    "content": "不要内卷",
+    "timestamp": "2026-01-12T23:41:46.531055",
+    "message_id": "1735400650"
+  },
+  {
+    "sender_id": "2107914779",
+    "sender_name": "⁧~喵⁧‭小吴",
+    "content": "几千个人",
+    "timestamp": "2026-01-12T23:41:53.458043",
+    "message_id": "305359902"
+  },
+  {
+    "sender_id": "3054282733",
+    "sender_name": "念与昔",
+    "content": "[图片]",
+    "timestamp": "2026-01-12T23:42:11.112455",
+    "message_id": "523294703"
+  },
+  {
+    "sender_id": "2981550852",
+    "sender_name": "三鑫",
+    "content": "那服务器用指令是不是也得要原世界开作弊",
+    "timestamp": "2026-01-12T23:42:13.619757",
+    "message_id": "811565161"
+  },
+  {
+    "sender_id": "2981550852",
+    "sender_name": "三鑫",
+    "content": "[图片]",
+    "timestamp": "2026-01-12T23:42:16.948420",
+    "message_id": "134542086"
+  },
+  {
+    "sender_id": "2107914779",
+    "sender_name": "⁧~喵⁧‭小吴",
+    "content": "不用",
+    "timestamp": "2026-01-12T23:42:20.781876",
+    "message_id": "757064848"
+  },
+  {
+    "sender_id": "3192488097",
+    "sender_name": "欣悦",
+    "content": "创造世界开个模组还要开会员？算了",
+    "timestamp": "2026-01-12T23:42:25.736074",
+    "message_id": "898260791"
+  },
+  {
+    "sender_id": "2107914779",
+    "sender_name": "⁧~喵⁧‭小吴",
+    "content": "吧",
+    "timestamp": "2026-01-12T23:42:26.433551",
+    "message_id": "2112472847"
+  },
+  {
+    "sender_id": "3192488097",
+    "sender_name": "欣悦",
+    "content": "我直接删游戏重下",
+    "timestamp": "2026-01-12T23:42:27.567013",
+    "message_id": "372918504"
+  },
+  {
+    "sender_id": "2107914779",
+    "sender_name": "⁧~喵⁧‭小吴",
+    "content": "反正我没空",
+    "timestamp": "2026-01-12T23:42:37.238927",
+    "message_id": "989302514"
+  },
+  {
+    "sender_id": "2107914779",
+    "sender_name": "⁧~喵⁧‭小吴",
+    "content": "[图片]",
+    "timestamp": "2026-01-12T23:42:40.267437",
+    "message_id": "693057459"
+  },
+  {
+    "sender_id": "3250093856",
+    "sender_name": "林深时雾起",
+    "content": "给op就可以用指令了",
+    "timestamp": "2026-01-12T23:42:42.115281",
+    "message_id": "171759248"
+  },
+  {
+    "sender_id": "2981550852",
+    "sender_name": "9211 张三丰",
+    "content": "我就是服务器用不了指令挺难受的",
+    "timestamp": "2026-01-12T23:42:42.133951",
+    "message_id": "9929656"
+  },
+  {
+    "sender_id": "2892813998",
+    "sender_name": "欣雨bot",
+    "content": "op权限得在创建世界时就开，现在改不了",
+    "timestamp": "2026-01-12T23:42:50.163101",
+    "message_id": "182841707"
+  },
+  {
+    "sender_id": "2981550852",
+    "sender_name": "9211 张三丰",
+    "content": "咳咳哟",
+    "timestamp": "2026-01-12T23:42:57.301838",
+    "message_id": "176461660"
+  },
+  {
+    "sender_id": "2107914779",
+    "sender_name": "⁧~喵⁧‭小吴",
+    "content": "你没作弊开集贸op",
+    "timestamp": "2026-01-12T23:43:07.905741",
+    "message_id": "264822714"
+  },
+  {
+    "sender_id": "3250093856",
+    "sender_name": "林深时雾起",
+    "content": "服务器上给op",
+    "timestamp": "2026-01-12T23:43:13.255462",
+    "message_id": "222161873"
+  },
+  {
+    "sender_id": "2107914779",
+    "sender_name": "⁧~喵⁧‭小吴",
+    "content": "op是管理员",
+    "timestamp": "2026-01-12T23:43:16.170811",
+    "message_id": "2107725424"
+  },
+  {
+    "sender_id": "2981550852",
+    "sender_name": "9211 张三丰",
+    "content": "看来得下一个存档了",
+    "timestamp": "2026-01-12T23:43:24.461594",
+    "message_id": "608580441"
+  },
+  {
+    "sender_id": "3192488097",
+    "sender_name": "欣悦",
+    "content": "我就说了嘛",
+    "timestamp": "2026-01-12T23:43:31.767417",
+    "message_id": "12914916"
+  },
+  {
+    "sender_id": "3250093856",
+    "sender_name": "林深时雾起",
+    "content": "在配置文件改",
+    "timestamp": "2026-01-12T23:43:34.473114",
+    "message_id": "1606418119"
+  },
+  {
+    "sender_id": "3192488097",
+    "sender_name": "欣悦",
+    "content": "现在改op有用吗？服务器都跑偏了，我直接重开世界",
+    "timestamp": "2026-01-12T23:43:38.018974",
+    "message_id": "1737589087"
+  },
+  {
+    "sender_id": "2981550852",
+    "sender_name": "9211 张三丰",
+    "content": "咋改",
+    "timestamp": "2026-01-12T23:43:42.259981",
+    "message_id": "584798730"
+  },
+  {
+    "sender_id": "2107914779",
+    "sender_name": "⁧~喵⁧‭小吴",
+    "content": "@3250093856 你觉得他会改吗",
+    "timestamp": "2026-01-12T23:43:43.700419",
+    "message_id": "1363987373"
+  },
+  {
+    "sender_id": "2892813998",
+    "sender_name": "欣雨bot",
+    "content": "重开世界最省事，省得折腾那堆模组",
+    "timestamp": "2026-01-12T23:43:46.520116",
+    "message_id": "1679893662"
+  },
+  {
+    "sender_id": "2107914779",
+    "sender_name": "⁧~喵⁧‭小吴",
+    "content": "[图片]",
+    "timestamp": "2026-01-12T23:43:47.074886",
+    "message_id": "571006186"
+  },
+  {
+    "sender_id": "3192488097",
+    "sender_name": "欣悦",
+    "content": "林深时雾起说的对，在服务器配置文件里改",
+    "timestamp": "2026-01-12T23:44:05.568232",
+    "message_id": "1418233740"
+  },
+  {
+    "sender_id": "3250093856",
+    "sender_name": "林深时雾起",
+    "content": "我会用现成的服务器，不会自己搭建",
+    "timestamp": "2026-01-12T23:44:05.912838",
+    "message_id": "1709039839"
+  },
+  {
+    "sender_id": "3192488097",
+    "sender_name": "欣悦",
+    "content": "不过你得先停服",
+    "timestamp": "2026-01-12T23:44:12.190246",
+    "message_id": "1597516739"
+  },
+  {
+    "sender_id": "3250093856",
+    "sender_name": "林深时雾起",
+    "content": "[表情: 338]",
+    "timestamp": "2026-01-12T23:44:13.818170",
+    "message_id": "1954947943"
+  },
+  {
+    "sender_id": "3192488097",
+    "sender_name": "欣悦",
+    "content": "然后用文本编辑器打开服务器目录下的server.properties文件",
+    "timestamp": "2026-01-12T23:44:16.519836",
+    "message_id": "764959093"
+  },
+  {
+    "sender_id": "3192488097",
+    "sender_name": "欣悦",
+    "content": "把op设置那块改了",
+    "timestamp": "2026-01-12T23:44:18.642429",
+    "message_id": "1373862479"
+  },
+  {
+    "sender_id": "3192488097",
+    "sender_name": "欣悦",
+    "content": "再重启服务器，这步操作你搞得定吗？",
+    "timestamp": "2026-01-12T23:44:23.503143",
+    "message_id": "1634955631"
+  },
+  {
+    "sender_id": "2534359860",
+    "sender_name": "Hello李佳莹",
+    "content": "其实问deepseek怎么改那个server文件也行",
+    "timestamp": "2026-01-12T23:45:10.938656",
+    "message_id": "1616930519"
+  },
+  {
+    "sender_id": "2534359860",
+    "sender_name": "Hello李佳莹",
+    "content": "[图片]",
+    "timestamp": "2026-01-12T23:45:49.509660",
+    "message_id": "624490657"
+  },
+  {
+    "sender_id": "3192488097",
+    "sender_name": "欣悦",
+    "content": "这图发得挺及时啊，照着改就行",
+    "timestamp": "2026-01-12T23:46:07.638415",
+    "message_id": "1406163635"
+  },
+  {
+    "sender_id": "2981550852",
+    "sender_name": "三鑫",
+    "content": "[图片]",
+    "timestamp": "2026-01-12T23:46:40.717314",
+    "message_id": "1324682328"
+  },
+  {
+    "sender_id": "2534359860",
+    "sender_name": "dghduxjehdbd",
+    "content": "[图片]",
+    "timestamp": "2026-01-12T23:46:43.262895",
+    "message_id": "112586061"
+  },
+  {
+    "sender_id": "2981550852",
+    "sender_name": "三鑫",
+    "content": "感动哭了",
+    "timestamp": "2026-01-12T23:46:45.840510",
+    "message_id": "1387762604"
+  },
+  {
+    "sender_id": "2534359860",
+    "sender_name": "dghduxjehdbd",
+    "content": "[图片]",
+    "timestamp": "2026-01-12T23:46:57.283060",
+    "message_id": "2102815765"
+  },
+  {
+    "sender_id": "2981550852",
+    "sender_name": "三鑫",
+    "content": "爱你",
+    "timestamp": "2026-01-12T23:48:47.029565",
+    "message_id": "1335596446"
+  },
+  {
+    "sender_id": "2117205119",
+    "sender_name": "西叽王",
+    "content": "[图片]",
+    "timestamp": "2026-01-12T23:50:26.447175",
+    "message_id": "1378751620"
+  },
+  {
+    "sender_id": "2117205119",
+    "sender_name": "西叽王",
+    "content": "这算诈骗吗",
+    "timestamp": "2026-01-12T23:50:33.262887",
+    "message_id": "614482190"
+  },
+  {
+    "sender_id": "3192488097",
+    "sender_name": "欣悦",
+    "content": "[图片]",
+    "timestamp": "2026-01-12T23:50:51.438654",
+    "message_id": "965334440"
+  },
+  {
+    "sender_id": "2117205119",
+    "sender_name": "西叽王",
+    "content": "我感觉不对劲，朋友像是被骗了",
+    "timestamp": "2026-01-12T23:50:52.916382",
+    "message_id": "1416788262"
+  },
+  {
+    "sender_id": "3054282733",
+    "sender_name": "念与昔",
+    "content": "什么雷霆背景图",
+    "timestamp": "2026-01-12T23:52:05.706771",
+    "message_id": "384818398"
+  }
+]

@@ -1,0 +1,31 @@
+mixed-port: 7890
+allow-lan: true
+mode: rule
+log-level: info
+
+proxies:
+  - name: "VLESS-Reality"
+    type: vless
+    server: 151.242.11.203
+    port: 52007
+    uuid: bd86b731-51db-438e-8592-d32a56b6df35
+    network: tcp
+    flow: xtls-rprx-vision
+    tls: true
+    reality-opts:
+      public-key: b01kSPpnMI-oYINhID477cWBP1zpyUstw6O88_SWVDs
+      short-id: fbc1062a
+    servername: icloud.cdn-apple.com
+    fingerprint: chrome
+    udp: true
+
+proxy-groups:
+  - name: "Auto"
+    type: select
+    proxies:
+      - VLESS-Reality
+      - DIRECT
+
+rules:
+  - GEOIP,CN,DIRECT
+  - MATCH,Auto
