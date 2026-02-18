@@ -64,7 +64,7 @@ async def render_summary_image(summary_text, group_id):
         {font_css}
         * {{ box-sizing: border-box; }}
         body {{ 
-            background: #0f172a; margin: 0; padding: 20px 0; 
+            background: #0f172a; margin: 0 auto; padding: 20px 0; 
             width: 700px; color: #e6edf3; font-family: sans-serif; 
         }}
         .card {{ 
