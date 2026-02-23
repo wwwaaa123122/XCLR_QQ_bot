@@ -11,7 +11,7 @@ Configurator.cm = Configurator.ConfigManager(Configurator.Config(file="config.js
   
  # 插件信息 
 IS_PRIVATE_ENABLED = True
-HELP_MESSAGE = "发送【超我】或【超市我】可以给你的QQ名片点赞10次" 
+HELP_MESSAGE = "赞我/超我 →可以给你的QQ名片点赞10次" 
 TRIGGHT_KEYWORD = "Any"   
   
 class SuperManager: 

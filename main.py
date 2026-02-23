@@ -26,6 +26,8 @@ import uuid, re
 import emoji
 import time, datetime
 import random
+import aiohttp
+import imgkit
 
 # import framework
 os.chdir(os.path.dirname(os.path.abspath(sys.argv[0])))
@@ -43,6 +45,10 @@ bot_owner = config.owner[0]
 ONE_SLOGAN: str = config.others["slogan"]
 CONFUSED_WORD: str = config.others.get("confused_words", 
     "你没有权限(ー_ー)!!")
+    
+HELP_IMAGE_ASSETS_DIR = "assets"                # 存放背景图的目录
+HELP_BG_URL = "https://onedrive.mcxclr.top/images/origin/14.jpg?raw&proxied"
+HELP_BG_LOCAL = os.path.join(HELP_IMAGE_ASSETS_DIR, "help_bg.jpg")
 
 ROOT_User: list = config.others["ROOT_User"]
 Super_User: list = []
@@ -256,6 +262,108 @@ def load_plugins():
     return plugins
 
 plugins = load_plugins() #在任何操作执行之前加载插件
+
+async def download_background_image():
+    """异步下载背景图片到本地 assets 目录（如果不存在）"""
+    if not os.path.exists(HELP_IMAGE_ASSETS_DIR):
+        os.makedirs(HELP_IMAGE_ASSETS_DIR, exist_ok=True)
+    if os.path.exists(HELP_BG_LOCAL):
+        return HELP_BG_LOCAL
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(HELP_BG_URL) as resp:
+                if resp.status == 200:
+                    with open(HELP_BG_LOCAL, "wb") as f:
+                        f.write(await resp.read())
+                    print(f"背景图已下载到 {HELP_BG_LOCAL}")
+                    return HELP_BG_LOCAL
+                else:
+                    print(f"下载背景图失败，HTTP {resp.status}")
+                    return None
+    except Exception as e:
+        print(f"下载背景图异常: {e}")
+        return None
+
+def text_to_help_image(text: str, bg_path: str = None) -> str:
+    """
+    将帮助文本转换为带背景图的横屏图片，返回图片文件路径。
+    若 bg_path 为 None 或文件不存在，则使用纯色背景。
+    """
+    if bg_path and os.path.exists(bg_path):
+        bg_style = f"background-image: url('file://{os.path.abspath(bg_path)}');"
+    else:
+        bg_style = "background-color: #f0f2f5;"
+
+    html = f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <style>
+            body {{
+                margin: 0;
+                padding: 20px;
+                width: 1280px;
+                height: 720px;
+                {bg_style}
+                background-size: cover;
+                background-position: center;
+                font-family: "Microsoft YaHei", "PingFang SC", "SimHei", sans-serif;
+                color: #333;
+                box-sizing: border-box;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                overflow: hidden;
+            }}
+            .content {{
+                background: rgba(255, 255, 255, 0.9);
+                padding: 20px 25px;
+                border-radius: 20px;
+                box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+                font-size: 11px;
+                line-height: 1.5;
+                border: 1px solid rgba(255,255,255,0.5);
+                backdrop-filter: blur(2px);
+            }}
+            pre {{
+                white-space: pre-wrap;
+                word-wrap: break-word;
+                margin: 0;
+                font-family: inherit;
+                color: #2c3e50;
+            }}
+        </style>
+    </head>
+    <body>
+        <div class="content">
+            <pre>{text}</pre>
+        </div>
+    </body>
+    </html>
+    """
+
+    out_file = os.path.join(HELP_IMAGE_ASSETS_DIR, f"help_{uuid.uuid4().hex}.png")
+    options = {
+        'format': 'png',
+        'enable-local-file-access': '',
+        'load-error-handling': 'ignore',
+        'load-media-error-handling': 'ignore',
+        'log-level': 'error',
+        'width': 1280,
+        'height': 720,
+        'crop-w': 1280,
+        'crop-h': 720,
+        'quiet': ''
+    }
+
+    try:
+        imgkit.from_string(html, out_file, options=options)
+        return out_file
+    except Exception as e:
+        print(f"生成帮助图片失败: {e}")
+        return None
+
 
 # 插件运行器 NEXT 3
 async def execute_plugins(isAny: bool, is_private: bool = False, **main_context) -> bool: # 接受 main.py 的上下文，也就是所有的关键字
@@ -1308,33 +1416,48 @@ ROOT_User: {", ".join(root_users)}
 ————————————————————
 If you are a Super_User or ROOT_User, you can manage these users. Use {reminder}帮助 to know more.
 """.strip()
-            
+
             else:
-                r  = CONFUSED_WORD.format(bot_name=bot_name)
-            await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Reply(event.message_id), Segments.Text(r)))
+                r = CONFUSED_WORD.format(bot_name=bot_name)
+
+            await actions.send(
+                group_id=event.group_id,
+                message=Manager.Message(
+                    Segments.Reply(event.message_id),
+                    Segments.Text(r)
+                )
+            )
 
         elif "插件视角" in order:
             status = f'''{bot_name} {bot_name_en} - 插件视角
 ————————————————————
 ✅ 已加载插件 ({len(loaded_plugins)}):
-{chr(10).join(f"{i+1}. {str(plugin).rsplit('_', 1)[0]}" for i, plugin in enumerate(loaded_plugins)) if loaded_plugins else "无"}
+{chr(10).join(
+    f"{i+1}. {str(plugin).rsplit('_', 1)[0]}"
+    for i, plugin in enumerate(loaded_plugins)
+) if loaded_plugins else "无"}
 
 ❌ 已禁用插件 ({len(disabled_plugins)}):
 {chr(10).join(
-    f"{i+1}. {str(plugin).replace('d_', '').split('.')[0]}" 
-    for i, plugin in enumerate(disabled_plugins)) if disabled_plugins else "无"}
+    f"{i+1}. {str(plugin).replace('d_', '').split('.')[0]}"
+    for i, plugin in enumerate(disabled_plugins)
+) if disabled_plugins else "无"}
 
 ⚠️ 加载失败 ({len(failed_plugins)}):
-{chr(10).join(f"{i+1}. {str(plugin)}" 
-    for i, plugin in enumerate(failed_plugins)) 
-if failed_plugins else "无"}'''
+{chr(10).join(
+    f"{i+1}. {str(plugin)}"
+    for i, plugin in enumerate(failed_plugins)
+) if failed_plugins else "无"}'''
 
-            await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(status)))
+            await actions.send(
+                group_id=event.group_id,
+                message=Manager.Message(Segments.Text(status))
+            )
 
-        elif "帮助" == order:
+        elif "帮助" == order or "help" == order:
             if str(event.user_id) in ADMINS:
                 content = [
-                    (f"{reminder}让我访问", "检索有权限的用户"), # Managers' help content 管理员帮助
+                    (f"{reminder}让我访问", "检索有权限的用户"),
                     (f"{reminder}注销", "删除所有用户的上下文"),
                     (f"{reminder}修改 (hh:mm) (内容)", "改变定时消息时间与内容"),
                     (f"{reminder}感知", "查看运行状态"),
@@ -1353,7 +1476,7 @@ if failed_plugins else "无"}'''
                     (f"{reminder}更改TTS状态", "切换语音回复功能（默认启用）"),
                     (f"{reminder}表情复述", "切换是否开启表情复述功能（默认启用）")
                 ]
-                
+
                 if str(event.user_id) in SUPERS:
                     content += [
                         (f"{reminder}管理 M (QQ号)", "为用户添加 Manage_User 权限"),
@@ -1361,36 +1484,73 @@ if failed_plugins else "无"}'''
                         (f"{reminder}删除管理 (QQ号)", "删除指定用户所有权限"),
                         (f"{reminder}退出本群", "退出当前群聊")
                     ]
-                    
+
                 command_lines = [
                     f"{idx+1}. {cmd} —> {desc}"
                     for idx, (cmd, desc) in enumerate(content)
                 ]
-                
+
                 content = "\n".join([
-                    f"管理我们的{bot_name}\n————————————————————",
+                    f"管理我们的{bot_name}",
+                    "————————————————————",
                     *command_lines,
                     "你的每一步操作，与用户息息相关。"
                 ])
-                
             else:
                 content = help_message()
-                
-            await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(content)))
 
-        elif (isinstance(event.message[0], Segments.At) and 
-              int(event.message[0].qq) == event.self_id): 
+            await actions.send(
+                group_id=event.group_id,
+                message=Manager.Message(Segments.Text(content))
+            )
 
-            if (all(isinstance(item, (Segments.At, Segments.Text)) for item in event.message) and 
-                [str(s) for s in event.message if isinstance(s, Segments.Text) and not str(s).strip()]):
+        # 新加入的 @ 机器人处理
+        elif (
+            isinstance(event.message[0], Segments.At)
+            and int(event.message[0].qq) == event.self_id
+        ):
 
-                content = help_message()
-            else:
-                content = f'''你要询问什么呢？嘻嘻(●'◡'●)
-和我聊天不需要@我哟(＾Ｕ＾)ノ~
-直接在你想对{bot_name}想说的话前面加上 {reminder} 就行啦'''
+            only_at = (
+                all(isinstance(item, (Segments.At, Segments.Text)) for item in event.message)
+                and all(
+                    not str(s).strip()
+                    for s in event.message
+                    if isinstance(s, Segments.Text)
+                )
+            )
 
-            await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Reply(event.message_id), Segments.Text(content)))
+            if only_at:
+                help_txt = help_message()
+                bg_local = None
+
+                if not os.path.exists(HELP_BG_LOCAL):
+                    bg_local = await download_background_image()
+                else:
+                    bg_local = HELP_BG_LOCAL
+
+                img_path = text_to_help_image(help_txt, bg_local)
+
+                if img_path and os.path.exists(img_path):
+                    import base64
+                    with open(img_path, "rb") as f:
+                        img_base64 = base64.b64encode(f.read()).decode()
+                    img_data = f"base64://{img_base64}"
+                    await actions.send(
+                        group_id=event.group_id,
+                        message=Manager.Message(
+                            Segments.Reply(event.message_id),
+                            Segments.Image(img_data)
+                        )
+                    )
+                    os.remove(img_path)
+                else:
+                    await actions.send(
+                        group_id=event.group_id,
+                        message=Manager.Message(
+                            Segments.Reply(event.message_id),
+                            Segments.Text(help_txt)
+                        )
+                    )
 
         elif "关于" == order:
             global version_name

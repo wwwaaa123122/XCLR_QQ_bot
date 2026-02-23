@@ -8,7 +8,7 @@ from functools import wraps
 
 IS_PRIVATE_ENABLED = True
 TRIGGHT_KEYWORD = "点歌"
-HELP_MESSAGE = f"#点歌 [歌名] —> 搜索网易云音乐歌曲\n#点歌 [ID] —> 根据ID获取歌曲"
+HELP_MESSAGE = f"#点歌 [歌名] —> 搜索网易云音乐歌曲/#点歌 [ID] —> 根据ID获取歌曲"
 MAX_RETRIES = 3  # 最大重试次数
 RETRY_DELAY = 1  # 重试延迟(秒)
 
