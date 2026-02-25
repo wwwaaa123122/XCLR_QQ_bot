@@ -6,21 +6,27 @@ import io
 import re
 from PIL import Image
 
+IS_PRIVATE_ENABLED = True
 TRIGGHT_KEYWORD = "rua"
-HELP_MESSAGE = "#rua [QQ号/@用户] [背景颜色(可选)] —> 生成摸摸头GIF，默认背景为透明"
+HELP_MESSAGE = "rua [QQ号/@用户] [背景颜色(可选)] —> 生成摸摸头GIF，默认背景为白色"  # 修改帮助信息
 
 async def on_message(event, actions, Manager, Segments, order, reminder, bot_name):
     # 检查是否包含触发关键词
     if not (order.startswith("rua") or order.startswith("/rua")):
         return False
     
+    # 动态获取发送目标（支持群聊和私聊）
+    send_kwargs = {"message": None}
+    if hasattr(event, 'group_id'):
+        send_kwargs["group_id"] = event.group_id
+    else:
+        send_kwargs["user_id"] = event.user_id
+    
     # 解析参数
     parts = order.split()
     if len(parts) < 2:
-        await actions.send(
-            group_id=event.group_id,
-            message=Manager.Message(Segments.Text(f"格式错误！请使用：{reminder}rua [QQ号/@用户] [背景颜色(可选)]"))
-        )
+        send_kwargs["message"] = Manager.Message(Segments.Text(f"格式错误！请使用：{reminder}rua [QQ号/@用户] [背景颜色(可选)]"))
+        await actions.send(**send_kwargs)
         return True
     
     # 获取QQ号或@的用户
@@ -54,14 +60,12 @@ async def on_message(event, actions, Manager, Segments, order, reminder, bot_nam
     
     # 如果还是没有获取到QQ号，报错
     if not qq_number:
-        await actions.send(
-            group_id=event.group_id,
-            message=Manager.Message(Segments.Text("请提供有效的QQ号或@一个用户！"))
-        )
+        send_kwargs["message"] = Manager.Message(Segments.Text("请提供有效的QQ号或@一个用户！"))
+        await actions.send(**send_kwargs)
         return True
     
     # 获取背景颜色（可选）
-    bg_color = "transparent"  # 默认透明背景
+    bg_color = "white"  # 修改这里：默认背景改为白色
     if len(parts) >= 3:
         # 跳过@的用户参数，取下一个参数作为背景颜色
         bg_color = parts[2]
@@ -71,7 +75,7 @@ async def on_message(event, actions, Manager, Segments, order, reminder, bot_nam
     
     # 发送等待消息
     wait_msg = await actions.send(
-        group_id=event.group_id,
+        **send_kwargs,
         message=Manager.Message(Segments.Text(f"{bot_name}正在生成摸摸头GIF，请稍候..."))
     )
     
@@ -92,44 +96,30 @@ async def on_message(event, actions, Manager, Segments, order, reminder, bot_nam
                     await actions.del_message(wait_msg.data.message_id)
                     
                     # 发送GIF
-                    await actions.send(
-                        group_id=event.group_id,
-                        message=Manager.Message(
-                            Segments.Image(f"base64://{gif_base64}")
-                        )
-                    )
+                    send_kwargs["message"] = Manager.Message(Segments.Image(f"base64://{gif_base64}"))
+                    await actions.send(**send_kwargs)
                 elif response.status == 400:
                     error_data = await response.json()
                     await actions.del_message(wait_msg.data.message_id)
-                    await actions.send(
-                        group_id=event.group_id,
-                        message=Manager.Message(Segments.Text(f"❌ 请求参数错误：{error_data.get('error', '未知错误')}"))
-                    )
+                    send_kwargs["message"] = Manager.Message(Segments.Text(f"❌ 请求参数错误：{error_data.get('error', '未知错误')}"))
+                    await actions.send(**send_kwargs)
                 elif response.status == 500:
                     error_data = await response.json()
                     await actions.del_message(wait_msg.data.message_id)
-                    await actions.send(
-                        group_id=event.group_id,
-                        message=Manager.Message(Segments.Text(f"❌ 服务器错误：{error_data.get('error', '未知错误')}"))
-                    )
+                    send_kwargs["message"] = Manager.Message(Segments.Text(f"❌ 服务器错误：{error_data.get('error', '未知错误')}"))
+                    await actions.send(**send_kwargs)
                 else:
                     await actions.del_message(wait_msg.data.message_id)
-                    await actions.send(
-                        group_id=event.group_id,
-                        message=Manager.Message(Segments.Text(f"❌ 未知错误，HTTP状态码：{response.status}"))
-                    )
+                    send_kwargs["message"] = Manager.Message(Segments.Text(f"❌ 未知错误，HTTP状态码：{response.status}"))
+                    await actions.send(**send_kwargs)
     
     except aiohttp.ClientError as e:
         await actions.del_message(wait_msg.data.message_id)
-        await actions.send(
-            group_id=event.group_id,
-            message=Manager.Message(Segments.Text(f"❌ 网络请求失败：{str(e)}"))
-        )
+        send_kwargs["message"] = Manager.Message(Segments.Text(f"❌ 网络请求失败：{str(e)}"))
+        await actions.send(**send_kwargs)
     except Exception as e:
         await actions.del_message(wait_msg.data.message_id)
-        await actions.send(
-            group_id=event.group_id,
-            message=Manager.Message(Segments.Text(f"❌ 生成摸摸头GIF时发生未知错误：{str(e)}"))
-        )
+        send_kwargs["message"] = Manager.Message(Segments.Text(f"❌ 生成摸摸头GIF时发生未知错误：{str(e)}"))
+        await actions.send(**send_kwargs)
     
     return True

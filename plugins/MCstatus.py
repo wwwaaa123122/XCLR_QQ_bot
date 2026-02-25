@@ -19,6 +19,13 @@ EXPECTED_KEYWORDS = ["mc状态", "MC状态", "Mc状态", "我的世界状态", "
 async def on_message(event, actions, Manager, Segments):
     user_msg = str(event.message).strip()
 
+    # 动态获取发送目标（支持群聊和私聊）
+    send_kwargs = {"message": None}
+    if hasattr(event, 'group_id'):
+        send_kwargs["group_id"] = event.group_id
+    else:
+        send_kwargs["user_id"] = event.user_id
+
     if not user_msg.startswith(REMINDER):
         return
 
@@ -27,23 +34,20 @@ async def on_message(event, actions, Manager, Segments):
     if not any(kw in user_msg for kw in EXPECTED_KEYWORDS):
         return
 
-    # 获取 group_id 或 user_id
-    send_id = getattr(event, "group_id", None) or getattr(event, "user_id", None)
-
     # 去掉关键词，提取地址
     for kw in EXPECTED_KEYWORDS:
         user_msg = user_msg.replace(kw, "")
     msg = user_msg.strip()
 
     if msg == "":
-        await actions.send(group_id=send_id,
-                           message=Manager.Message(Segments.Text("请输入正确的域名或IP，支持带端口号")))
+        send_kwargs["message"] = Manager.Message(Segments.Text("请输入正确的域名或IP，支持带端口号"))
+        await actions.send(**send_kwargs)
         return True
 
     # 检查域名或IP格式
     if not (DOMAIN.match(msg) or IP.match(msg)):
-        await actions.send(group_id=send_id,
-                           message=Manager.Message(Segments.Text("请输入正确的域名或IP，支持带端口号")))
+        send_kwargs["message"] = Manager.Message(Segments.Text("请输入正确的域名或IP，支持带端口号"))
+        await actions.send(**send_kwargs)
         return True
 
     # 调用 API
@@ -52,8 +56,8 @@ async def on_message(event, actions, Manager, Segments):
         async with aiohttp.ClientSession() as session:
             async with session.get(url) as resp:
                 if resp.status != 200:
-                    await actions.send(group_id=send_id,
-                                       message=Manager.Message(Segments.Text("网络请求失败")))
+                    send_kwargs["message"] = Manager.Message(Segments.Text("网络请求失败"))
+                    await actions.send(**send_kwargs)
                     return True
                 data = await resp.json()
 
@@ -62,8 +66,8 @@ async def on_message(event, actions, Manager, Segments):
         if data.get("online"):
             msglist += "服务器状态：在线🟢\n"
         else:
-            await actions.send(group_id=send_id,
-                               message=Manager.Message(Segments.Text(f"服务器地址：{msg}\n服务器状态：离线🔴")))
+            send_kwargs["message"] = Manager.Message(Segments.Text(f"服务器地址：{msg}\n服务器状态：离线🔴"))
+            await actions.send(**send_kwargs)
             return True
 
         if data.get("eula_blocked") is True:
@@ -81,18 +85,18 @@ async def on_message(event, actions, Manager, Segments):
         icon = data.get("icon")
         if icon and icon.startswith("data:image/png;base64,"):
             base64_img = icon.replace("data:image/png;base64,", "base64://")
-            await actions.send(group_id=send_id,
-                               message=Manager.Message([Segments.Image(base64_img), Segments.Text(msglist)]))
+            send_kwargs["message"] = Manager.Message([Segments.Image(base64_img), Segments.Text(msglist)])
+            await actions.send(**send_kwargs)
         elif icon is None:
-            await actions.send(group_id=send_id,
-                               message=Manager.Message(Segments.Text(f"[该服务器没有设置LOGO]\n{msglist}")))
+            send_kwargs["message"] = Manager.Message(Segments.Text(f"[该服务器没有设置LOGO]\n{msglist}"))
+            await actions.send(**send_kwargs)
         else:
-            await actions.send(group_id=send_id,
-                               message=Manager.Message(Segments.Text(f"[该服务器的LOGO无法识别]\n{msglist}")))
+            send_kwargs["message"] = Manager.Message(Segments.Text(f"[该服务器的LOGO无法识别]\n{msglist}"))
+            await actions.send(**send_kwargs)
 
     except Exception as e:
-        await actions.send(group_id=send_id,
-                           message=Manager.Message(Segments.Text(f"发生错误：{e}")))
+        send_kwargs["message"] = Manager.Message(Segments.Text(f"发生错误：{e}"))
+        await actions.send(**send_kwargs)
         return True
 
     return True

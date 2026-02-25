@@ -567,6 +567,334 @@ def Write_Settings(s: list, m: list) -> bool:
     except:
         return False
 
+async def handle_private_message(event: Events.PrivateMessageEvent, actions: Listener.Actions) -> None:
+    """私聊消息处理 - 无需reminder前缀即可触发"""
+    global in_timing, bot_name, bot_name_en, reminder, config, ONE_SLOGAN, CONFUSED_WORD, stop_working, Wait_for_add_in
+    global Super_User, Manage_User, ROOT_User
+    global user_lists, sys_prompt, second_start, EnableNetwork, generating, CONFIG_FILE, PRESET_DIR, NORMAL_PRESET, model, cmc, emoji_plus_one_off
+    
+    ADMINS = Super_User + ROOT_User + Manage_User
+    SUPERS = Super_User + ROOT_User
+    event.time_str = f"{datetime.datetime.now().hour:02}:{datetime.datetime.now().minute:02}:{datetime.datetime.now().second:02}"
+    
+    s, event_user = await get_user_info(event.user_id, Manager, actions)
+    if s:
+        event_user = event_user['nickname']
+    else:
+        event_user = str(event.user_id)
+                
+    # 初始化预设
+    sys_prompt = presets_tool.gen_presets(event.user_id, bot_name, event_user)
+    presets = presets_tool.read_presets()
+    
+    if len(event.message) <= 0:
+        return
+    
+    user_message = str(event.message)
+    order = user_message.strip()
+    
+    print(f"[私聊] ({event_user}) PRIVATE_MESSAGE: {repr(order)}")
+    
+    # 私聊基础命令处理
+    if order == "ping":
+        await actions.send(user_id=event.user_id, message=Manager.Message(Segments.Text("Ciallo∼(∠・ω[ )⌒☆")))
+        return
+        
+    if f"{bot_name}真棒" in user_message:
+        try:
+            compliments: list = config.others["compliment"]
+            m = str(compliments[random.randint(0, len(compliments))])
+            await actions.send(user_id=event.user_id, message=Manager.Message(Segments.Text(m)))
+        except:
+            print("不接受夸赞")
+        return
+    
+    # 私聊管理员命令
+    if "帮助" == order or "help" == order.lower():
+        content = f'''私聊帮助 - {bot_name}
+————————————————————
+直接输入任何问题即可与{bot_name}交流，无需前缀！✨
+
+【基础命令】
+帮助 / help —> 显示此帮助信息
+关于 —> 关于{bot_name}的信息
+状态 —> 查看运行状态
+注销 —> 清除对话上下文
+
+【AI模式切换】
+GPT4 —> 切换到 ChatGPT-4 (更有创意)
+GPT3.55 —> 切换到 ChatGPT-3.5 (更快速)
+Deepseek —> 切换到 DeepSeek (更人性化)
+Gemini —> 切换到 Google Gemini (支持图片分析)
+
+【其他命令】
+角色扮演 —> 查看和切换角色预设
+插件视角 —> 查看已加载的插件
+
+【插件功能】
+✨ 私聊自动触发插件：
+  • 无需前缀"{reminder}"即可调用插件
+  • 可以直接输入插件关键词触发功能
+  • 部分插件支持空唤醒词（输入任何内容都可触发）
+  • 查看"插件视角"了解所有可用插件
+
+快来和{bot_name}聊天吧！(* ̄︶ ̄)'''
+        await actions.send(user_id=event.user_id, message=Manager.Message(Segments.Text(content)))
+        return
+    
+    if "关于" == order:
+        about = f'''{bot_name} {bot_name_en} - {ONE_SLOGAN}
+————————————————————
+基于 HypeR_bot 框架制作
+————————————————————
+第三方API
+1. Mirokoi API
+2. Lolicon API
+3. LoliAPI API
+4. ChatGPT 3.5
+5. ChatGPT 4o-mini
+6. Google gemini-2.0
+7. GPT-SoVITS
+8. EdgeTTS
+'''
+        await actions.send(user_id=event.user_id, message=Manager.Message(Segments.Text(about)))
+        return
+    
+    if "状态" in order:
+        system_info = get_system_info()
+        feel = f'''{bot_name} {bot_name_en} - {ONE_SLOGAN}
+————————————————————
+系统当前运行状况
+运行时间：{seconds_to_hms(round(time.time() - second_start, 2))}
+系统版本：{system_info["version_info"]}
+体系结构：{system_info["architecture"]}
+CPU占用：{str(system_info["cpu_usage"]) + "%"}
+内存占用：{str(system_info["memory_usage_percentage"]) + "%"}'''
+        for i, usage in enumerate(system_info["gpu_usage"]):
+            feel = feel + f"\nGPU {i} Usage：{usage * 100:.2f}%"
+        await actions.send(user_id=event.user_id, message=Manager.Message(Segments.Text(feel)))
+        return
+    
+    if "注销" in order:
+        del cmc
+        cmc = ContextManager()
+        user_lists.clear()
+        await actions.send(user_id=event.user_id, message=Manager.Message(Segments.Text(f"卸下包袱，{bot_name}更轻松了~ (/≧▽≦)/")))
+        return
+    
+    if "GPT4" == order:
+        if str(event.user_id) not in ROOT_User:
+            await actions.send(user_id=event.user_id, message=Manager.Message(Segments.Text(CONFUSED_WORD.format(bot_name=bot_name))))
+            return
+        EnableNetwork = "Net"
+        print(f"[私聊] sys: AI Mode change to ChatGPT-4")
+        await actions.send(user_id=event.user_id, message=Manager.Message(Segments.Text("嗯……我好像升级了！o((>ω< ))o")))
+        return
+    if "Deepseek" == order:
+        if str(event.user_id) not in ROOT_User:
+            await actions.send(user_id=event.user_id, message=Manager.Message(Segments.Text(CONFUSED_WORD.format(bot_name=bot_name))))
+            return
+        EnableNetwork = "Ds"
+        print(f"[私聊] sys: AI Mode change to DeepSeek")
+        await actions.send(user_id=event.user_id, message=Manager.Message(Segments.Text("服务器爆炸(⑅︎ ॣ•͈૦•͈ ॣ)꒳ᵒ꒳ᵎᵎᵎ ")))
+        return
+    if "GPT3.55" == order:
+        if str(event.user_id) not in ROOT_User:
+            await actions.send(user_id=event.user_id, message=Manager.Message(Segments.Text(CONFUSED_WORD.format(bot_name=bot_name))))
+            return
+        EnableNetwork = "Normal"
+        print(f"[私聊] sys: AI Mode change to ChatGPT-3.5")
+        await actions.send(user_id=event.user_id, message=Manager.Message(Segments.Text("切换到大模型中运行ο(=•ω＜=)ρ⌒☆")))
+        return
+    if "Gemini" == order:
+        if str(event.user_id) not in ROOT_User:
+            await actions.send(user_id=event.user_id, message=Manager.Message(Segments.Text(CONFUSED_WORD.format(bot_name=bot_name))))
+            return
+        EnableNetwork = "Pixmap"
+        print(f"[私聊] sys: AI Mode change to Gemini")
+        await actions.send(user_id=event.user_id, message=Manager.Message(Segments.Text(f"{bot_name}打开了新视界！o(*≧▽≦)ツ")))
+        return
+    
+    if "角色扮演" == order:
+        preset_list = "\n".join(
+            [
+                f"    {data['name']}（当前） - {data['info']}"
+                if data['name'] == presets_tool.current_preset
+                else f"    {data['name']} - {data['info']}"
+                for data in presets.values()
+            ]
+        )
+        prerequisites_info = f"""{bot_name} {bot_name_en} - 角色扮演后台
+————————————————————
+{preset_list}
+
+发送相应的关键词，{bot_name}会尽力扮演不同角色和你交流哒！⌯>ᴗoᴗ⌯ .ᐟ.ᐟ"""
+        await actions.send(user_id=event.user_id, message=Manager.Message(Segments.Text(prerequisites_info)))
+        return
+    
+    if "插件视角" in order:
+        status = f'''{bot_name} {bot_name_en} - 插件视角
+————————————————————
+✅ 已加载插件 ({len(loaded_plugins)}):
+{chr(10).join(f"{i+1}. {str(plugin).rsplit('_', 1)[0]}" for i, plugin in enumerate(loaded_plugins)) if loaded_plugins else "无"}
+
+❌ 已禁用插件 ({len(disabled_plugins)}):
+{chr(10).join(
+    f"{i+1}. {str(plugin).replace('d_', '').split('.')[0]}" 
+    for i, plugin in enumerate(disabled_plugins)) if disabled_plugins else "无"}
+
+⚠️ 加载失败 ({len(failed_plugins)}):
+{chr(10).join(f"{i+1}. {str(plugin)}" 
+    for i, plugin in enumerate(failed_plugins)) 
+if failed_plugins else "无"}'''
+        await actions.send(user_id=event.user_id, message=Manager.Message(Segments.Text(status)))
+        return
+    
+    # 检查用户是否要切换预设
+    selected_preset_id = None
+    for preset_id, preset_data in presets.items():
+        if preset_data["name"] == order:
+            selected_preset_id = preset_id
+            break
+
+    if selected_preset_id:
+        if "uid" not in presets[selected_preset_id]:
+            presets[selected_preset_id]["uid"] = []
+        if event.user_id not in presets[selected_preset_id]["uid"]:
+            presets[selected_preset_id]["uid"].append(event.user_id)
+
+        for preset_id, preset_data in presets.items():
+            if preset_id != selected_preset_id and "uid" in preset_data:
+                if event.user_id in preset_data["uid"]:
+                    presets[selected_preset_id]["uid"].remove(event.user_id)
+
+        presets_tool.write_presets(presets)
+        del cmc
+        cmc = ContextManager()
+        user_lists.clear()
+        
+        await actions.send(user_id=event.user_id, message=Manager.Message(Segments.Text(presets[selected_preset_id]["info"])))
+        return
+
+    # 检查插件（私聊模式，支持空唤醒词和无需reminder前缀）
+    local_vars = globals().copy()
+    local_vars.update(locals().copy())
+    try:
+        if await execute_plugins(False, is_private=True, **local_vars):
+            return
+    except Exception as e:
+        print(f"[私聊] 处理插件时发生错误: {e}")
+        return
+    
+    # 进入AI对话 - 私聊模式下不需要reminder前缀，直接进行AI回复
+    if len(order) < 1:
+        return
+    
+    try:
+        # 获取或创建用户上下文
+        if event.user_id not in user_lists:
+            user_lists[event.user_id] = cmc.get_context(event.user_id, event.user_id)
+        
+        context = user_lists[event.user_id]
+        
+        # 处理引用消息内容
+        msg = order
+        if isinstance(event.message[0], Segments.Reply):
+            content = await actions.get_msg(event.message[0].id)
+            message = gen_message({"message": content.data["message"]})
+            for i in message:
+                if isinstance(i, Segments.Text):
+                    msg += f"{i.text} "
+        
+        # 获取AI回复 - 使用与群聊相同的处理方式
+        result = ""
+        try:
+            match EnableNetwork:
+                case "Pixmap":
+                    # Gemini 模式
+                    model = genai.GenerativeModel(
+                        model_name="gemini-2.0-flash-thinking-exp-01-21",
+                        generation_config=generation_config,
+                        system_instruction=sys_prompt or None,
+                    )
+                    new = []
+                    if isinstance(event.message[0], Segments.Reply):
+                        content = await actions.get_msg(event.message[0].id)
+                        message = gen_message({"message": content.data["message"]})
+                        for i in message:
+                            if isinstance(i, Segments.Text):
+                                new.append(Parts.Text(i.text.replace(reminder, "", 1)))
+                            elif isinstance(i, Segments.Image):
+                                url = i.file if i.file.startswith("http") else i.url
+                                new.append(Parts.File.upload_from_url(url.replace("https://", "http://")))
+                    
+                    for i in event.message:
+                        if isinstance(i, Segments.Text):
+                            new.append(Parts.Text(i.text.replace(reminder, "", 1)))
+                        elif isinstance(i, Segments.Image):
+                            url = i.file if i.file.startswith("http") else i.url
+                            new.append(Parts.File.upload_from_url(url.replace("https://", "http://")))
+                    
+                    response_stream = context.gen_content(Roles.User(*new))
+                    for partial, r_type in response_stream:
+                        if r_type != 'message':
+                            user_lists[event.user_id] = partial
+                            continue
+                        result += str(partial)
+
+                case "Normal" | "Net":
+                    # ChatGPT 模式
+                    model_name = "gpt-3.5-turbo-16k" if EnableNetwork == "Normal" else "gpt-4o-mini"
+                    search = SearchOnline(
+                        sys_prompt, msg, user_lists, event.user_id, 
+                        model_name, bot_name, 
+                        config.others["openai_key"]
+                    )
+                    for partial, r_type in search.Response():
+                        if r_type != 'message':
+                            user_lists[event.user_id] = partial
+                            continue
+                        result += str(partial)
+
+                case "Ds":
+                    # DeepSeek 模式
+                    search = deepseek(
+                        sys_prompt, msg, user_lists, event.user_id,
+                        "deepseek-chat", bot_name,
+                        config.others["deepseek_key"]
+                    )
+                    for partial, r_type in search.Response():
+                        if r_type != 'message':
+                            user_lists[event.user_id] = partial
+                            continue
+                        result += str(partial)
+                
+                case _:
+                    result = f"未知的AI模式: {EnableNetwork}"
+            
+            result = result.rstrip()
+            
+        except Exception as ai_error:
+            print(f"[私聊] AI处理错误: {traceback.format_exc()}")
+            raise ai_error
+        
+        # 发送私聊回复 - 简化版，不使用合并转发
+        if result:
+            # 将长消息分割发送
+            if len(result) > 500:
+                chunks = [result[i:i+500] for i in range(0, len(result), 500)]
+                for chunk in chunks:
+                    await actions.send(user_id=event.user_id, message=Manager.Message(Segments.Text(chunk)))
+                    await asyncio.sleep(0.5)
+            else:
+                await actions.send(user_id=event.user_id, message=Manager.Message(Segments.Text(result)))
+                
+    except TimeoutError:
+        await actions.send(user_id=event.user_id, message=Manager.Message(Segments.Text(f"哎呀，你问的问题太复杂了，{bot_name}想不出来了 ┭┮﹏┭┮")))
+    except Exception as e:
+        print(traceback.format_exc())
+        await actions.send(user_id=event.user_id, message=Manager.Message(Segments.Text(f"{type(e)}\n{bot_name}发生错误，不能回复你的消息了，请稍候再试吧 ε(┬┬﹏┬┬)3")))
+
 @Listener.reg
 @Logic.ErrorHandler().handle_async
 async def handler(event: Events.Event, actions: Listener.Actions) -> None:
@@ -696,315 +1024,13 @@ Welcome! {bot_name} was restarted successfully. Now you can send {reminder}帮�
             )
     
     elif isinstance(event, Events.PrivateMessageEvent):
-        """私聊消息处理 - 无需reminder前缀即可触发"""
-        
-        s, event_user = await get_user_info(event.user_id, Manager, actions)
-        if s:
-            event_user = event_user['nickname']
-        else:
-            event_user = str(event.user_id)
-                    
-        # 初始化预设
-        sys_prompt = presets_tool.gen_presets(event.user_id, bot_name, event_user)
-        presets = presets_tool.read_presets()
-        
-        if len(event.message) <= 0:
-            return
-        
-        user_message = str(event.message)
-        order = user_message.strip()
-        
-        print(f"({event_user}) PRIVATE_MESSAGE: {repr(order)}")
-        
-        # 私聊基础命令处理
-        if order == "ping":
-            await actions.send(user_id=event.user_id, message=Manager.Message(Segments.Text("Ciallo∼(∠・ω[ )⌒☆")))
-            return
-            
-        if f"{bot_name}真棒" in user_message:
-            try:
-                compliments: list = config.others["compliment"]
-                m = str(compliments[random.randint(0, len(compliments))])
-                await actions.send(user_id=event.user_id, message=Manager.Message(Segments.Text(m)))
-            except:
-                print("不接受夸赞")
-            return
-        
-        # 私聊管理员命令
-        if "帮助" == order or "help" == order.lower():
-            content = f'''私聊帮助 - {bot_name}
-————————————————————
-直接输入任何问题即可与{bot_name}交流，无需前缀！✨
-
-【基础命令】
-帮助 / help —> 显示此帮助信息
-关于 —> 关于{bot_name}的信息
-状态 —> 查看运行状态
-注销 —> 清除对话上下文
-
-【AI模式切换】
-GPT4 —> 切换到 ChatGPT-4 (更有创意)
-GPT3.55 —> 切换到 ChatGPT-3.5 (更快速)
-Deepseek —> 切换到 DeepSeek (更人性化)
-Gemini —> 切换到 Google Gemini (支持图片分析)
-
-【其他命令】
-角色扮演 —> 查看和切换角色预设
-插件视角 —> 查看已加载的插件
-
-【插件功能】
-✨ 私聊自动触发插件：
-  • 无需前缀"{reminder}"即可调用插件
-  • 可以直接输入插件关键词触发功能
-  • 部分插件支持空唤醒词（输入任何内容都可触发）
-  • 查看"插件视角"了解所有可用插件
-
-快来和{bot_name}聊天吧！(* ̄︶ ̄)'''
-            await actions.send(user_id=event.user_id, message=Manager.Message(Segments.Text(content)))
-            return
-        
-        if "关于" == order:
-            about = f'''{bot_name} {bot_name_en} - {ONE_SLOGAN}
-————————————————————
-基于 HypeR_bot 框架制作
-————————————————————
-第三方API
-1. Mirokoi API
-2. Lolicon API
-3. LoliAPI API
-4. ChatGPT 3.5
-5. ChatGPT 4o-mini
-6. Google gemini-2.0
-7. GPT-SoVITS
-8. EdgeTTS
-'''
-            await actions.send(user_id=event.user_id, message=Manager.Message(Segments.Text(about)))
-            return
-        
-        if "状态" in order:
-            system_info = get_system_info()
-            feel = f'''{bot_name} {bot_name_en} - {ONE_SLOGAN}
-————————————————————
-系统当前运行状况
-运行时间：{seconds_to_hms(round(time.time() - second_start, 2))}
-系统版本：{system_info["version_info"]}
-体系结构：{system_info["architecture"]}
-CPU占用：{str(system_info["cpu_usage"]) + "%"}
-内存占用：{str(system_info["memory_usage_percentage"]) + "%"}'''
-            for i, usage in enumerate(system_info["gpu_usage"]):
-                feel = feel + f"\nGPU {i} Usage：{usage * 100:.2f}%"
-            await actions.send(user_id=event.user_id, message=Manager.Message(Segments.Text(feel)))
-            return
-        
-        if "注销" in order:
-            del cmc
-            cmc = ContextManager()
-            user_lists.clear()
-            await actions.send(user_id=event.user_id, message=Manager.Message(Segments.Text(f"卸下包袱，{bot_name}更轻松了~ (/≧▽≦)/")))
-            return
-        
-        if "GPT4" == order:
-            EnableNetwork = "Net"
-            print(f"sys: AI Mode change to ChatGPT-4")
-            await actions.send(user_id=event.user_id, message=Manager.Message(Segments.Text("嗯……我好像升级了！o((>ω< ))o")))
-            return
-        if "Deepseek" == order:
-            EnableNetwork = "Ds"
-            print(f"sys: AI Mode change to DeepSeek")
-            await actions.send(user_id=event.user_id, message=Manager.Message(Segments.Text("服务器爆炸(⑅︎ ॣ•͈૦•͈ ॣ)꒳ᵒ꒳ᵎᵎᵎ ")))
-            return
-        if "GPT3.55" == order:
-            EnableNetwork = "Normal"
-            print(f"sys: AI Mode change to ChatGPT-3.5")
-            await actions.send(user_id=event.user_id, message=Manager.Message(Segments.Text("切换到大模型中运行ο(=•ω＜=)ρ⌒☆")))
-            return
-        if "Gemini" == order:
-            EnableNetwork = "Pixmap"
-            print(f"sys: AI Mode change to Gemini")
-            await actions.send(user_id=event.user_id, message=Manager.Message(Segments.Text(f"{bot_name}打开了新视界！o(*≧▽≦)ツ")))
-            return
-        
-        if "角色扮演" == order:
-            preset_list = "\n".join(
-                [
-                    f"    {data['name']}（当前） - {data['info']}"
-                    if data['name'] == presets_tool.current_preset
-                    else f"    {data['name']} - {data['info']}"
-                    for data in presets.values()
-                ]
-            )
-            prerequisites_info = f"""{bot_name} {bot_name_en} - 角色扮演后台
-————————————————————
-{preset_list}
-
-发送相应的关键词，{bot_name}会尽力扮演不同角色和你交流哒！⌯>ᴗoᴗ⌯ .ᐟ.ᐟ"""
-            await actions.send(user_id=event.user_id, message=Manager.Message(Segments.Text(prerequisites_info)))
-            return
-        
-        if "插件视角" in order:
-            status = f'''{bot_name} {bot_name_en} - 插件视角
-————————————————————
-✅ 已加载插件 ({len(loaded_plugins)}):
-{chr(10).join(f"{i+1}. {str(plugin).rsplit('_', 1)[0]}" for i, plugin in enumerate(loaded_plugins)) if loaded_plugins else "无"}
-
-❌ 已禁用插件 ({len(disabled_plugins)}):
-{chr(10).join(
-    f"{i+1}. {str(plugin).replace('d_', '').split('.')[0]}" 
-    for i, plugin in enumerate(disabled_plugins)) if disabled_plugins else "无"}
-
-⚠️ 加载失败 ({len(failed_plugins)}):
-{chr(10).join(f"{i+1}. {str(plugin)}" 
-    for i, plugin in enumerate(failed_plugins)) 
-if failed_plugins else "无"}'''
-            await actions.send(user_id=event.user_id, message=Manager.Message(Segments.Text(status)))
-            return
-        
-        # 检查用户是否要切换预设
-        selected_preset_id = None
-        for preset_id, preset_data in presets.items():
-            if preset_data["name"] == order:
-                selected_preset_id = preset_id
-                break
-
-        if selected_preset_id:
-            if "uid" not in presets[selected_preset_id]:
-                presets[selected_preset_id]["uid"] = []
-            if event.user_id not in presets[selected_preset_id]["uid"]:
-                presets[selected_preset_id]["uid"].append(event.user_id)
-
-            for preset_id, preset_data in presets.items():
-                if preset_id != selected_preset_id and "uid" in preset_data:
-                    if event.user_id in preset_data["uid"]:
-                        presets[selected_preset_id]["uid"].remove(event.user_id)
-
-            presets_tool.write_presets(presets)
-            del cmc
-            cmc = ContextManager()
-            user_lists.clear()
-            
-            await actions.send(user_id=event.user_id, message=Manager.Message(Segments.Text(presets[selected_preset_id]["info"])))
-            return
-
-        # 检查插件（私聊模式，支持空唤醒词和无需reminder前缀）
-        local_vars = globals().copy()
-        local_vars.update(locals().copy())
-        try:
-            if await execute_plugins(False, is_private=True, **local_vars):
-                return
-        except Exception as e:
-            print(f"处理插件时发生错误: {e}")
-            return
-        
-        # 进入AI对话 - 私聊模式下不需要reminder前缀，直接进行AI回复
-        if len(order) < 1:
-            return
-        
-        try:
-            # 获取或创建用户上下文
-            if event.user_id not in user_lists:
-                user_lists[event.user_id] = cmc.get_context(event.user_id, event.user_id)
-            
-            context = user_lists[event.user_id]
-            
-            # 处理引用消息内容
-            msg = order
-            if isinstance(event.message[0], Segments.Reply):
-                content = await actions.get_msg(event.message[0].id)
-                message = gen_message({"message": content.data["message"]})
-                for i in message:
-                    if isinstance(i, Segments.Text):
-                        msg += f"{i.text} "
-            
-            # 获取AI回复 - 使用与群聊相同的处理方式
-            result = ""
-            try:
-                match EnableNetwork:
-                    case "Pixmap":
-                        # Gemini 模式
-                        model = genai.GenerativeModel(
-                            model_name="gemini-2.0-flash-thinking-exp-01-21",
-                            generation_config=generation_config,
-                            system_instruction=sys_prompt or None,
-                        )
-                        new = []
-                        if isinstance(event.message[0], Segments.Reply):
-                            content = await actions.get_msg(event.message[0].id)
-                            message = gen_message({"message": content.data["message"]})
-                            for i in message:
-                                if isinstance(i, Segments.Text):
-                                    new.append(Parts.Text(i.text.replace(reminder, "", 1)))
-                                elif isinstance(i, Segments.Image):
-                                    url = i.file if i.file.startswith("http") else i.url
-                                    new.append(Parts.File.upload_from_url(url.replace("https://", "http://")))
-                        
-                        for i in event.message:
-                            if isinstance(i, Segments.Text):
-                                new.append(Parts.Text(i.text.replace(reminder, "", 1)))
-                            elif isinstance(i, Segments.Image):
-                                url = i.file if i.file.startswith("http") else i.url
-                                new.append(Parts.File.upload_from_url(url.replace("https://", "http://")))
-                        
-                        response_stream = context.gen_content(Roles.User(*new))
-                        for partial, r_type in response_stream:
-                            if r_type != 'message':
-                                user_lists[event.user_id] = partial
-                                continue
-                            result += str(partial)
-
-                    case "Normal" | "Net":
-                        # ChatGPT 模式
-                        model_name = "gpt-3.5-turbo-16k" if EnableNetwork == "Normal" else "gpt-4o-mini"
-                        search = SearchOnline(
-                            sys_prompt, msg, user_lists, event.user_id, 
-                            model_name, bot_name, 
-                            config.others["openai_key"]
-                        )
-                        for partial, r_type in search.Response():
-                            if r_type != 'message':
-                                user_lists[event.user_id] = partial
-                                continue
-                            result += str(partial)
-
-                    case "Ds":
-                        # DeepSeek 模式
-                        search = deepseek(
-                            sys_prompt, msg, user_lists, event.user_id,
-                            "deepseek-chat", bot_name,
-                            config.others["deepseek_key"]
-                        )
-                        for partial, r_type in search.Response():
-                            if r_type != 'message':
-                                user_lists[event.user_id] = partial
-                                continue
-                            result += str(partial)
-                    
-                    case _:
-                        result = f"未知的AI模式: {EnableNetwork}"
-                
-                result = result.rstrip()
-                
-            except Exception as ai_error:
-                print(f"AI处理错误: {traceback.format_exc()}")
-                raise ai_error
-            
-            # 发送私聊回复 - 简化版，不使用合并转发
-            if result:
-                # 将长消息分割发送
-                if len(result) > 500:
-                    chunks = [result[i:i+500] for i in range(0, len(result), 500)]
-                    for chunk in chunks:
-                        await actions.send(user_id=event.user_id, message=Manager.Message(Segments.Text(chunk)))
-                        await asyncio.sleep(0.5)
-                else:
-                    await actions.send(user_id=event.user_id, message=Manager.Message(Segments.Text(result)))
-                    
-        except TimeoutError:
-            await actions.send(user_id=event.user_id, message=Manager.Message(Segments.Text(f"哎呀，你问的问题太复杂了，{bot_name}想不出来了 ┭┮﹏┭┮")))
-        except Exception as e:
-            print(traceback.format_exc())
-            await actions.send(user_id=event.user_id, message=Manager.Message(Segments.Text(f"{type(e)}\n{bot_name}发生错误，不能回复你的消息了，请稍候再试吧 ε(┬┬﹏┬┬)3")))
+        # 调用私聊消息处理函数
+        await handle_private_message(event, actions)
+        return
             
     elif isinstance(event, Events.GroupMessageEvent):
+        """群聊消息处理"""
+        
         s, event_user = await get_user_info(event.user_id, Manager, actions)
         if s:
             event_user = event_user['nickname']
@@ -1022,10 +1048,11 @@ if failed_plugins else "无"}'''
         order = ""
 
         if "ping" == user_message:
-            print(str(event.user_id))
+            print(f"[群聊] ({event_user}) PING")
             await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text("Ciallo∼(∠・ω[ )⌒☆")))
             
         elif f"{bot_name}真棒" in user_message and str(reminder) not in user_message:
+            print(f"[群聊] ({event_user}) 夸赞")
             try:
                 compliments: list = config.others["compliment"]
                 m = str(compliments[random.randint(0, len(compliments))])
@@ -1036,16 +1063,17 @@ if failed_plugins else "无"}'''
         global emoji_send_count
         if has_emoji(user_message) and not emoji_plus_one_off:
             if emoji_send_count is None or datetime.datetime.now() - emoji_send_count > datetime.timedelta(seconds=15):
+                print(f"[群聊] ({event_user}) Emoji+1: {user_message}")
                 await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(user_message)))
                 emoji_send_count = datetime.datetime.now()
             else:
-                print(f"emoji +1 延迟 {abs(datetime.datetime.now() - emoji_send_count)} s")
+                print(f"[群聊] emoji +1 延迟 {abs(datetime.datetime.now() - emoji_send_count)} s")
         
         if user_message.startswith(reminder):
             order_i = user_message.find(reminder)
             if order_i != -1:
                 order = user_message[order_i + len(reminder):].strip()
-                print(f"({event_user}) ORDER: {repr(order)}")
+                print(f"[群聊] ({event_user}) GROUP {event.group_id} ORDER: {repr(order)}")
 
         if f"{reminder}重启" == user_message:
             if str(event.user_id) in ADMINS:
@@ -1171,20 +1199,32 @@ if failed_plugins else "无"}'''
                 await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(CONFUSED_WORD.format(bot_name=bot_name))))
 
         elif "GPT4" == order:
+            if str(event.user_id) not in ROOT_User:
+                await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(CONFUSED_WORD.format(bot_name=bot_name))))
+                return
             EnableNetwork = "Net"
-            print(f"sys: AI Mode change to ChatGPT-4")
+            print(f"[群聊] GROUP {event.group_id} sys: AI Mode change to ChatGPT-4")
             await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text("嗯……我好像升级了！o((>ω< ))o")))
         elif "Deepseek" == order:
+            if str(event.user_id) not in ROOT_User:
+                await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(CONFUSED_WORD.format(bot_name=bot_name))))
+                return
             EnableNetwork = "Ds"
-            print(f"sys: AI Mode change to DeepSeek")
+            print(f"[群聊] GROUP {event.group_id} sys: AI Mode change to DeepSeek")
             await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text("服务器爆炸(⑅︎ ॣ•͈૦•͈ ॣ)꒳ᵒ꒳ᵎᵎᵎ ")))
         elif "GPT3.55" == order:
+            if str(event.user_id) not in ROOT_User:
+                await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(CONFUSED_WORD.format(bot_name=bot_name))))
+                return
             EnableNetwork = "Normal"
-            print(f"sys: AI Mode change to ChatGPT-3.5")
+            print(f"[群聊] GROUP {event.group_id} sys: AI Mode change to ChatGPT-3.5")
             await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text("切换到大模型中运行ο(=•ω＜=)ρ⌒☆")))
         elif "Gemini" == order:
+            if str(event.user_id) not in ROOT_User:
+                await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(CONFUSED_WORD.format(bot_name=bot_name))))
+                return
             EnableNetwork = "Pixmap"
-            print(f"sys: AI Mode change to Gemini")
+            print(f"[群聊] GROUP {event.group_id} sys: AI Mode change to Gemini")
             await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(f"{bot_name}打开了新视界！o(*≧▽≦)ツ")))
 
         elif "列出黑名单" == order:
@@ -1785,7 +1825,7 @@ CPU占用：{str(system_info["cpu_usage"]) + "%"}
 内容：{msg_preview}'''
                         await actions.send(user_id=ROOT_User[0], message=Manager.Message(Segments.Text(r_admin))) #管理员操作通知ROOT用户
                 except Exception as e:
-                    print(f"修改定时消息错误: {e}")
+                    print(f"[群聊] GROUP {event.group_id} 修改定时消息错误: {e}")
                     r = f'''{str(type(e))}
 {bot_name}设置失败了…… (╥﹏╥)'''
                 await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(r)))
@@ -1837,7 +1877,7 @@ CPU占用：{str(system_info["cpu_usage"]) + "%"}
                     await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Reply(event.message_id), Segments.Text('已启动群发（纯文本）')))
                     await send_msg_all_groups(msg, actions)
                 except Exception as e:
-                    print(f"群发消息处理失败: {e}")
+                    print(f"[群聊] GROUP {event.group_id} 群发消息处理失败: {e}")
                     await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(f"群发失败: {str(e)}")))
             else:
                 await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(CONFUSED_WORD.format(bot_name=bot_name))))
@@ -1863,7 +1903,7 @@ CPU占用：{str(system_info["cpu_usage"]) + "%"}
                 numbers = re.findall(r'\d+', result)
                 for i in event.message:
                     if isinstance(i, Segments.At):
-                        print("At in loading...")
+                        print(f"[群聊] GROUP {event.group_id} At in loading...")
                         userid114 = numbers[0]  
                         time114 = 0
                         await actions.set_group_ban(group_id=event.group_id,user_id=userid114,duration=time114)
@@ -1881,7 +1921,7 @@ CPU占用：{str(system_info["cpu_usage"]) + "%"}
                         complete = False
                         for i in event.message:
                             if isinstance(i, Segments.At):
-                                print("At in loading...")
+                                print(f"[群聊] GROUP {event.group_id} At in loading...")
                                 userid114 = numbers[0]  
                                 time114 = numbers[1]
                                 
@@ -1987,7 +2027,7 @@ CPU占用：{str(system_info["cpu_usage"]) + "%"}
                         await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text("指令格式有误，请使用 用户ID 头衔 的格式。")))
 
                 except Exception as e: 
-                    print(f"处理分配头衔指令时出错: {e}")
+                    print(f"[群聊] GROUP {event.group_id} 处理分配头衔指令时出错: {e}")
                     await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text("格式有误或发生未知错误！")))
             else:
                 await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(CONFUSED_WORD.format(bot_name=bot_name))))
@@ -2048,7 +2088,7 @@ CPU占用：{str(system_info["cpu_usage"]) + "%"}
                 if await execute_plugins(False, **local_vars):
                     return  # 只传递 event 作为位置参数
             except Exception as e:
-                print(f"处理插件时发生错误: {e}")
+                print(f"[群聊] GROUP {event.group_id} 处理插件时发生错误: {e}")
                 return
             
             # 3. 全都匹配不到，进入AI回复
@@ -2091,10 +2131,10 @@ CPU占用：{str(system_info["cpu_usage"]) + "%"}
                 if isinstance(item, Segments.Text):
                     container.append(Parts.Text(item.text.replace(reminder, "", 1)))
                 elif isinstance(item, Segments.Image):
-                    url = item.file if item.file.startswith("http") else item.url
-                    print(f"AI: URL位置 {replace_scheme_with_http(url)}")
+                    url = item.file if i.file.startswith("http") else i.url
+                    print(f"[群聊] GROUP {event.group_id} AI: URL位置 {replace_scheme_with_http(url)}")
                     container.append(Parts.File.upload_from_url(replace_scheme_with_http(url)))
-                    print("AI: 有图")
+                    print(f"[群聊] GROUP {event.group_id} AI: 有图")
 
             async def handle_message_stream(response_stream, is_openai=True):
                 nonlocal result, sended, enable_forward_msg_num
@@ -2209,7 +2249,7 @@ CPU占用：{str(system_info["cpu_usage"]) + "%"}
                     if TTSettings != {}:
                         communicate_completed = await amain(result, TTSettings["voiceColor"], TTSettings["rate"], TTSettings["volume"], TTSettings["pitch"])
                     else:
-                        print("EdgeTTS 配置文件不完整，或未配置，使用默认音色。")
+                        print(f"[群聊] GROUP {event.group_id} EdgeTTS 配置文件不完整，或未配置，使用默认音色。")
                         communicate_completed = await amain(result, "zh-CN-XiaoyiNeural", "+0%", "+0%", "+0Hz")
 
                     if communicate_completed and os.path.isfile(communicate_completed):
@@ -2229,10 +2269,7 @@ def help_message() -> str:
     return f'''如何与{bot_name}交流( •̀ ω •́ )✧
     注：对话前必须加上 {reminder} 噢！~
        {reminder}(任意问题，必填) —> {bot_name}回复
-       {reminder}Gemini{"（当前）" if EnableNetwork == "Pixmap" else ""} —> {bot_name}可以回复您发送的图片✅
-       {reminder}GPT4{"（当前）" if EnableNetwork == "Net" else ""} —> {bot_name}更富有创造力的回复通道 🌟
-       {reminder}GPT3.55{"（当前）" if EnableNetwork == "Normal" else ""} —> {bot_name}的快速回复通道🎈
-       {reminder}Deepseek{"（当前）" if EnableNetwork == "Ds" else ""} —> 更加人性化和Deepseek地回复问题✨{plugins_help}
+       {plugins_help}
        {reminder}插件视角 —> 看看{bot_name}又收集了哪些好好用的工具🔮
        {reminder}角色扮演 —> {bot_name}切换不同的角色互动噢！~
 快来聊天吧(*≧︶≦)

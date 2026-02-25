@@ -6,6 +6,7 @@ import re
 import tempfile
 import os
 
+IS_PRIVATE_ENABLED = True
 TRIGGHT_KEYWORD = "文生图"
 HELP_MESSAGE = "#文生图 [提示词] —> 生成 AI 图片"
 
@@ -85,22 +86,25 @@ async def on_message(event, actions, Manager, Segments):
     if TRIGGHT_KEYWORD not in msg:
         return 
 
+    # 动态获取发送目标（支持群聊和私聊）
+    send_kwargs = {"message": None}
+    if hasattr(event, 'group_id'):
+        send_kwargs["group_id"] = event.group_id
+    else:
+        send_kwargs["user_id"] = event.user_id
+
     parts = msg.split(TRIGGHT_KEYWORD, 1)
     raw_prompt = parts[1].strip() if len(parts) > 1 and parts[1].strip() else random.choice(RANDOM_PROMPTS)
 
-    await actions.send(
-        group_id=event.group_id,
-        message=Manager.Message(Segments.Text(f"正在智能优化提示词... 🧠"))
-    )
+    send_kwargs["message"] = Manager.Message(Segments.Text(f"正在智能优化提示词... 🧠"))
+    await actions.send(**send_kwargs)
 
     timeout = aiohttp.ClientTimeout(total=90)
     async with aiohttp.ClientSession(timeout=timeout) as session:
         optimized_prompt = await refine_prompt(raw_prompt, session)
         
-        await actions.send(
-            group_id=event.group_id,
-            message=Manager.Message(Segments.Text(f"正在生成图片... 🎨"))
-        )
+        send_kwargs["message"] = Manager.Message(Segments.Text(f"正在生成图片... 🎨"))
+        await actions.send(**send_kwargs)
 
         try:
             image_data = await generate_image(optimized_prompt, session)
@@ -111,24 +115,18 @@ async def on_message(event, actions, Manager, Segments):
                 tmp_file_path = tmp_file.name
 
             try:
-                await actions.send(
-                    group_id=event.group_id,
-                    message=Manager.Message(Segments.Image(tmp_file_path))
-                )
+                send_kwargs["message"] = Manager.Message(Segments.Image(tmp_file_path))
+                await actions.send(**send_kwargs)
             finally:
                 # 发送后删除临时文件
                 if os.path.exists(tmp_file_path):
                     os.unlink(tmp_file_path)
             
         except asyncio.TimeoutError:
-            await actions.send(
-                group_id=event.group_id,
-                message=Manager.Message(Segments.Text("⚠️ 生图请求超时，请重试。"))
-            )
+            send_kwargs["message"] = Manager.Message(Segments.Text("⚠️ 生图请求超时，请重试。"))
+            await actions.send(**send_kwargs)
         except Exception as e:
-            await actions.send(
-                group_id=event.group_id,
-                message=Manager.Message(Segments.Text(f"❌ 生成失败：{str(e)[:500]}"))
-            )
+            send_kwargs["message"] = Manager.Message(Segments.Text(f"❌ 生成失败：{str(e)[:500]}"))
+            await actions.send(**send_kwargs)
 
     return True

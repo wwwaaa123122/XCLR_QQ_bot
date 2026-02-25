@@ -11,7 +11,6 @@ Configurator.cm = Configurator.ConfigManager(
 )
 
 # 插件信息
-IS_PRIVATE_ENABLED = True
 TRIGGHT_KEYWORD = "Any"
 HELP_MESSAGE = f"{Configurator.cm.get_cfg().others["reminder"]}whois example.com可以查询域名注册信息（含中文翻译）"
 

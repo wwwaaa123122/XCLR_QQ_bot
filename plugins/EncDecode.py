@@ -7,25 +7,32 @@ HELP_MESSAGE = f"{Configurator.cm.get_cfg().others["reminder"]}enc解密 (解密
 
 async def on_message(event, actions, Manager, Segments, order, bot_name, base64, urllib):
 
+    # 动态获取发送目标（支持群聊和私聊）
+    send_kwargs = {"message": None}
+    if hasattr(event, 'group_id'):
+        send_kwargs["group_id"] = event.group_id
+    else:
+        send_kwargs["user_id"] = event.user_id
+
     try:
-        # 获取 group_id 或 user_id
-        send_id = getattr(event, "group_id", None) or getattr(event, "user_id", None)
-        
         start_index = order.find("enc解密")
         if start_index != -1:
             encoded_part = order[start_index + len("enc解密"):].strip()
 
             if not encoded_part:
-                await actions.send(group_id=send_id, message=Manager.Message(Segments.Text("请提供加密的内容啦 ❗")))
+                send_kwargs["message"] = Manager.Message(Segments.Text("请提供加密的内容啦 ❗"))
+                await actions.send(**send_kwargs)
                 return True
         
             base64_decoded = base64.b64decode(encoded_part).decode('utf-8')
             url_decoded = urllib.parse.unquote(base64_decoded)
-            await actions.send(group_id=send_id, message=Manager.Message(Segments.Text(f"解密结果: \n{str(url_decoded)}")))
+            send_kwargs["message"] = Manager.Message(Segments.Text(f"解密结果: \n{str(url_decoded)}"))
+            await actions.send(**send_kwargs)
         else:
-            await actions.send(group_id=send_id, message=Manager.Message(Segments.Text("请提供加密的内容啦 ❗")))
+            send_kwargs["message"] = Manager.Message(Segments.Text("请提供加密的内容啦 ❗"))
+            await actions.send(**send_kwargs)
         return True
     except Exception as e:
-        send_id = getattr(event, "group_id", None) or getattr(event, "user_id", None)
-        await actions.send(group_id=send_id, message=Manager.Message(Segments.Text(f"{bot_name}解密失败了 >_<: \n{str(e)}")))
+        send_kwargs["message"] = Manager.Message(Segments.Text(f"{bot_name}解密失败了 >_<: \n{str(e)}"))
+        await actions.send(**send_kwargs)
         return True

@@ -20,10 +20,17 @@ async def on_message(event, actions, Manager, Segments):
     if not msg.startswith(prefix):
         return
     text = msg[len(prefix):].strip()
-    # 获取 group_id 或 user_id
-    send_id = getattr(event, "group_id", None) or getattr(event, "user_id", None)
+    
+    # 动态获取发送目标（支持群聊和私聊）
+    send_kwargs = {"message": None}
+    if hasattr(event, 'group_id'):
+        send_kwargs["group_id"] = event.group_id
+    else:
+        send_kwargs["user_id"] = event.user_id
+    
     if not text:
-        await actions.send(group_id=send_id, message=Manager.Message(Segments.Text("请在'转码'后输入需要生成二维码的内容，如网址或文本~")))
+        send_kwargs["message"] = Manager.Message(Segments.Text("请在'转码'后输入需要生成二维码的内容，如网址或文本~"))
+        await actions.send(**send_kwargs)
         return True
     params = {"text": text}
     try:
@@ -32,9 +39,12 @@ async def on_message(event, actions, Manager, Segments):
                 data = await resp.json()
                 if str(data.get('code')) == '200' and 'data' in data:
                     img_url = data['data']
-                    await actions.send(group_id=send_id, message=Manager.Message(Segments.Image(img_url)))
+                    send_kwargs["message"] = Manager.Message(Segments.Image(img_url))
+                    await actions.send(**send_kwargs)
                 else:
-                    await actions.send(group_id=send_id, message=Manager.Message(Segments.Text("二维码生成失败，请稍后再试~")))
+                    send_kwargs["message"] = Manager.Message(Segments.Text("二维码生成失败，请稍后再试~"))
+                    await actions.send(**send_kwargs)
     except Exception as e:
-        await actions.send(group_id=send_id, message=Manager.Message(Segments.Text(f"请求出错：{e}")))
+        send_kwargs["message"] = Manager.Message(Segments.Text(f"请求出错：{e}"))
+        await actions.send(**send_kwargs)
     return True

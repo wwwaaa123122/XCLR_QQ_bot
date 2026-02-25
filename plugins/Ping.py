@@ -8,7 +8,7 @@ from urllib.error import URLError, HTTPError
 
 IS_PRIVATE_ENABLED = True
 TRIGGHT_KEYWORD = "ping "  # 关键字后需跟目标域名或IP（注意末尾空格）
-HELP_MESSAGE = "#ping <域名或IP> —> 对目标执行4次ping，并返回IP地理位置信息"
+HELP_MESSAGE = "- ping <域名或IP> —> 对目标执行4次ping，并返回IP地理位置信息"
 
 # ------- 工具函数 -------
 
@@ -127,18 +127,26 @@ async def on_message(event, actions, Manager, Segments):
         return
 
     target = text[idx + len(TRIGGHT_KEYWORD):].strip()
+    
+    # 动态获取发送目标（支持群聊和私聊）
+    send_kwargs = {"message": None}
+    if hasattr(event, 'group_id'):
+        send_kwargs["group_id"] = event.group_id
+    else:
+        send_kwargs["user_id"] = event.user_id
+    
     if not target:
         reply = "用法：ping <域名或IP>\n示例：ping 1.1.1.1"
-        await actions.send(group_id=getattr(event, "group_id", None),
-                           message=Manager.Message(Segments.Text(reply)))
+        send_kwargs["message"] = Manager.Message(Segments.Text(reply))
+        await actions.send(**send_kwargs)
         return True
 
     try:
         ip = await asyncio.get_running_loop().run_in_executor(None, _resolve_ip, target)
     except Exception as e:
         reply = f"目标：{target}\nDNS 解析失败：{e}"
-        await actions.send(group_id=getattr(event, "group_id", None),
-                           message=Manager.Message(Segments.Text(reply)))
+        send_kwargs["message"] = Manager.Message(Segments.Text(reply))
+        await actions.send(**send_kwargs)
         return True
 
     ping_task = asyncio.create_task(_run_ping(ip))
@@ -165,8 +173,6 @@ async def on_message(event, actions, Manager, Segments):
     ]
 
     msg = "\n".join(lines)
-    await actions.send(
-        group_id=getattr(event, "group_id", None),
-        message=Manager.Message(Segments.Text(msg))
-    )
+    send_kwargs["message"] = Manager.Message(Segments.Text(msg))
+    await actions.send(**send_kwargs)
     return True

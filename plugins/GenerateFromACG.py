@@ -2,6 +2,7 @@ import requests
 from Hyper import Configurator
 Configurator.cm = Configurator.ConfigManager(Configurator.Config(file="config.json").load_from_file())
 
+IS_PRIVATE_ENABLED = True
 reminder = Configurator.cm.get_cfg().others["reminder"]
 bot_name = Configurator.cm.get_cfg().others["bot_name"]
 TRIGGHT_KEYWORD = "生图 ACG "
@@ -10,6 +11,13 @@ HELP_MESSAGE = f"{reminder}生图 ACG (任意类型，必填) —> {bot_name}制
 
 async def on_message(event, actions, Manager, Segments, order, time, cooldowns, 
                      Super_User, Manage_User, ROOT_User, bot_name):
+    
+    # 动态获取发送目标（支持群聊和私聊）
+    send_kwargs = {"message": None}
+    if hasattr(event, 'group_id'):
+        send_kwargs["group_id"] = event.group_id
+    else:
+        send_kwargs["user_id"] = event.user_id
     
     global reminder
     start_index = order.find("生图 ACG ") 
@@ -21,10 +29,12 @@ async def on_message(event, actions, Manager, Segments, order, time, cooldowns,
         if user_id in cooldowns and current_time - cooldowns[user_id] < 18:
             if not (str(event.user_id) in Super_User or str(event.user_id) in ROOT_User or str(event.user_id) in Manage_User):
                 time_remaining = 18 - (current_time - cooldowns[user_id])
-                await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(f"18秒个人cd，请等待 {time_remaining:.1f} 秒后重试")))
+                send_kwargs["message"] = Manager.Message(Segments.Text(f"18秒个人cd，请等待 {time_remaining:.1f} 秒后重试"))
+                await actions.send(**send_kwargs)
                 return True
         else:
-            selfID = await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(f"{bot_name}正在制作超级好看的二次元壁纸 ヾ(≧▽≦*)o")))
+            send_kwargs["message"] = Manager.Message(Segments.Text(f"{bot_name}正在制作超级好看的二次元壁纸 ヾ(≧▽≦*)o"))
+            selfID = await actions.send(**send_kwargs)
 
             # 完全使用LoliAPI
             if "随机" in result:
@@ -32,13 +42,15 @@ async def on_message(event, actions, Manager, Segments, order, time, cooldowns,
                 
                 try:
                     print(f"使用 LoliAPI: {api}")
-                    image_id = await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Image(api), Segments.Text(f"{result}生成 结束！✧*。٩(>ω<*)و✧*。")))
+                    send_kwargs["message"] = Manager.Message(Segments.Image(api), Segments.Text(f"{result}生成 结束！✧*。٩(>ω<*)و✧*。"))
+                    await actions.send(**send_kwargs)
                     await actions.del_message(selfID.data.message_id)
                     cooldowns[user_id] = current_time
                 except Exception as e:
                     await actions.del_message(selfID.data.message_id)
-                    await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(f'''因为 {type(e)} 
-            {bot_name}不能生成图片了，请稍候在尝试吧 o(TヘTo)''')))
+                    send_kwargs["message"] = Manager.Message(Segments.Text(f'''因为 {type(e)} 
+            {bot_name}不能生成图片了，请稍候在尝试吧 o(TヘTo)'''))
+                    await actions.send(**send_kwargs)
                                 
                 return True
             elif "电脑壁纸" in result:
@@ -46,13 +58,15 @@ async def on_message(event, actions, Manager, Segments, order, time, cooldowns,
                 
                 try:
                     print(f"使用 LoliAPI: {api}")
-                    image_id = await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Image(api), Segments.Text(f"{result}生成 结束！✧*。٩(>ω<*)و✧*。")))
+                    send_kwargs["message"] = Manager.Message(Segments.Image(api), Segments.Text(f"{result}生成 结束！✧*。٩(>ω<*)و✧*。"))
+                    await actions.send(**send_kwargs)
                     await actions.del_message(selfID.data.message_id)
                     cooldowns[user_id] = current_time
                 except Exception as e:
                     await actions.del_message(selfID.data.message_id)
-                    await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(f'''因为 {type(e)} 
-            {bot_name}不能生成图片了，请稍候在尝试吧 o(TヘTo)''')))
+                    send_kwargs["message"] = Manager.Message(Segments.Text(f'''因为 {type(e)} 
+            {bot_name}不能生成图片了，请稍候在尝试吧 o(TヘTo)'''))
+                    await actions.send(**send_kwargs)
                                 
                 return True
             elif "手机壁纸" in result:
@@ -60,13 +74,15 @@ async def on_message(event, actions, Manager, Segments, order, time, cooldowns,
                 
                 try:
                     print(f"使用 LoliAPI: {api}")
-                    image_id = await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Image(api), Segments.Text(f"{result}生成 结束！✧*。٩(>ω<*)و✧*。")))
+                    send_kwargs["message"] = Manager.Message(Segments.Image(api), Segments.Text(f"{result}生成 结束！✧*。٩(>ω<*)و✧*。"))
+                    await actions.send(**send_kwargs)
                     await actions.del_message(selfID.data.message_id)
                     cooldowns[user_id] = current_time
                 except Exception as e:
                     await actions.del_message(selfID.data.message_id)
-                    await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(f'''因为 {type(e)} 
-            {bot_name}不能生成图片了，请稍候在尝试吧 o(TヘTo)''')))
+                    send_kwargs["message"] = Manager.Message(Segments.Text(f'''因为 {type(e)} 
+            {bot_name}不能生成图片了，请稍候在尝试吧 o(TヘTo)'''))
+                    await actions.send(**send_kwargs)
                                 
                 return True
             elif "头像" in result:
@@ -74,13 +90,15 @@ async def on_message(event, actions, Manager, Segments, order, time, cooldowns,
                 
                 try:
                     print(f"使用 LoliAPI: {api}")
-                    image_id = await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Image(api), Segments.Text(f"{result}生成 结束！✧*。٩(>ω<*)و✧*。")))
+                    send_kwargs["message"] = Manager.Message(Segments.Image(api), Segments.Text(f"{result}生成 结束！✧*。٩(>ω<*)و✧*。"))
+                    await actions.send(**send_kwargs)
                     await actions.del_message(selfID.data.message_id)
                     cooldowns[user_id] = current_time
                 except Exception as e:
                     await actions.del_message(selfID.data.message_id)
-                    await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(f'''因为 {type(e)} 
-            {bot_name}不能生成图片了，请稍候在尝试吧 o(TヘTo)''')))
+                    send_kwargs["message"] = Manager.Message(Segments.Text(f'''因为 {type(e)} 
+            {bot_name}不能生成图片了，请稍候在尝试吧 o(TヘTo)'''))
+                    await actions.send(**send_kwargs)
                                 
                 return True
             elif "背景" in result:
@@ -88,13 +106,15 @@ async def on_message(event, actions, Manager, Segments, order, time, cooldowns,
                 
                 try:
                     print(f"使用 LoliAPI: {api}")
-                    image_id = await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Image(api), Segments.Text(f"{result}生成 结束！✧*。٩(>ω<*)و✧*。")))
+                    send_kwargs["message"] = Manager.Message(Segments.Image(api), Segments.Text(f"{result}生成 结束！✧*。٩(>ω<*)و✧*。"))
+                    await actions.send(**send_kwargs)
                     await actions.del_message(selfID.data.message_id)
                     cooldowns[user_id] = current_time
                 except Exception as e:
                     await actions.del_message(selfID.data.message_id)
-                    await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(f'''因为 {type(e)} 
-            {bot_name}不能生成图片了，请稍候在尝试吧 o(TヘTo)''')))
+                    send_kwargs["message"] = Manager.Message(Segments.Text(f'''因为 {type(e)} 
+            {bot_name}不能生成图片了，请稍候在尝试吧 o(TヘTo)'''))
+                    await actions.send(**send_kwargs)
                                 
                 return True
             elif "帮助" in result:
@@ -108,11 +128,13 @@ async def on_message(event, actions, Manager, Segments, order, time, cooldowns,
 举个🍐子：{reminder}生图 ACG 随机 -> {bot_name}生成自适应二次元壁纸
 快来试试吧Ｏ(≧▽≦)Ｏ '''
                 await actions.del_message(selfID.data.message_id)
-                await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(h)))
+                send_kwargs["message"] = Manager.Message(Segments.Text(h))
+                await actions.send(**send_kwargs)
                 return True
             else:
                 await actions.del_message(selfID.data.message_id)
-                await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text("指定的类型不存在")))
+                send_kwargs["message"] = Manager.Message(Segments.Text("指定的类型不存在"))
+                await actions.send(**send_kwargs)
                 h = f'''{bot_name}可生成精美 ACG 壁纸噢~ヾ(≧∪≦*)ノ〃
 {reminder}生图 ACG 随机 -> 根据设备自动适配
 {reminder}生图 ACG 电脑壁纸 -> 电脑端高清壁纸 
@@ -122,7 +144,8 @@ async def on_message(event, actions, Manager, Segments, order, time, cooldowns,
 
 举个🍐子：{reminder}生图 ACG 随机 -> {bot_name}生成自适应二次元壁纸
 快来试试吧Ｏ(≧▽≦)Ｏ '''
-                await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(h)))
+                send_kwargs["message"] = Manager.Message(Segments.Text(h))
+                await actions.send(**send_kwargs)
                 return True
 
 

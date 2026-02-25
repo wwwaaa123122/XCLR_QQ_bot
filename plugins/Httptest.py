@@ -8,8 +8,9 @@ try:
     Configurator.cm = Configurator.ConfigManager(Configurator.Config(file="config.json").load_from_file())
     reminder = Configurator.cm.get_cfg().others["reminder"]
 except:
-    reminder = "-"  # 默认值，如果无法读取配置
+    reminder = "/"  # 默认值，如果无法读取配置
 
+IS_PRIVATE_ENABLED = True
 TRIGGHT_KEYWORD = "http"
 HELP_MESSAGE = f"{reminder}http [网址] -> 检查网址的HTTP状态码"
 
@@ -28,17 +29,22 @@ async def on_message(event, actions, Manager, Segments):
     if not command.startswith("http"):
         return False  # 不是HTTP状态命令，不处理
     
+    # 动态获取发送目标（支持群聊和私聊）
+    send_kwargs = {"message": None}
+    if hasattr(event, 'group_id'):
+        send_kwargs["group_id"] = event.group_id
+    else:
+        send_kwargs["user_id"] = event.user_id
+    
     # 提取网址部分
     parts = command.split()
     
     if len(parts) < 2:
         # 如果没有提供网址，发送使用说明
-        await actions.send(
-            group_id=event.group_id, 
-            message=Manager.Message(
-                Segments.Text(f"请提供要检查的网址，例如：{reminder}http https://example.com")
-            )
+        send_kwargs["message"] = Manager.Message(
+            Segments.Text(f"请提供要检查的网址，例如：{reminder}http https://example.com")
         )
+        await actions.send(**send_kwargs)
         return True
     
     url = parts[1]
@@ -52,21 +58,17 @@ async def on_message(event, actions, Manager, Segments):
         if not parsed_url.netloc:  # 如果没有域名部分
             raise ValueError("无效的URL")
     except:
-        await actions.send(
-            group_id=event.group_id, 
-            message=Manager.Message(
-                Segments.Text("提供的网址格式无效，请检查后重试")
-            )
+        send_kwargs["message"] = Manager.Message(
+            Segments.Text("提供的网址格式无效，请检查后重试")
         )
+        await actions.send(**send_kwargs)
         return True
     
     # 发送等待消息
-    await actions.send(
-        group_id=event.group_id, 
-        message=Manager.Message(
-            Segments.Text(f"正在检查 {url} 的状态码...")
-        )
+    send_kwargs["message"] = Manager.Message(
+        Segments.Text(f"正在检查 {url} 的状态码...")
     )
+    await actions.send(**send_kwargs)
     
     try:
         # 设置超时时间
@@ -117,34 +119,24 @@ async def on_message(event, actions, Manager, Segments):
                 # 发送结果
                 result_message = f"{status_message}\n含义: {detail}{redirect_info}"
                 
-                await actions.send(
-                    group_id=event.group_id,
-                    message=Manager.Message(Segments.Text(result_message))
-                )
+                send_kwargs["message"] = Manager.Message(Segments.Text(result_message))
+                await actions.send(**send_kwargs)
     
     except asyncio.TimeoutError:
         error_msg = f"请求超时：无法在10秒内连接到 {url}"
-        await actions.send(
-            group_id=event.group_id, 
-            message=Manager.Message(Segments.Text(error_msg))
-        )
+        send_kwargs["message"] = Manager.Message(Segments.Text(error_msg))
+        await actions.send(**send_kwargs)
     except aiohttp.ClientConnectorError:
         error_msg = f"连接错误：无法连接到 {url}，可能是域名解析失败或服务器不可达"
-        await actions.send(
-            group_id=event.group_id, 
-            message=Manager.Message(Segments.Text(error_msg))
-        )
+        send_kwargs["message"] = Manager.Message(Segments.Text(error_msg))
+        await actions.send(**send_kwargs)
     except aiohttp.ClientError as e:
         error_msg = f"请求失败：{str(e)}"
-        await actions.send(
-            group_id=event.group_id, 
-            message=Manager.Message(Segments.Text(error_msg))
-        )
+        send_kwargs["message"] = Manager.Message(Segments.Text(error_msg))
+        await actions.send(**send_kwargs)
     except Exception as e:
         error_msg = f"发生未知错误：{str(e)}"
-        await actions.send(
-            group_id=event.group_id, 
-            message=Manager.Message(Segments.Text(error_msg))
-        )
+        send_kwargs["message"] = Manager.Message(Segments.Text(error_msg))
+        await actions.send(**send_kwargs)
     
     return True
