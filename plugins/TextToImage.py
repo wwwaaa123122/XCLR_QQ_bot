@@ -10,10 +10,15 @@ IS_PRIVATE_ENABLED = True
 TRIGGHT_KEYWORD = "文生图"
 HELP_MESSAGE = "#文生图 [提示词] —> 生成 AI 图片"
 
+# Cloudflare AI API 配置
 CF_ACCOUNT_ID = "2228d557489e8da66c733ca71f6e5729" 
 CF_API_TOKEN = "_icVsni2kwZRZPBaxrM465QZav8XhGaHob7PMvSt"    
 LLM_MODEL = "@cf/deepseek-ai/deepseek-r1-distill-qwen-32b"
 CF_IMAGE_MODEL = "@cf/black-forest-labs/flux-1-schnell"
+
+# 注意：Imgur 匿名上传有频率限制（每小时约50张）
+# 如果频繁使用，建议注册账号获取自己的 Client ID
+# 注册地址：https://api.imgur.com/oauth2/addclient
 
 RANDOM_PROMPTS = [
     "cyberpunk cat samurai graphic art, beautiful colors, cinematic lighting",
@@ -81,6 +86,27 @@ async def generate_image(prompt, session):
     except Exception as e:
         raise Exception(f"生图请求失败: {e}")
 
+async def upload_to_imgur(image_data, session):
+    """上传图片到 Imgur（备用方案）"""
+    try:
+        # 注意：需要注册 Imgur 账号获取 client ID
+        # 这里使用匿名上传
+        headers = {"Authorization": "Client-ID 546c25a59c58ad7"}  # 公共 Client ID
+        
+        async with session.post(
+            "https://api.imgur.com/3/image",
+            headers=headers,
+            data={"image": base64.b64encode(image_data), "type": "base64"},
+            timeout=30
+        ) as resp:
+            if resp.status == 200:
+                result = await resp.json()
+                if result.get("success"):
+                    return result["data"]["link"]
+    except Exception as e:
+        print(f"Imgur 上传失败: {e}")
+    return None
+
 async def on_message(event, actions, Manager, Segments):
     msg = str(event.message).strip()
     if TRIGGHT_KEYWORD not in msg:
@@ -109,20 +135,60 @@ async def on_message(event, actions, Manager, Segments):
         try:
             image_data = await generate_image(optimized_prompt, session)
             
-            # 将图片保存到临时文件后发送
-            temp_dir = "temp"
-            if not os.path.exists(temp_dir):
-                os.makedirs(temp_dir)
+            # 调试信息：检查图片数据
+            print(f"[TextToImage] 图片数据大小: {len(image_data)} bytes")
             
-            filename = f"texttoimage_{event.user_id}_{asyncio.get_event_loop().time()}.png"
-            filepath = os.path.join(temp_dir, filename)
+            # 验证 PNG 格式（检查文件头）
+            if len(image_data) < 8 or not image_data.startswith(b'\x89PNG'):
+                print(f"[TextToImage] 警告：图片数据可能不是有效的 PNG 格式")
+                print(f"[TextToImage] 文件头: {image_data[:8].hex() if image_data else '空数据'}")
+            else:
+                print(f"[TextToImage] 图片格式验证通过: PNG")
             
-            with open(filepath, "wb") as f:
-                f.write(image_data)
+            # 方案1：尝试上传到 Imgur 并使用 URL 发送（最稳定）
+            print(f"[TextToImage] 尝试上传到 Imgur...")
+            image_url = await upload_to_imgur(image_data, session)
             
-            # 使用 file:/// 协议发送本地图片
-            send_kwargs["message"] = Manager.Message(Segments.Image(f"file:///{os.path.abspath(filepath)}"))
-            await actions.send(**send_kwargs)
+            if image_url:
+                print(f"[TextToImage] Imgur 上传成功: {image_url}")
+                send_kwargs["message"] = Manager.Message(Segments.Image(image_url))
+                await actions.send(**send_kwargs)
+                print(f"[TextToImage] URL 发送成功")
+            else:
+                # 方案2：如果上传失败，使用 base64
+                print(f"[TextToImage] Imgur 上传失败，改用 base64 发送...")
+                import base64
+                b64_data = base64.b64encode(image_data).decode('utf-8')
+                
+                print(f"[TextToImage] Base64 长度: {len(b64_data)} 字符")
+                
+                try:
+                    image_url = f"base64://{b64_data}"
+                    print(f"[TextToImage] 尝试 base64 发送: {image_url[:50]}...")
+                    
+                    send_kwargs["message"] = Manager.Message(Segments.Image(image_url))
+                    await actions.send(**send_kwargs)
+                    print(f"[TextToImage] base64 发送成功")
+                    
+                except Exception as e:
+                    print(f"[TextToImage] base64 发送失败: {e}")
+                    # 方案3：最后备选，使用 file 协议
+                    print(f"[TextToImage] 尝试 file 协议发送...")
+                    
+                    temp_dir = "temp"
+                    if not os.path.exists(temp_dir):
+                        os.makedirs(temp_dir)
+                    
+                    filename = f"texttoimage_{event.user_id}_{asyncio.get_event_loop().time()}.png"
+                    filepath = os.path.join(temp_dir, filename)
+                    
+                    with open(filepath, "wb") as f:
+                        f.write(image_data)
+                    
+                    print(f"[TextToImage] 图片已保存到: {filepath}")
+                    send_kwargs["message"] = Manager.Message(Segments.Image(f"file:///{os.path.abspath(filepath)}"))
+                    await actions.send(**send_kwargs)
+                    print(f"[TextToImage] file 协议发送成功")
             
         except asyncio.TimeoutError:
             send_kwargs["message"] = Manager.Message(Segments.Text("⚠️ 生图请求超时，请重试。"))
