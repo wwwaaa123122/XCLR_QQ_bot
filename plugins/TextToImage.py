@@ -109,11 +109,19 @@ async def on_message(event, actions, Manager, Segments):
         try:
             image_data = await generate_image(optimized_prompt, session)
             
-            # 将图片数据转换为 base64 格式发送
-            base64_image = base64.b64encode(image_data).decode('utf-8')
-            image_url = f"base64://{base64_image}"
+            # 将图片保存到临时文件后发送
+            temp_dir = "temp"
+            if not os.path.exists(temp_dir):
+                os.makedirs(temp_dir)
             
-            send_kwargs["message"] = Manager.Message(Segments.Image(image_url))
+            filename = f"texttoimage_{event.user_id}_{asyncio.get_event_loop().time()}.png"
+            filepath = os.path.join(temp_dir, filename)
+            
+            with open(filepath, "wb") as f:
+                f.write(image_data)
+            
+            # 使用 file:/// 协议发送本地图片
+            send_kwargs["message"] = Manager.Message(Segments.Image(f"file:///{os.path.abspath(filepath)}"))
             await actions.send(**send_kwargs)
             
         except asyncio.TimeoutError:
