@@ -1742,9 +1742,6 @@ CPU占用：{str(system_info["cpu_usage"]) + "%"}
                 await actions.send(user_id=ROOT_User[0], message=Manager.Message(Segments.Text(r_admin))) #管理员操作通知ROOT用户
             else:
                 await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(CONFUSED_WORD.format(bot_name=bot_name))))
-      
-        elif f"南梁" in user_message or f"看看腿" in user_message:
-            await actions.send(group_id=event.group_id,message=Manager.Message(Segments.Image(f"https://acofork.mcxclr.top")))
 
         elif "修改 " in order:
             if str(event.user_id) in ADMINS:
