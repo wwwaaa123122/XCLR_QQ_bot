@@ -109,20 +109,12 @@ async def on_message(event, actions, Manager, Segments):
         try:
             image_data = await generate_image(optimized_prompt, session)
             
-            # 将图片数据保存为临时文件
-            with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as tmp_file:
-                tmp_file.write(image_data)
-                tmp_file_path = tmp_file.name
-
-            try:
-                send_kwargs["message"] = Manager.Message(Segments.Image(tmp_file_path))
-                await actions.send(**send_kwargs)
-                # 延迟删除临时文件,确保 Napcat 完成传输
-                await asyncio.sleep(1)
-            finally:
-                # 发送后删除临时文件
-                if os.path.exists(tmp_file_path):
-                    os.unlink(tmp_file_path)
+            # 将图片数据转换为 base64 格式发送
+            base64_image = base64.b64encode(image_data).decode('utf-8')
+            image_url = f"base64://{base64_image}"
+            
+            send_kwargs["message"] = Manager.Message(Segments.Image(image_url))
+            await actions.send(**send_kwargs)
             
         except asyncio.TimeoutError:
             send_kwargs["message"] = Manager.Message(Segments.Text("⚠️ 生图请求超时，请重试。"))
