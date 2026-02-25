@@ -50,7 +50,7 @@ async def robust_file_delete(file_path, max_retries=3, base_delay=1):
 async def on_message(event, actions, Manager, Segments, reminder):
     # 动态获取发送目标（支持群聊和私聊）
     send_kwargs = {"message": None}
-    if hasattr(event, 'group_id'):
+    if getattr(event, 'group_id', None):
         send_kwargs["group_id"] = event.group_id
     else:
         send_kwargs["user_id"] = event.user_id
@@ -93,7 +93,7 @@ async def search_songs(keyword, event, actions, Manager, Segments):
     """搜索歌曲"""
     # 动态获取发送目标（支持群聊和私聊）
     send_kwargs = {"message": None}
-    if hasattr(event, 'group_id'):
+    if getattr(event, 'group_id', None):
         send_kwargs["group_id"] = event.group_id
     else:
         send_kwargs["user_id"] = event.user_id
@@ -137,7 +137,7 @@ async def get_song_by_id(song_id, event, actions, Manager, Segments):
     """通过ID获取歌曲详情和下载链接"""
     # 动态获取发送目标（支持群聊和私聊）
     send_kwargs = {"message": None}
-    if hasattr(event, 'group_id'):
+    if getattr(event, 'group_id', None):
         send_kwargs["group_id"] = event.group_id
     else:
         send_kwargs["user_id"] = event.user_id
@@ -230,7 +230,7 @@ async def download_and_send_music(url, event, actions, Manager, Segments):
     """下载并发送音乐文件"""
     # 动态获取发送目标（支持群聊和私聊）
     send_kwargs = {"message": None}
-    if hasattr(event, 'group_id'):
+    if getattr(event, 'group_id', None):
         send_kwargs["group_id"] = event.group_id
     else:
         send_kwargs["user_id"] = event.user_id

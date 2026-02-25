@@ -185,30 +185,30 @@ async def on_message(event, actions, Manager, Segments):
     if msg.startswith(f"{reminder}whois") or msg.startswith("whois") or msg.startswith(f"{reminder}查询域名"):
         parts = msg.split()
         if len(parts) < 2:
-            await actions.send(
-                group_id=getattr(event, "group_id", None),
-                user_id=getattr(event, "user_id", None) if not hasattr(event, "group_id") else None,
-                message=Manager.Message(Segments.Text("请输入要查询的域名，例如:\nwhois example.com\nwhois google.com"))
-            )
+            send_id = getattr(event, "group_id", None) or getattr(event, "user_id", None)
+            if getattr(event, "group_id", None):
+                await actions.send(group_id=send_id, message=Manager.Message(Segments.Text("请输入要查询的域名，例如:\nwhois example.com\nwhois google.com")))
+            else:
+                await actions.send(user_id=send_id, message=Manager.Message(Segments.Text("请输入要查询的域名，例如:\nwhois example.com\nwhois google.com")))
             return True
 
         domain = parts[1].lower().strip()
         
         # 简单的域名格式验证
         if not re.match(r'^[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z]{2,})+$', domain):
-            await actions.send(
-                group_id=getattr(event, "group_id", None),
-                user_id=getattr(event, "user_id", None) if not hasattr(event, "group_id") else None,
-                message=Manager.Message(Segments.Text("域名格式不正确，请检查后重试"))
-            )
+            send_id = getattr(event, "group_id", None) or getattr(event, "user_id", None)
+            if getattr(event, "group_id", None):
+                await actions.send(group_id=send_id, message=Manager.Message(Segments.Text("域名格式不正确，请检查后重试")))
+            else:
+                await actions.send(user_id=send_id, message=Manager.Message(Segments.Text("域名格式不正确，请检查后重试")))
             return True
 
         # 发送查询中提示
-        await actions.send(
-            group_id=getattr(event, "group_id", None),
-            user_id=getattr(event, "user_id", None) if not hasattr(event, "group_id") else None,
-            message=Manager.Message(Segments.Text(f"🔍 正在查询域名 {domain} 的WHOIS信息..."))
-        )
+        send_id = getattr(event, "group_id", None) or getattr(event, "user_id", None)
+        if getattr(event, "group_id", None):
+            await actions.send(group_id=send_id, message=Manager.Message(Segments.Text(f"🔍 正在查询域名 {domain} 的WHOIS信息...")))
+        else:
+            await actions.send(user_id=send_id, message=Manager.Message(Segments.Text(f"🔍 正在查询域名 {domain} 的WHOIS信息...")))
         
         # 执行查询
         result = format_whois_info(domain)
@@ -217,11 +217,10 @@ async def on_message(event, actions, Manager, Segments):
         if len(result) > 1500:
             result = result[:1500] + "\n...结果过长已截断，建议使用专业WHOIS工具查看完整信息..."
 
-        await actions.send(
-            group_id=getattr(event, "group_id", None),
-            user_id=getattr(event, "user_id", None) if not hasattr(event, "group_id") else None,
-            message=Manager.Message(Segments.Text(result))
-        )
+        if getattr(event, "group_id", None):
+            await actions.send(group_id=send_id, message=Manager.Message(Segments.Text(result)))
+        else:
+            await actions.send(user_id=send_id, message=Manager.Message(Segments.Text(result)))
         return True
 
     return False

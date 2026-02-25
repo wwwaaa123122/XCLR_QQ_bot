@@ -11,10 +11,10 @@ async def on_message(event, actions, Manager, Segments, bot_name):
         txt = f"{response.json()['hitokoto']} —— {response.json()['from_who']}, {response.json()['from']}"
     except:
         txt = f"请求失败 - {bot_name}"
-    await actions.send(
-        group_id=event.group_id,
-        user_id=event.user_id,
-        message=Manager.Message(Segments.Text(txt))
-    )
+    # 动态获取发送目标（支持群聊和私聊）
+    if getattr(event, 'group_id', None):
+        await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(txt)))
+    else:
+        await actions.send(user_id=event.user_id, message=Manager.Message(Segments.Text(txt)))
 
     return True #阻止继续执行其他功能

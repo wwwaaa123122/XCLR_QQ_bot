@@ -9,7 +9,7 @@ HELP_MESSAGE = f"{Configurator.cm.get_cfg().others['reminder']}狐狸图 —> �
 async def on_message(event, actions, Manager, Segments, bot_name):
     # 动态获取发送目标（支持群聊和私聊）
     send_kwargs = {"message": None}
-    if hasattr(event, 'group_id'):
+    if getattr(event, 'group_id', None):
         send_kwargs["group_id"] = event.group_id
     else:
         send_kwargs["user_id"] = event.user_id

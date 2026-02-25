@@ -37,6 +37,13 @@ def _save_whitelist():
 # 初始加载白名单
 _load_whitelist()
 
+def _get_send_target(event):
+    """获取发送目标（支持群聊和私聊）"""
+    if getattr(event, 'group_id', None):
+        return {'group_id': event.group_id}
+    else:
+        return {'user_id': event.user_id}
+
 async def _convert_to_wav(input_file: str) -> str:
     try:
         if not os.path.exists(input_file):
@@ -191,6 +198,8 @@ async def on_message(event, actions, Manager, Segments, Events):
 
     # 帮助命令
     if m == f"{r}汽水音乐解析帮助":
+        send_target = _get_send_target(event)
+        group_id = getattr(event, 'group_id', None)
         help_text = f"""汽水音乐解析插件帮助：
 命令：
 {r}本群音乐解析加白 - 将本群加入白名单（停止解析）
@@ -202,43 +211,55 @@ async def on_message(event, actions, Manager, Segments, Events):
 - 而是发送提示：本群为汽水音乐解析白名群)
 
 当前状态：
-本群{'已加入' if str(getattr(event, 'group_id', '')) in _whitelist else '未加入'}白名单"""
-        await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(help_text)))
+{'本群' if group_id else '私聊'}{'已加入' if group_id and str(group_id) in _whitelist else '未加入'}白名单"""
+        await actions.send(**send_target, message=Manager.Message(Segments.Text(help_text)))
         return True
 
     # 加白命令
     if m == f"{r}本群音乐解析加白":
-        if not await _perm(event):
-            await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text("你没有权限执行此操作")))
+        send_target = _get_send_target(event)
+        group_id = getattr(event, 'group_id', None)
+        if not group_id:
+            await actions.send(**send_target, message=Manager.Message(Segments.Text("私聊不支持白名单功能")))
             return True
-        gid = str(event.group_id)
+        if not await _perm(event):
+            await actions.send(**send_target, message=Manager.Message(Segments.Text("你没有权限执行此操作")))
+            return True
+        gid = str(group_id)
         if gid not in _whitelist:
             _whitelist.add(gid)
             _save_whitelist()
-            await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text("已添加本群到汽水音乐解析白名单，将不再解析本群音乐链接")))
+            await actions.send(**send_target, message=Manager.Message(Segments.Text("已添加本群到汽水音乐解析白名单，将不再解析本群音乐链接")))
         else:
-            await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text("本群已在汽水音乐解析白名单中")))
+            await actions.send(**send_target, message=Manager.Message(Segments.Text("本群已在汽水音乐解析白名单中")))
         return True
 
     # 删白命令
     if m == f"{r}本群音乐解析删白":
-        if not await _perm(event):
-            await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text("你没有权限执行此操作")))
+        send_target = _get_send_target(event)
+        group_id = getattr(event, 'group_id', None)
+        if not group_id:
+            await actions.send(**send_target, message=Manager.Message(Segments.Text("私聊不支持白名单功能")))
             return True
-        gid = str(event.group_id)
+        if not await _perm(event):
+            await actions.send(**send_target, message=Manager.Message(Segments.Text("你没有权限执行此操作")))
+            return True
+        gid = str(group_id)
         if gid in _whitelist:
             _whitelist.remove(gid)
             _save_whitelist()
-            await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text("已从汽水音乐解析白名单中移除本群，将恢复解析本群音乐链接")))
+            await actions.send(**send_target, message=Manager.Message(Segments.Text("已从汽水音乐解析白名单中移除本群，将恢复解析本群音乐链接")))
         else:
-            await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text("本群不在汽水音乐解析白名单中")))
+            await actions.send(**send_target, message=Manager.Message(Segments.Text("本群不在汽水音乐解析白名单中")))
         return True
 
     # 如果该群在白名单中，遇到链接只发送白名单提示
-    if str(event.group_id) in _whitelist:
+    group_id = getattr(event, 'group_id', None)
+    if group_id and str(group_id) in _whitelist:
         mat = _QISHUI_PATTERN.search(m)
         if mat:
-            await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(f"本群为汽水音乐解析白名群")))
+            send_target = _get_send_target(event)
+            await actions.send(**send_target, message=Manager.Message(Segments.Text(f"本群为汽水音乐解析白名群")))
             return True
         return False
 
@@ -261,27 +282,32 @@ async def on_message(event, actions, Manager, Segments, Events):
             data = await _fetch_qishui_data_async(api_url, retries=3)
 
         if data is None:
-            await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text("汽水音乐解析失败: 所有重试尝试均失败")))
+            send_target = _get_send_target(event)
+            await actions.send(**send_target, message=Manager.Message(Segments.Text("汽水音乐解析失败: 所有重试尝试均失败")))
             return True
     except Exception as e:
-        await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(f"汽水音乐解析失败: {e}")))
+        send_target = _get_send_target(event)
+        await actions.send(**send_target, message=Manager.Message(Segments.Text(f"汽水音乐解析失败: {e}")))
         return True
 
     # 检查返回结构
     if not isinstance(data, dict) or data.get("code") != 200 or "data" not in data:
         msg = data.get("msg", "未知错误") if isinstance(data, dict) else "接口返回格式错误"
-        await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(f"汽水音乐解析失败: {msg}")))
+        send_target = _get_send_target(event)
+        await actions.send(**send_target, message=Manager.Message(Segments.Text(f"汽水音乐解析失败: {msg}")))
         return True
 
     info = data["data"] or {}
     audio_url = info.get("url") or info.get("music_url") or info.get("play_url") or ""
     if not audio_url:
-        await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text("未找到音频链接，无法下载")))
+        send_target = _get_send_target(event)
+        await actions.send(**send_target, message=Manager.Message(Segments.Text("未找到音频链接，无法下载")))
         return True
 
     # 先发送音频直链
+    send_target = _get_send_target(event)
     try:
-        await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(f"【音频链接】\n{audio_url}")))
+        await actions.send(**send_target, message=Manager.Message(Segments.Text(f"【音频链接】\n{audio_url}")))
     except Exception:
         pass
 
@@ -290,17 +316,24 @@ async def on_message(event, actions, Manager, Segments, Events):
         cleaned = _clean_lyrics(lyrics_raw)
         if cleaned:
             preview = cleaned if len(cleaned) <= 1500 else (cleaned[:1500] + "...")
-            chat_nodes = [
-                Segments.CustomNode(
-                    str(event.self_id),
-                    "歌词",
-                    Manager.Message([Segments.Text(preview)])
-                )
-            ]
-            try:
-                await actions.send_group_forward_msg(group_id=event.group_id, message=Manager.Message(*chat_nodes))
-            except Exception as e:
-                print(f"发送合并转发(歌词)失败: {e}")
+            # 私聊不支持转发消息，直接发送文本
+            if not getattr(event, 'group_id', None):
+                try:
+                    await actions.send(**send_target, message=Manager.Message(Segments.Text(f"【歌词】\n{preview}")))
+                except Exception as e:
+                    print(f"发送歌词失败: {e}")
+            else:
+                chat_nodes = [
+                    Segments.CustomNode(
+                        str(event.self_id),
+                        "歌词",
+                        Manager.Message([Segments.Text(preview)])
+                    )
+                ]
+                try:
+                    await actions.send_group_forward_msg(group_id=event.group_id, message=Manager.Message(*chat_nodes))
+                except Exception as e:
+                    print(f"发送合并转发(歌词)失败: {e}")
 
     temp_dir = "temp_qishui_audio"
     if not os.path.exists(temp_dir):
@@ -309,7 +342,8 @@ async def on_message(event, actions, Manager, Segments, Events):
     temp_filename = os.path.join(temp_dir, f"qsmusic_{int(time.time())}_{event.message_id}.flac")
     response = requests.get(audio_url, timeout=30, stream=True)
     if response.status_code != 200:
-        await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text("音频下载失败")))
+        send_target = _get_send_target(event)
+        await actions.send(**send_target, message=Manager.Message(Segments.Text("音频下载失败")))
         return True
 
     total_size = 0
@@ -321,7 +355,8 @@ async def on_message(event, actions, Manager, Segments, Events):
                 if total_size > 70 * 1024 * 1024:
                     f.close()
                     os.remove(temp_filename)
-                    await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text("⚠️ 音频文件过大，无法发送（>70MB）")))
+                    send_target = _get_send_target(event)
+                    await actions.send(**send_target, message=Manager.Message(Segments.Text("⚠️ 音频文件过大，无法发送（>70MB）")))
                     return True
 
     file_size = os.path.getsize(temp_filename)
@@ -330,13 +365,14 @@ async def on_message(event, actions, Manager, Segments, Events):
         return True
 
     wav_file = await _convert_to_wav(temp_filename)
+    send_target = _get_send_target(event)
 
     try:
-        await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Record(os.path.abspath(wav_file))))
+        await actions.send(**send_target, message=Manager.Message(Segments.Record(os.path.abspath(wav_file))))
         print(f"[QishuiMusic] 已发送 WAV 文件: {wav_file}")
     except Exception as send_error:
         print(f"[QishuiMusic] 发送音频失败: {send_error}")
-        await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text("发送音频失败")))
+        await actions.send(**send_target, message=Manager.Message(Segments.Text("发送音频失败")))
 
     # 清理
     try:
