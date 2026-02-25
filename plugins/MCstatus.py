@@ -17,6 +17,9 @@ IP = re.compile(r"\b(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(?:25[0-5]|2[0-4][
 EXPECTED_KEYWORDS = ["mc状态", "MC状态", "Mc状态", "我的世界状态", "minecraft状态", "java状态", "jv状态", "mcs"]
 
 async def on_message(event, actions, Manager, Segments):
+    if not hasattr(event, "message") or not hasattr(event, "user_id"):
+        return False
+    
     user_msg = str(event.message).strip()
 
     # 动态获取发送目标（支持群聊和私聊）

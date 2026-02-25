@@ -117,6 +117,8 @@ async def on_message(event, actions, Manager, Segments):
             try:
                 send_kwargs["message"] = Manager.Message(Segments.Image(tmp_file_path))
                 await actions.send(**send_kwargs)
+                # 延迟删除临时文件,确保 Napcat 完成传输
+                await asyncio.sleep(1)
             finally:
                 # 发送后删除临时文件
                 if os.path.exists(tmp_file_path):

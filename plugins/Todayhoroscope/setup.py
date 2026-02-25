@@ -43,6 +43,9 @@ def get_local_fortune(user_qq):
 
 
 async def on_message(event, actions, Manager, Segments):
+    if not hasattr(event, "message") or not hasattr(event, "user_id"):
+        return False
+    
     full_msg = str(event.message).strip()
     
     if full_msg != "今日运势":
