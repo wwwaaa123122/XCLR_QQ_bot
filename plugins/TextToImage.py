@@ -72,17 +72,31 @@ async def generate_image(prompt, session):
 
     payload = {
         "prompt": prompt,
-        "num_steps": 3,
-        "guidance": 3.0
+        "num_steps": 4,
+        "guidance": 2.5
     }
 
     async with session.post(url, headers=headers, json=payload, timeout=90) as resp:
 
-        if resp.status != 200:
-            err = await resp.text()
-            raise Exception(err)
+        content_type = resp.headers.get("Content-Type", "")
 
-        return await resp.read()
+        #情况1：直接图片
+        if "image" in content_type:
+            return await resp.read()
+
+        #情况2：JSON（Cloudflare常见）
+        data = await resp.json()
+
+        if "result" in data:
+
+            result = data["result"]
+
+            # Flux返回base64
+            if isinstance(result, dict) and "image" in result:
+                import base64
+                return base64.b64decode(result["image"])
+
+        raise Exception(f"AI返回异常: {data}")
 
 #转换格式
 def save_temp_image(image_bytes):
@@ -169,7 +183,6 @@ async def on_message(event, actions, Manager, Segments):
 
             print(f"[TextToImage] 原始图片大小: {len(image_data)/1024:.2f} KB")
 
-            # ⭐ 转换为QQ兼容JPG
             file_path = save_temp_image(image_data)
 
             await actions.send(
