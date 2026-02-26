@@ -1,13 +1,14 @@
 import aiohttp
 import random
-import base64
 import asyncio
 import re
 import os
+import io
+from PIL import Image
 
 IS_PRIVATE_ENABLED = True
 TRIGGHT_KEYWORD = "文生图"
-HELP_MESSAGE = "#文生图 [提示词] —> 生成 AI 图片"
+HELP_MESSAGE = "#文生图 [提示词] -> 生成 AI 图片"
 
 # Cloudflare AI 配置
 CF_ACCOUNT_ID = "2228d557489e8da66c733ca71f6e5729"
@@ -16,12 +17,13 @@ CF_API_TOKEN = "_icVsni2kwZRZPBaxrM465QZav8XhGaHob7PMvSt"
 LLM_MODEL = "@cf/deepseek-ai/deepseek-r1-distill-qwen-32b"
 CF_IMAGE_MODEL = "@cf/black-forest-labs/flux-1-schnell"
 
-TMP_DIR = "/tmp"
+TMP_DIR = "/tmp/napcat_ai_img"
+os.makedirs(TMP_DIR, exist_ok=True)
 
 RANDOM_PROMPTS = [
-    "cyberpunk cat samurai graphic art, beautiful colors, cinematic lighting",
-    "masterpiece, ultra-detailed anime girl in forest, sunlight, white dress",
-    "frost glass, christmas theme, cute girl, aurora, snow, detailed light"
+    "cyberpunk cat samurai, cinematic lighting",
+    "anime girl in forest, sunlight, masterpiece",
+    "aurora sky, winter theme, detailed light"
 ]
 
 # Prompt 优化
@@ -33,43 +35,26 @@ async def refine_prompt(original_prompt, session):
         "Authorization": f"Bearer {CF_API_TOKEN}"
     }
 
-    system_prompt = (
-        "You are a professional image prompt engineer. "
-        "Translate user's input into English and expand it "
-        "into a detailed AI image prompt. "
-        "Output ONLY final prompt."
-    )
-
     payload = {
         "messages": [
-            {"role": "system", "content": system_prompt},
+            {"role": "system", "content":
+             "Translate and expand user prompt into detailed English AI image prompt. Output prompt only."},
             {"role": "user", "content": original_prompt}
-        ],
-        "max_tokens": 800
+        ]
     }
 
     try:
         async with session.post(url, headers=headers, json=payload, timeout=30) as resp:
             if resp.status == 200:
                 result = await resp.json()
-                raw = result.get("result", {}).get("response", "")
+                text = result.get("result", {}).get("response", "")
 
-                cleaned = re.sub(
-                    r'<think>.*?</think>',
-                    '',
-                    raw,
-                    flags=re.DOTALL
-                ).strip()
+                text = re.sub(r'<think>.*?</think>', '', text, flags=re.DOTALL)
+                text = re.sub(r'^(Prompt:|Here.*?:)', '', text, flags=re.I)
 
-                cleaned = re.sub(
-                    r'^(Here is.*?:|Prompt:)',
-                    '',
-                    cleaned,
-                    flags=re.I
-                ).strip()
-
-                return cleaned if len(cleaned) > 5 else original_prompt
-
+                text = text.strip()
+                if len(text) > 5:
+                    return text
     except Exception as e:
         print("Prompt优化失败:", e)
 
@@ -87,46 +72,50 @@ async def generate_image(prompt, session):
 
     payload = {
         "prompt": prompt,
-        "num_steps": 3,     
+        "num_steps": 3,
         "guidance": 3.0
     }
 
     async with session.post(url, headers=headers, json=payload, timeout=90) as resp:
 
         if resp.status != 200:
-            text = await resp.text()
-            raise Exception(f"API错误 {resp.status}: {text}")
+            err = await resp.text()
+            raise Exception(err)
 
         return await resp.read()
 
-# 保存临时图片
+#转换格式
 def save_temp_image(image_bytes):
 
-    if not os.path.exists(TMP_DIR):
-        os.makedirs(TMP_DIR)
+    file_name = f"ai_{random.randint(100000,999999)}.jpg"
+    file_path = os.path.join(TMP_DIR, file_name)
 
-    file_path = os.path.join(
-        TMP_DIR,
-        f"ai_{random.randint(100000,999999)}.png"
+    img = Image.open(io.BytesIO(image_bytes))
+
+    if img.mode != "RGB":
+        img = img.convert("RGB")
+
+    img.save(
+        file_path,
+        "JPEG",
+        quality=95,
+        subsampling=0
     )
 
-    with open(file_path, "wb") as f:
-        f.write(image_bytes)
-
-    return file_path
+    return os.path.abspath(file_path)
 
 # 删除临时文件
 async def cleanup_file(path):
 
-    await asyncio.sleep(5)
+    await asyncio.sleep(10)
 
     try:
         if os.path.exists(path):
             os.remove(path)
-    except Exception:
+    except:
         pass
 
-# 主监听
+# 主入口
 async def on_message(event, actions, Manager, Segments):
 
     msg = str(event.message).strip()
@@ -178,22 +167,19 @@ async def on_message(event, actions, Manager, Segments):
                 session
             )
 
-            print(
-                f"[TextToImage] 图片大小: {len(image_data)/1024:.2f} KB"
-            )
+            print(f"[TextToImage] 原始图片大小: {len(image_data)/1024:.2f} KB")
+
+            # ⭐ 转换为QQ兼容JPG
             file_path = save_temp_image(image_data)
 
             await actions.send(
                 **send_kwargs,
                 message=Manager.Message(
-                    Segments.Image(file_path)
+                    Segments.Image(f"file:///{file_path}")
                 )
             )
 
-            # 自动清理
-            asyncio.create_task(
-                cleanup_file(file_path)
-            )
+            asyncio.create_task(cleanup_file(file_path))
 
         except asyncio.TimeoutError:
             await actions.send(
