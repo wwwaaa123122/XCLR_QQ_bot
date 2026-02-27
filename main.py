@@ -966,9 +966,6 @@ Welcome! {bot_name} was restarted successfully. Now you can send {reminder}帮�
         await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Image(f"http://q2.qlogo.cn/headimg_dl?dst_uin={user}&spec=640"), Segments.Text("欢迎"), Segments.At(user), Segments.Text(welcome)))
         if event.group_id == 310444809:
             await actions.send(group_id=event.group_id,message=Manager.Message(Segments.Text("6块")))
-            await actions.send(group_id=event.group_id,message=Manager.Message(Segments.Video("https://www.mcxclr.top/f/rboCo/Welcome.mp4")))
-        elif event.group_id == 1033475915:
-            await actions.send(group_id=event.group_id,message=Manager.Message(Segments.Image(os.path.abspath("./assets/sc114.png"))))
         
     elif isinstance(event, Events.GroupMemberDecreaseEvent):
         s, user_nick = await get_user_info(event.user_id, Manager, actions)
@@ -1003,9 +1000,6 @@ Welcome! {bot_name} was restarted successfully. Now you can send {reminder}帮�
                 await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Image(f"http://q2.qlogo.cn/headimg_dl?dst_uin={user}&spec=640"), Segments.Text(welcome)))
                 if event.group_id == 310444809:
                     await actions.send(group_id=event.group_id,message=Manager.Message(Segments.Text("6块")))
-                    await actions.coke(group_id=event.group_id,message=Manager.Message,user_id=2137213449)
-                elif event.group_id == 1033475915:
-                    await actions.send(group_id=event.group_id,message=Manager.Message(Segments.Image(os.path.abspath("./assets/sc114.png"))))
                 break
             except:
                 traceback.print_exc()
@@ -2268,8 +2262,7 @@ def help_message() -> str:
     global EnableNetwork, bot_name, reminder, plugins_help
     return f'''如何与{bot_name}交流( •̀ ω •́ )✧
     注：对话前必须加上 {reminder} 噢！~
-       {reminder}(任意问题，必填) —> {bot_name}回复
-       {plugins_help}
+       {reminder}(任意问题，必填) —> {bot_name}回复{plugins_help}
        {reminder}插件视角 —> 看看{bot_name}又收集了哪些好好用的工具🔮
        {reminder}角色扮演 —> {bot_name}切换不同的角色互动噢！~
 快来聊天吧(*≧︶≦)

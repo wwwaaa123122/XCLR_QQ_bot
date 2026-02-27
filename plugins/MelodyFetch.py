@@ -11,7 +11,7 @@ Configurator.cm = Configurator.ConfigManager(Configurator.Config(file="config.js
 
 IS_PRIVATE_ENABLED = True
 TRIGGHT_KEYWORD = "点歌"
-HELP_MESSAGE = f"{Configurator.cm.get_cfg().others['reminder']}点歌 [歌名] —> 搜索网易云音乐歌曲\n{Configurator.cm.get_cfg().others['reminder']}点歌 [ID] —> 根据ID获取歌曲"
+HELP_MESSAGE = f"{Configurator.cm.get_cfg().others['reminder']}点歌 [歌名] —> 搜索网易云音乐歌曲/{Configurator.cm.get_cfg().others['reminder']}点歌 [ID] —> 根据ID获取歌曲"
 
 async def robust_file_delete(file_path, max_retries=3, base_delay=1):
     """Robust文件删除函数，多层删除策略"""

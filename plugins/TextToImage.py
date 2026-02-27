@@ -72,8 +72,8 @@ async def generate_image(prompt, session):
 
     payload = {
         "prompt": prompt,
-        "num_steps": 4,
-        "guidance": 2.5
+        "num_steps": 20,
+        "guidance": 7.5
     }
 
     async with session.post(url, headers=headers, json=payload, timeout=90) as resp:
