@@ -119,7 +119,7 @@ async def on_message(event, actions: Listener.Actions, Manager, Segments,
                      order, bot_name, bot_name_en, ONE_SLOGAN, ADMINS, SUPERS, ROOT_User):
     # 动态获取发送目标（支持群聊和私聊）
     send_kwargs = {"message": None}
-    if hasattr(event, 'group_id'):
+    if hasattr(event, 'group_id') and event.group_id is not None:
         send_kwargs["group_id"] = event.group_id
     else:
         send_kwargs["user_id"] = event.user_id
