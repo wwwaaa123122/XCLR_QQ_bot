@@ -65,8 +65,10 @@ async def on_message(event, actions, Manager, Segments, reminder, bot_name):
     msg = str(event.message)
     prefix = f"{reminder}天气"
 
+    # 判断是否是群聊（检查 event 是否有 group_id 属性且不为 None）
+    is_group = hasattr(event, 'group_id') and event.group_id is not None
+
     # 检查是否是群聊且以reminder前缀开头，或者是私聊且包含天气关键词
-    is_group = hasattr(event, 'group_id')
     if is_group:
         if not msg.startswith(prefix):
             return False
@@ -82,8 +84,10 @@ async def on_message(event, actions, Manager, Segments, reminder, bot_name):
             city_query = msg.replace("天气", "", 1).strip()
 
     # 获取 group_id 或 user_id
-    send_id = getattr(event, "group_id", None) or getattr(event, "user_id", None)
-    is_group = hasattr(event, 'group_id')
+    if is_group:
+        send_id = event.group_id
+    else:
+        send_id = getattr(event, "user_id", None)
 
     # 更新用户使用次数
     usage_count = update_weather_usage(str(event.user_id))
