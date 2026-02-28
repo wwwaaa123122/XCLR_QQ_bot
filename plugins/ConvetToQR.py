@@ -16,14 +16,28 @@ API_URL = "https://v2.xxapi.cn/api/qrcode"
 async def on_message(event, actions, Manager, Segments):
     msg = str(event.message).strip()
     reminder = Configurator.cm.get_cfg().others["reminder"]
-    prefix = f"{reminder}{TRIGGHT_KEYWORD}"
-    if not msg.startswith(prefix):
-        return
-    text = msg[len(prefix):].strip()
+    
+    # 判断是否是群聊
+    is_group = hasattr(event, 'group_id') and event.group_id is not None
+    
+    # 群聊模式需要 reminder 前缀，私聊模式不需要
+    if is_group:
+        prefix = f"{reminder}{TRIGGHT_KEYWORD}"
+        if not msg.startswith(prefix):
+            return False
+        text = msg[len(prefix):].strip()
+    else:
+        # 私聊模式：支持"转码 xxx"格式
+        if msg.startswith("转码 "):
+            text = msg[len("转码 "):].strip()
+        elif msg.startswith(f"{reminder}转码 "):
+            text = msg[len(f"{reminder}转码 "):].strip()
+        else:
+            return False
     
     # 动态获取发送目标（支持群聊和私聊）
     send_kwargs = {"message": None}
-    if getattr(event, 'group_id', None):
+    if is_group:
         send_kwargs["group_id"] = event.group_id
     else:
         send_kwargs["user_id"] = event.user_id
