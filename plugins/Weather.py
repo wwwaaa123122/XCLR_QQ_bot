@@ -65,16 +65,28 @@ async def on_message(event, actions, Manager, Segments):
     msg = str(event.message)
     reminder = Configurator.cm.get_cfg().others["reminder"]
     prefix = f"{reminder}天气"
-    if not msg.startswith(prefix):
-        return
-    
+
+    # 检查是否是群聊且以reminder前缀开头，或者是私聊且包含天气关键词
+    is_group = hasattr(event, 'group_id')
+    if is_group:
+        if not msg.startswith(prefix):
+            return
+        city_query = msg[len(prefix):].strip()
+    else:
+        # 私聊模式：检查是否包含"天气"关键词
+        if "天气" not in msg:
+            return
+        # 移除reminder前缀（如果有）
+        if msg.startswith(reminder):
+            city_query = msg[len(reminder):].replace("天气", "", 1).strip()
+        else:
+            city_query = msg.replace("天气", "", 1).strip()
+
     # 获取 group_id 或 user_id
     send_id = getattr(event, "group_id", None) or getattr(event, "user_id", None)
-    
+
     # 更新用户使用次数
     usage_count = update_weather_usage(str(event.user_id))
-    
-    city_query = msg[len(prefix):].strip()
     if not city_query:
         await actions.send(group_id=send_id, message=Manager.Message(
             Segments.Reply(event.message_id) if hasattr(event, "message_id") else None, 

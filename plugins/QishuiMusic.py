@@ -11,6 +11,7 @@ from Hyper import Configurator
 # 匹配汽水音乐分享链接（尽量精确匹配到 qishui.douyin.com/... 部分）
 _QISHUI_PATTERN = re.compile(r'https?://qishui\.douyin\.com/[^\s]+')
 
+IS_PRIVATE_ENABLED = True
 TRIGGHT_KEYWORD = "Any"
 
 # 白名单文件配置

@@ -47,38 +47,48 @@ async def robust_file_delete(file_path, max_retries=3, base_delay=1):
     
     return False, "删除尝试次数耗尽"
 
-async def on_message(event, actions, Manager, Segments, reminder):
+async def on_message(event, actions, Manager, Segments, reminder, bot_name):
     # 动态获取发送目标（支持群聊和私聊）
-    send_kwargs = {"message": None}
+    send_kwargs = {}
     if getattr(event, 'group_id', None):
         send_kwargs["group_id"] = event.group_id
     else:
         send_kwargs["user_id"] = event.user_id
-    
+
     try:
         # 获取用户消息内容
         user_message = str(event.message)
-        
-        # 检查是否包含完整的触发关键词（包括reminder）
-        full_trigger = f"{reminder}{TRIGGHT_KEYWORD}"
-        if not user_message.startswith(full_trigger):
-            return False
-            
-        # 提取歌名或ID
-        content = user_message[len(full_trigger):].strip()
-        
+
+        # 检查是否是群聊且以reminder前缀开头，或者是私聊且包含点歌关键词
+        is_group = getattr(event, 'group_id', None) is not None
+        if is_group:
+            # 群聊模式：需要reminder前缀
+            full_trigger = f"{reminder}{TRIGGHT_KEYWORD}"
+            if not user_message.startswith(full_trigger):
+                return False
+            content = user_message[len(full_trigger):].strip()
+        else:
+            # 私聊模式：检查是否包含"点歌"关键词
+            if "点歌" not in user_message:
+                return False
+            # 移除reminder前缀（如果有）和"点歌"关键词
+            if user_message.startswith(reminder):
+                content = user_message[len(reminder):].replace("点歌", "", 1).strip()
+            else:
+                content = user_message.replace("点歌", "", 1).strip()
+
         if not content:
-            send_kwargs["message"] = Manager.Message(Segments.Text("唔…宝宝想听什么歌呀？要告诉简儿歌名或者ID才可以哦～(。•ω•。)ﾉ\n例如：/点歌 晴天 或者 /点歌 2652820720"))
+            send_kwargs["message"] = Manager.Message(Segments.Text(f"唔…宝宝想听什么歌呀？要告诉{bot_name}歌名或者ID才可以哦～(。•ω•。)ﾉ\n例如：{reminder}点歌 晴天 或者 {reminder}点歌 2652820720"))
             await actions.send(**send_kwargs)
             return True
         
         # 判断是搜索歌曲还是通过ID获取
         if content.isdigit():
             # 通过ID获取歌曲
-            await get_song_by_id(content, event, actions, Manager, Segments)
+            await get_song_by_id(content, event, actions, Manager, Segments, bot_name)
         else:
             # 搜索歌曲
-            await search_songs(content, event, actions, Manager, Segments)
+            await search_songs(content, event, actions, Manager, Segments, reminder, bot_name)
             
         return True
         
@@ -89,33 +99,33 @@ async def on_message(event, actions, Manager, Segments, reminder):
         await actions.send(**send_kwargs)
         return True
 
-async def search_songs(keyword, event, actions, Manager, Segments):
+async def search_songs(keyword, event, actions, Manager, Segments, reminder, bot_name):
     """搜索歌曲"""
     # 动态获取发送目标（支持群聊和私聊）
-    send_kwargs = {"message": None}
+    send_kwargs = {}
     if getattr(event, 'group_id', None):
         send_kwargs["group_id"] = event.group_id
     else:
         send_kwargs["user_id"] = event.user_id
-    
+
     try:
         encoded_keyword = quote(keyword)
         url = f"https://api.vkeys.cn/v2/music/netease?word={encoded_keyword}&page=1&num=10"
-        
+
         async with aiohttp.ClientSession() as session:
             async with session.get(url, timeout=10) as response:
                 if response.status == 200:
                     data = await response.json()
-                    
+
                     if data.get("code") == 200 and data.get("data"):
                         songs = data["data"]
                         result_text = f"🎵 宝宝~帮你找到这些歌曲哦！你想听哪一首呀？(◍•ᴗ•◍)❤\n\n"
-                        
+
                         for i, song in enumerate(songs[:5]):  # 只显示前5首
                             result_text += f"{i+1}. {song['song']} - {song['singer']} (ID: {song['id']})\n"
-                        
-                        result_text += f"\n✨ 发送 '/点歌 ID' 就可以听到啦～比如: /点歌 {songs[0]['id']} 这样哦！(≧∇≦)ﾉ"
-                        
+
+                        result_text += f"\n✨ 发送 '{reminder}点歌 ID' 就可以听到啦～比如: {reminder}点歌 {songs[0]['id']} 这样哦！(≧∇≦)ﾉ"
+
                         send_kwargs["message"] = Manager.Message(Segments.Text(result_text))
                         await actions.send(**send_kwargs)
                     else:
@@ -124,37 +134,37 @@ async def search_songs(keyword, event, actions, Manager, Segments):
                 else:
                     send_kwargs["message"] = Manager.Message(Segments.Text("搜索服务好像有点累了呢(。-ω-)zzz 稍等一下再试试看吧～"))
                     await actions.send(**send_kwargs)
-                    
+
     except asyncio.TimeoutError:
         send_kwargs["message"] = Manager.Message(Segments.Text("搜索超时啦～网络可能有点慢呢(´･ω･`) 宝宝耐心等一下哦！"))
         await actions.send(**send_kwargs)
     except Exception as e:
         print(f"搜索歌曲时出错: {e}")
-        send_kwargs["message"] = Manager.Message(Segments.Text("搜索服务出了点小问题呢(>_<) 简儿马上检查一下，宝宝稍等哦～"))
+        send_kwargs["message"] = Manager.Message(Segments.Text(f"搜索服务出了点小问题呢(>_<) {bot_name}马上检查一下，宝宝稍等哦～"))
         await actions.send(**send_kwargs)
 
-async def get_song_by_id(song_id, event, actions, Manager, Segments):
+async def get_song_by_id(song_id, event, actions, Manager, Segments, bot_name):
     """通过ID获取歌曲详情和下载链接"""
     # 动态获取发送目标（支持群聊和私聊）
-    send_kwargs = {"message": None}
+    send_kwargs = {}
     if getattr(event, 'group_id', None):
         send_kwargs["group_id"] = event.group_id
     else:
         send_kwargs["user_id"] = event.user_id
-    
+
     try:
         url = f"https://api.vkeys.cn/v2/music/netease?id={song_id}"
-        
+
         # 添加重试机制
         max_retries = 3
         retry_count = 0
-        
+
         while retry_count <= max_retries:
             async with aiohttp.ClientSession() as session:
                 async with session.get(url, timeout=15) as response:
                     if response.status == 200:
                         data = await response.json()
-                        
+
                         # 检查是否为503错误，如果是则重试
                         if data.get("code") == 503:
                             retry_count += 1
@@ -165,30 +175,30 @@ async def get_song_by_id(song_id, event, actions, Manager, Segments):
                                 send_kwargs["message"] = Manager.Message(Segments.Text("服务暂时不可用呢(；ω；`) 服务器好像有点忙，宝宝稍等一下再试试吧～"))
                                 await actions.send(**send_kwargs)
                                 return
-                        
+
                         if data.get("code") == 200 and data.get("data"):
                             song_data = data["data"]
-                            
+
                             # 检查文件大小（50MB限制）
                             size_str = song_data.get("size", "0MB")
                             size_match = re.search(r"(\d+\.?\d*)MB", size_str)
                             size_mb = float(size_match.group(1)) if size_match else 0
-                            
+
                             # 构建消息内容
                             song_info = f"""🎵 歌曲: {song_data['song']}
 👤 歌手: {song_data['singer']}
 💿 专辑: {song_data['album']}
 ⏱ 时长: {song_data.get('interval', '未知')}
 🔗 链接: {song_data.get('url', '无')}"""
-                            
+
                             # 添加文件大小信息
                             if size_mb > 0:
                                 song_info += f"\n📦 大小: {size_str}"
-                            
+
                             # 发送封面图片和歌曲信息
                             if song_data.get('cover'):
                                 try:
-                                    send_kwargs["message"] = Manager.Message(Segments.Image(song_data['cover']), 
+                                    send_kwargs["message"] = Manager.Message(Segments.Image(song_data['cover']),
                                                             Segments.Text(f"找到啦！这是宝宝要听的歌哦～(ノ◕ヮ◕)ノ*:･ﾟ✧\n\n{song_info}"))
                                     await actions.send(**send_kwargs)
                                     await asyncio.sleep(0.5)  # 稍微延迟一下
@@ -196,16 +206,16 @@ async def get_song_by_id(song_id, event, actions, Manager, Segments):
                                     print("发送封面图片失败")
                                     send_kwargs["message"] = Manager.Message(Segments.Text(f"找到啦！这是宝宝要听的歌哦～(ノ◕ヮ◕)ノ*:･ﾟ✧\n\n{song_info}"))
                                     await actions.send(**send_kwargs)
-                                    
+
                             # 检查文件大小，超过70MB不发送音乐文件
                             if size_mb > 70:
-                                send_kwargs["message"] = Manager.Message(Segments.Text("⚠️ 啊这个音乐太~太大了呢(´•̥ ̯ •̥`) 超过简儿能承受的极限啦，简儿发不了音频文件呢…但是宝宝可以点开链接听哦！"))
+                                send_kwargs["message"] = Manager.Message(Segments.Text(f"⚠️ 啊这个音乐太~太大了呢(´•̥ ̯ •̥`) 超过{bot_name}能承受的极限啦，{bot_name}发不了音频文件呢…但是宝宝可以点开链接听哦！"))
                                 await actions.send(**send_kwargs)
                             else:
                                 # 下载并发送音乐文件
                                 download_url = song_data.get('url')
                                 if download_url:
-                                    await download_and_send_music(download_url, event, actions, Manager, Segments)
+                                    await download_and_send_music(download_url, event, actions, Manager, Segments, bot_name)
                                 else:
                                     send_kwargs["message"] = Manager.Message(Segments.Text("呜呜…找不到下载链接呢(；´Д｀) 宝宝换个ID试试看嘛～"))
                                     await actions.send(**send_kwargs)
@@ -217,37 +227,37 @@ async def get_song_by_id(song_id, event, actions, Manager, Segments):
                         send_kwargs["message"] = Manager.Message(Segments.Text("获取歌曲信息失败啦～服务可能有点忙呢(。-ω-) 宝宝稍等一下再试试吧！"))
                         await actions.send(**send_kwargs)
                         break
-                    
+
     except asyncio.TimeoutError:
         send_kwargs["message"] = Manager.Message(Segments.Text("获取信息超时啦～网络可能有点卡呢(´･ω･`) 宝宝耐心等一下哦！"))
         await actions.send(**send_kwargs)
     except Exception as e:
         print(f"获取歌曲信息时出错: {e}")
-        send_kwargs["message"] = Manager.Message(Segments.Text("获取信息出了点问题呢(>_<) 简儿马上检查一下，宝宝稍等哦～"))
+        send_kwargs["message"] = Manager.Message(Segments.Text(f"获取信息出了点问题呢(>_<) {bot_name}马上检查一下，宝宝稍等哦～"))
         await actions.send(**send_kwargs)
 
-async def download_and_send_music(url, event, actions, Manager, Segments):
+async def download_and_send_music(url, event, actions, Manager, Segments, bot_name):
     """下载并发送音乐文件"""
     # 动态获取发送目标（支持群聊和私聊）
-    send_kwargs = {"message": None}
+    send_kwargs = {}
     if getattr(event, 'group_id', None):
         send_kwargs["group_id"] = event.group_id
     else:
         send_kwargs["user_id"] = event.user_id
-    
+
     try:
         # 创建临时目录
         temp_dir = "temp_music"
         if not os.path.exists(temp_dir):
             os.makedirs(temp_dir)
-        
+
         # 生成临时文件名
         temp_file = os.path.join(temp_dir, f"music_{event.message_id}.wav")
-        
+
         # 先发送一个等待消息
         send_kwargs["message"] = Manager.Message(Segments.Text("正在为宝宝下载歌曲哦～请稍等一下下(◕‿◕)♡"))
         await actions.send(**send_kwargs)
-        
+
         # 下载文件
         async with aiohttp.ClientSession() as session:
             async with session.get(url, timeout=30) as response:
@@ -260,32 +270,32 @@ async def download_and_send_music(url, event, actions, Manager, Segments):
                                 break
                             f.write(chunk)
                             file_size += len(chunk)
-                            
+
                             # 检查文件大小是否超过70MB
                             if file_size > 70 * 1024 * 1024:
                                 f.close()
                                 if os.path.exists(temp_file):
                                     os.remove(temp_file)
-                                send_kwargs["message"] = Manager.Message(Segments.Text("⚠️ 啊哦~这个音乐太~太大了呢(´•̥ ̯ •̥`) 超过简儿能承受的极限啦，简儿发不了音频文件呢…但是宝宝可以点开链接听哦！"))
+                                send_kwargs["message"] = Manager.Message(Segments.Text(f"⚠️ 啊哦~这个音乐太~太大了呢(´•̥ ̯ •̥`) 超过{bot_name}能承受的极限啦，{bot_name}发不了音频文件呢…但是宝宝可以点开链接听哦！"))
                                 await actions.send(**send_kwargs)
                                 return
-                    
+
                     # 检查最终文件大小
                     if os.path.getsize(temp_file) > 70 * 1024 * 1024:
                         os.remove(temp_file)
-                        send_kwargs["message"] = Manager.Message(Segments.Text("⚠️ 这首歌真的太大啦(；´Д｀) 超过70MB限制了呢，简儿发不了音频文件呢…"))
+                        send_kwargs["message"] = Manager.Message(Segments.Text(f"⚠️ 这首歌真的太大啦(；´Д｀) 超过70MB限制了呢，{bot_name}发不了音频文件呢…"))
                         await actions.send(**send_kwargs)
                         return
-                    
+
                     # 发送音乐文件
                     send_kwargs["message"] = Manager.Message(Segments.Text("下载完成啦！马上给宝宝发送哦～♪(^∇^*)"))
                     await actions.send(**send_kwargs)
                     send_kwargs["message"] = Manager.Message(Segments.Record(os.path.abspath(temp_file)))
                     await actions.send(**send_kwargs)
-                    
+
                     # 删除临时文件（使用robust删除策略）
                     await asyncio.sleep(3)  # 增加延迟时间确保发送完成
-                    
+
                     # 使用robust文件删除函数
                     success, msg = await robust_file_delete(temp_file, max_retries=4, base_delay=1.5)
                     if not success:
@@ -294,15 +304,15 @@ async def download_and_send_music(url, event, actions, Manager, Segments):
                 else:
                     send_kwargs["message"] = Manager.Message(Segments.Text("下载失败啦～可能链接有问题呢(；ω；`) 宝宝换个ID试试看嘛～"))
                     await actions.send(**send_kwargs)
-                    
+
     except asyncio.TimeoutError:
         send_kwargs["message"] = Manager.Message(Segments.Text("下载超时啦～网络可能有点慢呢(´･ω･`) 宝宝耐心等一下哦！"))
         await actions.send(**send_kwargs)
     except Exception as e:
         print(f"下载歌曲时出错: {e}")
-        send_kwargs["message"] = Manager.Message(Segments.Text("下载出了点问题呢(>_<) 简儿马上检查一下，宝宝稍等哦～"))
+        send_kwargs["message"] = Manager.Message(Segments.Text(f"下载出了点问题呢(>_<) {bot_name}马上检查一下，宝宝稍等哦～"))
         await actions.send(**send_kwargs)
-        
+
         # 清理临时文件（使用robust删除机制）
         temp_file = os.path.join("temp_music", f"music_{event.message_id}.wav")
         success, msg = await robust_file_delete(temp_file, max_retries=2, base_delay=0.5)
