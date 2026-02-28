@@ -29,7 +29,7 @@ async def on_message(event, actions, Manager, Segments):
         return False  # 不是HTTP状态命令，不处理
     
     # 动态获取发送目标（支持群聊和私聊）
-    send_kwargs = {"message": None}
+    send_kwargs = {}
     if getattr(event, 'group_id', None):
         send_kwargs["group_id"] = event.group_id
     else:
@@ -41,7 +41,7 @@ async def on_message(event, actions, Manager, Segments):
     if len(parts) < 2:
         # 如果没有提供网址，发送使用说明
         send_kwargs["message"] = Manager.Message(
-            Segments.Text(f"请提供要检查的网址，例如：{reminder}http https://example.com")
+            Segments.Text(f"请提供要检查的网址，例如：http https://example.com")
         )
         await actions.send(**send_kwargs)
         return True

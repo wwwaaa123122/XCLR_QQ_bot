@@ -17,10 +17,10 @@ async def on_message(event, actions, Manager, Segments, order, reminder, bot_nam
     
     # 动态获取发送目标（支持群聊和私聊）
     send_kwargs = {}
-    if hasattr(event, 'group_id'):
+    if getattr(event, 'group_id', None):
         send_kwargs["group_id"] = event.group_id
     else:
-        send_kwargs["user_id"] = event.user_id
+        send_kwargs["user_id"] = getattr(event, 'user_id', None)
     
     # 解析参数
     parts = order.split()
