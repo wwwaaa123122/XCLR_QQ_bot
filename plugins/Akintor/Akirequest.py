@@ -7,10 +7,6 @@ class AkinatorError(Exception):
 
 class Akinator():
     def __init__(self, theme: str = "characters", lang: str = "jp", child_mode: bool = False) -> None:
-        global proxyurl
-        global lang114514
-        global proxyuse
-        global proxyurltwo
         proxyuse = False
         proxy_config = None
         try:
