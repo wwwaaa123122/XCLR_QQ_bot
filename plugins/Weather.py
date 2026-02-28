@@ -61,21 +61,20 @@ def try_parse_int(value):
     except (ValueError, TypeError):
         return None
 
-async def on_message(event, actions, Manager, Segments):
+async def on_message(event, actions, Manager, Segments, reminder, bot_name):
     msg = str(event.message)
-    reminder = Configurator.cm.get_cfg().others["reminder"]
     prefix = f"{reminder}天气"
 
     # 检查是否是群聊且以reminder前缀开头，或者是私聊且包含天气关键词
     is_group = hasattr(event, 'group_id')
     if is_group:
         if not msg.startswith(prefix):
-            return
+            return False
         city_query = msg[len(prefix):].strip()
     else:
         # 私聊模式：检查是否包含"天气"关键词
         if "天气" not in msg:
-            return
+            return False
         # 移除reminder前缀（如果有）
         if msg.startswith(reminder):
             city_query = msg[len(reminder):].replace("天气", "", 1).strip()
@@ -89,8 +88,8 @@ async def on_message(event, actions, Manager, Segments):
     usage_count = update_weather_usage(str(event.user_id))
     if not city_query:
         await actions.send(group_id=send_id, message=Manager.Message(
-            Segments.Reply(event.message_id) if hasattr(event, "message_id") else None, 
-            Segments.Text("小可爱，忘记输入城市名字啦！例如：-天气 北京 (づ｡◕‿‿◕｡)づ")
+            Segments.Reply(event.message_id) if hasattr(event, "message_id") else None,
+            Segments.Text(f"小可爱，忘记输入城市名字啦！例如：{reminder}天气 北京 (づ｡◕‿‿◕｡)づ")
         ))
         return True
     
