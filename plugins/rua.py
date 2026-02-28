@@ -25,7 +25,7 @@ async def on_message(event, actions, Manager, Segments, order, reminder, bot_nam
     # 解析参数
     parts = order.split()
     if len(parts) < 2:
-        send_kwargs["message"] = Manager.Message(Segments.Text(f"格式错误！请使用：{reminder}rua [QQ号/@用户] [背景颜色(可选)]"))
+        send_kwargs["message"] = Manager.Message(Segments.Text(f"格式错误！请使用：rua [QQ号/@用户] [背景颜色(可选)]"))
         await actions.send(**send_kwargs)
         return True
     

@@ -2,6 +2,7 @@ import httpx
 from Hyper import Configurator
 Configurator.cm = Configurator.ConfigManager(Configurator.Config(file="config.json").load_from_file())
 
+IS_PRIVATE_ENABLED = True
 TRIGGHT_KEYWORD = "一言"
 HELP_MESSAGE = f"{Configurator.cm.get_cfg().others["reminder"]}一言 —> 找一句好听的名言👍"
 

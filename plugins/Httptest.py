@@ -17,14 +17,13 @@ HELP_MESSAGE = f"{reminder}http [网址] -> 检查网址的HTTP状态码"
 async def on_message(event, actions, Manager, Segments):
     # 提取用户消息中的网址
     user_message = str(event.message).strip()
-    
-    # 检查消息是否以reminder开头
-    if not user_message.startswith(reminder):
-        return False  # 不处理不以reminder开头的消息
-    
-    # 移除reminder前缀
-    command = user_message[len(reminder):].strip()
-    
+
+    # 移除reminder前缀（如果有）
+    if user_message.startswith(reminder):
+        command = user_message[len(reminder):].strip()
+    else:
+        command = user_message.strip()
+
     # 检查是否是HTTP状态命令
     if not command.startswith("http"):
         return False  # 不是HTTP状态命令，不处理

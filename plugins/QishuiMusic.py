@@ -197,7 +197,7 @@ async def on_message(event, actions, Manager, Segments, Events):
     owner_name = cfg_others.get('qishui_plugin_owner_name', '主人')
 
     # 帮助命令
-    if m == f"{r}汽水音乐解析帮助":
+    if m == "汽水音乐解析帮助" or m == f"{r}汽水音乐解析帮助":
         send_target = _get_send_target(event)
         group_id = getattr(event, 'group_id', None)
         help_text = f"""汽水音乐解析插件帮助：
@@ -216,7 +216,7 @@ async def on_message(event, actions, Manager, Segments, Events):
         return True
 
     # 加白命令
-    if m == f"{r}本群音乐解析加白":
+    if m == "本群音乐解析加白" or m == f"{r}本群音乐解析加白":
         send_target = _get_send_target(event)
         group_id = getattr(event, 'group_id', None)
         if not group_id:
@@ -235,7 +235,7 @@ async def on_message(event, actions, Manager, Segments, Events):
         return True
 
     # 删白命令
-    if m == f"{r}本群音乐解析删白":
+    if m == "本群音乐解析删白" or m == f"{r}本群音乐解析删白":
         send_target = _get_send_target(event)
         group_id = getattr(event, 'group_id', None)
         if not group_id:

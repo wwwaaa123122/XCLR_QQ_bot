@@ -29,11 +29,6 @@ async def on_message(event, actions, Manager, Segments):
     else:
         send_kwargs["user_id"] = event.user_id
 
-    if not user_msg.startswith(REMINDER):
-        return
-
-    user_msg = user_msg[len(REMINDER):].strip()
-
     if not any(kw in user_msg for kw in EXPECTED_KEYWORDS):
         return
 
