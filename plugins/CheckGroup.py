@@ -5,6 +5,7 @@ from Hyper import Configurator
 Configurator.cm = Configurator.ConfigManager(Configurator.Config(file="config.json").load_from_file())
 from Hyper import Listener
 
+IS_PRIVATE_ENABLED = True
 TRIGGHT_KEYWORD = "开群"
 HELP_MESSAGE = f"{Configurator.cm.get_cfg().others['reminder']}开群 【群号码】 —> 打开该群的账户 👁"
 WEBSOCKET_URL = f"ws://{Configurator.cm.get_cfg().connection.host}:{Configurator.cm.get_cfg().connection.port}"
@@ -33,6 +34,14 @@ async def get_group_info_from_ws(group_id):
 
 async def on_message(event, actions: Listener.Actions, Manager, Segments,
                      order, bot_name, bot_name_en, ONE_SLOGAN, ADMINS, SUPERS, ROOT_User):
+    # 动态获取发送目标（支持群聊和私聊）
+    send_kwargs = {"message": None}
+    is_group = hasattr(event, 'group_id') and event.group_id is not None
+    if is_group:
+        send_kwargs["group_id"] = event.group_id
+    else:
+        send_kwargs["user_id"] = event.user_id
+    
     if order:
         uid_str = order[order.find(f"{TRIGGHT_KEYWORD} ") + len(f"{TRIGGHT_KEYWORD} "):].strip()
         if not uid_str:
@@ -43,7 +52,8 @@ async def on_message(event, actions: Listener.Actions, Manager, Segments,
             r = f'''{bot_name} {bot_name_en} - {ONE_SLOGAN}
 ————————————————————
 失败: {uid_str} 不是一个有效的群号码'''
-            await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(r)))
+            send_kwargs["message"] = Manager.Message(Segments.Text(r))
+            await actions.send(**send_kwargs)
             return True
 
     try:
@@ -54,7 +64,8 @@ async def on_message(event, actions: Listener.Actions, Manager, Segments,
         r = f'''{bot_name} {bot_name_en} - {ONE_SLOGAN}
 ————————————————————
 失败: 获取群信息时出错: {e}'''
-        await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(r)))
+        send_kwargs["message"] = Manager.Message(Segments.Text(r))
+        await actions.send(**send_kwargs)
         return True
 
     if not group_info:
@@ -62,17 +73,20 @@ async def on_message(event, actions: Listener.Actions, Manager, Segments,
 ————————————————————
 失败: 未能获取到 {uid} 的信息，可能 {uid} 不是一个有效的群号码，请稍后重试。'''
         print(f"get_group {uid} failed: no group_info returned")
-        await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(r)))
+        send_kwargs["message"] = Manager.Message(Segments.Text(r))
+        await actions.send(**send_kwargs)
     elif isinstance(group_info, dict) and group_info.get("group_id"):
         r = parse_group_info(group_info, ADMINS, SUPERS, ROOT_User)
         print(f"get_group {uid} successfully")
-        await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(r)))
+        send_kwargs["message"] = Manager.Message(Segments.Text(r))
+        await actions.send(**send_kwargs)
     else:
         r = f'''{bot_name} {bot_name_en} - {ONE_SLOGAN}
 ————————————————————
 失败: 返回的群组信息格式不正确。'''
         print(f"get_group {uid} failed: invalid group_info format: {type(group_info)} - {group_info}")
-        await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(r)))
+        send_kwargs["message"] = Manager.Message(Segments.Text(r))
+        await actions.send(**send_kwargs)
         
     return True
 
