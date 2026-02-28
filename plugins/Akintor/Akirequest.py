@@ -12,35 +12,39 @@ class Akinator():
         global proxyuse
         global proxyurltwo
         proxyuse = False
+        proxy_config = None
         try:
             with open(os.path.abspath("./plugins/Akintor/config.yaml"), 'r') as f:
                 data = yaml.safe_load(f)
             proxyurl = data.get('proxyurl', None)
-            proxyurltwo = proxyurl
             lang114514 = data.get('lang', 'jp')
             if proxyurl:
-                proxyurl = f"{proxyurl}https://{lang114514}.akinator.com/"
                 proxyuse = True
-            else:
-                proxyurl = f"https://{lang114514}.akinator.com/"
-                proxyuse = False
+                proxy_config = proxyurl.rstrip('/')
+            self.ENDPOINT = f"https://{lang114514}.akinator.com/"
         except FileNotFoundError:
             print(f"❌ 文件 config.yaml 不存在，使用默认值")
-            proxyurl = "https://jp.akinator.com/"
+            self.ENDPOINT = "https://jp.akinator.com/"
             lang114514 = "jp"
             proxyuse = False
         except yaml.YAMLError:
             print("❌ YAML 文件格式错误，使用默认值")
-            proxyurl = "https://jp.akinator.com/"
+            self.ENDPOINT = "https://jp.akinator.com/"
             lang114514 = "jp"
             proxyuse = False
-        self.ENDPOINT = proxyurl
         self.name = None
         self.description = None
         self.photo = None
         self.answer_id = None
         self.akitude = None
         self.scraper = cloudscraper.create_scraper() # 创建 cloudscraper 实例
+        if proxyuse and proxy_config:
+            # 配置socks5代理
+            proxies = {
+                'http': proxy_config,
+                'https': proxy_config
+            }
+            self.scraper.proxies = proxies
 
         if theme == "characters":
             sid = 1
@@ -63,10 +67,7 @@ class Akinator():
         self.description = None
         self.photo = None
         self.answer_id = None
-        if proxyuse == True:
-            self.akitude = f"{proxyurltwo}https://en.akinator.com/assets/img/akitudes_670x1096/defi.png"
-        else:
-            self.akitude = f"https://en.akinator.com/assets/img/akitudes_670x1096/defi.png"
+        self.akitude = f"https://en.akinator.com/assets/img/akitudes_670x1096/defi.png"
         # 使用 cloudscraper 发送 POST 请求
         game = self.scraper.post(f"{self.ENDPOINT}game", json={"sid": self.json["sid"], "cm": self.json["cm"]}).text
         soup = BeautifulSoup(game, "html.parser")
@@ -109,10 +110,7 @@ class Akinator():
                 self.progression = float(progression["progression"])
                 self.question = progression["question"]
                 self.question_id = progression["question_id"]
-                if proxyuse == True:
-                    self.akitude = f"{proxyurltwo}https://en.akinator.com/assets/img/akitudes_670x1096/defi.png"
-                else:
-                    self.akitude = f"https://en.akinator.com/assets/img/akitudes_670x1096/defi.png"
+                self.akitude = f"https://en.akinator.com/assets/img/akitudes_670x1096/defi.png"
             except:
                 self.name = progression["name_proposition"]
                 self.description = progression["description_proposition"]
@@ -142,10 +140,7 @@ class Akinator():
             self.progression = float(goback["progression"])
             self.question = goback["question"]
             self.question_id = goback["question_id"]
-            if proxyuse == True:
-                self.akitude = f"{proxyurltwo}https://en.akinator.com/assets/img/akitudes_670x1096/{goback['akitude']}"
-            else:
-                self.akitude = f"https://en.akinator.com/assets/img/akitudes_670x1096/{goback['akitude']}"
+            self.akitude = f"https://en.akinator.com/assets/img/akitudes_670x1096/{goback['akitude']}"
             return goback
         except:
             raise AkinatorError(goback)
@@ -167,10 +162,7 @@ class Akinator():
             self.progression = float(exclude["progression"])
             self.question = exclude["question"]
             self.question_id = exclude["question_id"]
-            if proxyuse == True:
-                self.akitude = f"{proxyurltwo}https://en.akinator.com/assets/img/akitudes_670x1096/{exclude['akitude']}"
-            else:
-                self.akitude = f"https://en.akinator.com/assets/img/akitudes_670x1096/{exclude['akitude']}"
+            self.akitude = f"https://en.akinator.com/assets/img/akitudes_670x1096/{exclude['akitude']}"
             return exclude
         except:
             raise AkinatorError(exclude)
