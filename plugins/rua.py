@@ -16,7 +16,7 @@ async def on_message(event, actions, Manager, Segments, order, reminder, bot_nam
         return False
     
     # 动态获取发送目标（支持群聊和私聊）
-    send_kwargs = {"message": None}
+    send_kwargs = {}
     if hasattr(event, 'group_id'):
         send_kwargs["group_id"] = event.group_id
     else:
@@ -74,10 +74,8 @@ async def on_message(event, actions, Manager, Segments, order, reminder, bot_nam
         bg_color = parts[2]
     
     # 发送等待消息
-    wait_msg = await actions.send(
-        **send_kwargs,
-        message=Manager.Message(Segments.Text(f"{bot_name}正在生成摸摸头GIF，请稍候..."))
-    )
+    send_kwargs["message"] = Manager.Message(Segments.Text(f"{bot_name}正在生成摸摸头GIF，请稍候..."))
+    wait_msg = await actions.send(**send_kwargs)
     
     # 调用API生成GIF
     try:
