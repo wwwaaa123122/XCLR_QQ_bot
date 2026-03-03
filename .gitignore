@@ -2,3 +2,4 @@ venv/
 *.pyc
 config.json
 push.sh
+.venv/
