@@ -1601,6 +1601,8 @@ If you are a Super_User or ROOT_User, you can manage these users. Use {reminder}
 6. Google gemini-2.0
 7. GPT-SoVITS
 8. EdgeTTS
+————————————————————
+By Jianer_QQ_bot
 '''
 
             await actions.send(group_id=event.group_id, message=Manager.Message(Segments.Text(about)))
