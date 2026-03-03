@@ -3,3 +3,7 @@ venv/
 config.json
 push.sh
 .venv/
+data
+.*
+temp
+temps
