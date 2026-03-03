@@ -1,1 +1,0 @@
-[{"n": "AAA 星辰旅人", "c": "#runcommand date", "t": "00:09"}, {"n": "AAA 星辰旅人", "c": "#修改 08:00 早生蚝", "t": "00:09"}, {"n": "AAA 星辰旅人", "c": "#debian修改时区为上海命令", "t": "08:08"}, {"n": "AAA 星辰旅人", "c": "#runcommand timedatectl set-timezone Asia/Shanghai", "t": "08:11"}, {"n": "AAA 星辰旅人", "c": "#runcommand timedatectl", "t": "08:12"}]
